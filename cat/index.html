@@ -97,7 +97,8 @@
   // ---- Tail: bend each spine segment, smooth with Catmull-Rom, then outline ----
   // Bends accumulate joint by joint, so a wave travelling up from the base
   // whips the tip around and makes it lag behind and curl.
-  let tailPhase = 0, tailPhase2 = 0;
+  let tailPhase = 0, tailPhase2 = 0, tailEdgeX = 277;
+  const JOINT_Y = 775, BACK_X = 305;      // where the gap between tail and back ends
   function tailPath(t, dt) {
     const speed = 1.4 + 1.0 * S.awake + 3.2 * S.excite;
     tailPhase += speed * dt;
@@ -136,6 +137,9 @@
       a.push([p[0] - ty * h, p[1] + tx * h]);
       b.push([p[0] + ty * h, p[1] - tx * h]);
     });
+    // Where the tail's back edge crosses the joint line, for the rounded joint.
+    let best = Infinity;
+    a.forEach(p => { const dy = Math.abs(p[1] - JOINT_Y); if (dy < best) { best = dy; tailEdgeX = p[0]; } });
     const r = WIDTHS[WIDTHS.length - 1] / 2;
     const end = b[b.length - 1];
     let d = 'M' + a.map(p => f(p[0]) + ',' + f(p[1])).join('L');
@@ -155,7 +159,11 @@
     const lean = S.earLean;
     const l = rot(EAR_L.apex, EAR_L.pivot, -earAngle(S.earL, dt) + lean * 0.05);
     const r = rot(EAR_R.apex, EAR_R.pivot,  earAngle(S.earR, dt) + lean * 0.04);
-    return `M200,990L200,775L305,775C330,620 430,517 575,517` +
+    // The gap between tail and back ends in a round bottom that spans whatever
+    // width the swaying tail leaves open.
+    const gx = Math.min(tailEdgeX, BACK_X - 8), jr = (BACK_X - gx) / 2;
+    return `M200,990L200,${JOINT_Y}L${f(gx)},${JOINT_Y}A${f(jr)},${f(jr)} 0 0 0 ${BACK_X},${JOINT_Y}` +
+           `C330,620 430,517 575,517` +
            `L${f(l[0])},${f(l[1])}L888,487L${f(r[0])},${f(r[1])}L1250,990Z`;
   }
 
