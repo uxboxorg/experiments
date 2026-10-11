@@ -139,29 +139,66 @@
   // "Wave action": the tail swings about a pivot near the joint and every
   // section repeats the pivot's angle a little later, so going over the tail
   // trails back against the motion, flips on the way back, and cushions at
-  // each end (sine easing). Rotating sections keeps the tail's length. The
-  // swing favours the open side so the tail doesn't hit the back.
+  // each end (sine easing). The swing and the head-ward lean are spread
+  // smoothly along the whole tail so every pose is one continuous curve.
+  // Each section then chases its target angle through a spring that softens
+  // toward the tip, which adds follow-through to every change of motion.
+  // Rotating sections keeps the tail's length; the swing favours the open
+  // side so the tail doesn't hit the back.
   let tailPhase = 0, tailEdgeX = 277;
   const PIVOT_S = 0.17;                   // arc-length position of the swing's pivot
-  const HINGE = 0.3;                      // how gradually the pivot bends (fraction of the free tail)
   const LAG = 1.7;                        // phase delay from the pivot to the tip (radians)
   const BIAS = 0.6;                       // shifts the swing toward the open side (in units of amplitude)
-  const LEAN_K = 0.0029;                  // extra curvature that arcs the tail over toward the head
+  const LEAN_KAPPA = 0.0019;              // curvature of the arc the tail forms when it leans toward the head
   const JOINT_Y = 775, BACK_X = 305;      // where the gap between tail and back ends
+  const tailAng = REST_LEN.map(() => 0), tailVel = REST_LEN.map(() => 0);
+  // Position along the swinging part (0 at the pivot, 1 at the tip) for each section.
+  const SEG_U = REST_LEN.map((_, i) => Math.max(0, (REST_S[i + 1] - PIVOT_S) / (1 - PIVOT_S)));
+  // The lean pose: above the back, the tail becomes one clean arc curving
+  // toward the head (replacing the resting S rather than fighting it).
+  const ARC_FROM = SEG_U.findIndex(u => u >= 0.25);
+  const LEAN_ARC = [];
+  { let run = 0;
+    REST_LEN.forEach((len, i) => {
+      if (i > ARC_FROM) run += len;
+      LEAN_ARC.push(i <= ARC_FROM ? 0 : REST_ANG[ARC_FROM] + LEAN_KAPPA * run - REST_ANG[i]);
+    }); }
+  let tailSettled = false;
+  const smooth01 = (x, e0, e1) => { const t = Math.min(Math.max((x - e0) / (e1 - e0), 0), 1); return t * t * (3 - 2 * t); };
   function tailPath(dt) {
     const speed = 2.0 + 0.8 * S.awake + 2.8 * S.excite;    // radians per second
     tailPhase += speed * dt;
     // Swing amplitude in radians; quieter while the tail leans toward the cat.
     const amp = (0.11 + 0.04 * S.awake + 0.09 * S.excite) * (1 - 0.55 * S.lean);
+
+    // Target angle offset for each section.
+    const target = REST_LEN.map((len, i) => {
+      const u = SEG_U[i];
+      const spread = 1 - Math.pow(1 - u, 2.2);            // rotation builds up all the way to the tip
+      const swing = amp * spread * (Math.sin(tailPhase - LAG * u) - BIAS);
+      return swing + S.lean * smooth01(u, 0.15, 0.45) * LEAN_ARC[i];
+    });
+
+    // Springs: stiff near the pivot, loose at the tip, slightly underdamped.
+    if (!tailSettled) { target.forEach((v, i) => { tailAng[i] = v; }); tailSettled = true; }
+    const SUB = 3, h = dt / SUB;
+    for (let k = 0; k < SUB; k++) {
+      target.forEach((v, i) => {
+        const stiff = 30 + 170 * Math.pow(1 - REST_S[i + 1], 2);
+        const damp = 2 * 0.6 * Math.sqrt(stiff);
+        tailVel[i] += (stiff * (v - tailAng[i]) - damp * tailVel[i]) * h;
+        tailAng[i] += tailVel[i] * h;
+      });
+    }
+
+    // Light smoothing of the angles along the tail keeps the curve free of ripples.
+    let ang = tailAng.slice();
+    for (let pass = 0; pass < 4; pass++) {
+      ang = ang.map((v, i) => i === 0 || i === ang.length - 1 ? v : (ang[i - 1] + 2 * v + ang[i + 1]) / 4);
+    }
     const dense = [REST[0]];
-    let lean = 0;
     REST_LEN.forEach((len, i) => {
-      const u = Math.max(0, (REST_S[i + 1] - PIVOT_S) / (1 - PIVOT_S));
-      const hr = Math.min(u / HINGE, 1), hinge = hr * hr * (3 - 2 * hr);
-      const swing = amp * hinge * (Math.sin(tailPhase - LAG * u) - BIAS);
-      const lr = Math.min(Math.max((u - 0.15) / 0.3, 0), 1);  // lean bends above the back, not at the pivot
-      lean += LEAN_K * S.lean * lr * lr * (3 - 2 * lr) * (0.4 + u) * len;
-      const a = REST_ANG[i] + swing + lean, prev = dense[i];
+      const a = REST_ANG[i] + ang[i], prev = dense[i];
       dense.push([prev[0] + Math.cos(a) * len, prev[1] + Math.sin(a) * len]);
     });
 
