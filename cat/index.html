@@ -143,14 +143,14 @@
   // beside the back stays put so the gap and the rounded joint hold.
   let tailPhase = 0, tailEdgeX = 277;
   const FREE_FROM = 0.36;                 // arc-length position where the swish starts
-  const LAG = 2.4;                        // phase delay from there to the tip (radians)
+  const LAG = 3.6;                        // phase delay from there to the tip (radians)
   const LEAN_K = 0.0030;                  // extra curvature that arcs the tail over toward the head
   const JOINT_Y = 775, BACK_X = 305;      // where the gap between tail and back ends
   function tailPath(dt) {
     const speed = 2.0 + 0.8 * S.awake + 2.8 * S.excite;    // radians per second
     tailPhase += speed * dt;
     // The swish quietens while the tail is leaning over toward the cat.
-    const K = (0.0011 + 0.0006 * S.awake + 0.0007 * S.excite) * (1 - 0.55 * S.lean); // peak curvature change per unit length
+    const K = (0.0015 + 0.0007 * S.awake + 0.0008 * S.excite) * (1 - 0.55 * S.lean); // peak curvature change per unit length
     const dense = [REST[0]];
     let bend = 0;
     REST_LEN.forEach((len, i) => {
