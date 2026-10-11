@@ -363,12 +363,15 @@
 
     // Random ear flicks, more often when awake.
     // Now and then the tail sways over and points toward the cat, then lets go.
+    // Not while being petted: a lean in progress lets go, and none starts.
+    const petting = S.held || now < S.happyUntil;
+    if (petting) S.leanUntil = 0;
     S.nextLean -= dt;
     if (S.nextLean <= 0) {
-      S.leanUntil = now + 1.4 + Math.random() * 1.6;
+      if (!petting) S.leanUntil = now + 1.4 + Math.random() * 1.6;
       S.nextLean = 5 + Math.random() * 6;
     }
-    S.lean = ease(S.lean, now < S.leanUntil ? 1 : 0, now < S.leanUntil ? 2.2 : 1.6, dt);
+    S.lean = ease(S.lean, now < S.leanUntil ? 1 : 0, now < S.leanUntil ? 2.2 : (petting ? 4 : 1.6), dt);
 
     S.nextTwitch -= dt;
     if (S.nextTwitch <= 0) {
