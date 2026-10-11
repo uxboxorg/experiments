@@ -119,6 +119,8 @@
     earLean: 0,
     blinkAt: 0, blinkStart: -1,
     nextTwitch: 2,
+    lean: 0,             // 0..1 tail curled over to point at the cat's head
+    leanUntil: 0, nextLean: 3,
   };
 
   const ease = (cur, target, rate, dt) => cur + (target - cur) * (1 - Math.exp(-rate * dt));
@@ -139,17 +141,19 @@
   let tailPhase = 0, tailEdgeX = 277;
   const FREE_FROM = 0.36;                 // arc-length position where the swish starts
   const LAG = 2.4;                        // phase delay from there to the tip (radians)
+  const LEAN_K = 0.0030;                  // extra curvature that arcs the tail over toward the head
   const JOINT_Y = 775, BACK_X = 305;      // where the gap between tail and back ends
   function tailPath(dt) {
     const speed = 2.0 + 0.8 * S.awake + 2.8 * S.excite;    // radians per second
     tailPhase += speed * dt;
-    const K = 0.0011 + 0.0006 * S.awake + 0.0007 * S.excite; // peak curvature change per unit length
+    // The swish quietens while the tail is leaning over toward the cat.
+    const K = (0.0011 + 0.0006 * S.awake + 0.0007 * S.excite) * (1 - 0.55 * S.lean); // peak curvature change per unit length
     const dense = [REST[0]];
     let bend = 0;
     REST_LEN.forEach((len, i) => {
       const u = Math.max(0, (REST_S[i + 1] - FREE_FROM) / (1 - FREE_FROM));
       const ramp = Math.min(u / 0.3, 1), w = ramp * ramp * (3 - 2 * ramp) * (0.7 + 0.5 * u);
-      bend += K * w * Math.sin(tailPhase - LAG * u) * len;
+      bend += (K * w * Math.sin(tailPhase - LAG * u) + LEAN_K * S.lean * w * (0.4 + u)) * len;
       const a = REST_ANG[i] + bend, prev = dense[i];
       dense.push([prev[0] + Math.cos(a) * len, prev[1] + Math.sin(a) * len]);
     });
@@ -280,6 +284,14 @@
     S.blink = bt >= 0 && bt < 2 ? (bt < 1 ? bt : 2 - bt) : 0;
 
     // Random ear flicks, more often when awake.
+    // Now and then the tail sways over and points toward the cat, then lets go.
+    S.nextLean -= dt;
+    if (S.nextLean <= 0) {
+      S.leanUntil = now + 1.4 + Math.random() * 1.6;
+      S.nextLean = 5 + Math.random() * 6;
+    }
+    S.lean = ease(S.lean, now < S.leanUntil ? 1 : 0, now < S.leanUntil ? 2.2 : 1.6, dt);
+
     S.nextTwitch -= dt;
     if (S.nextTwitch <= 0) {
       twitch(Math.random() < 0.5 ? S.earL : S.earR);
