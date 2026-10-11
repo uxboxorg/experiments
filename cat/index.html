@@ -137,9 +137,10 @@
 
   // ---- Tail: swish the smoothed spine, then outline it ----
   // "Wave action": the tail swings about a pivot near the joint and every
-  // section repeats the pivot's angle a little later, so going over the tail
-  // trails back against the motion, flips on the way back, and cushions at
-  // each end (sine easing). The swing and the head-ward lean are spread
+  // section repeats the pivot's angle about half a cycle later. Mid-sway the
+  // base and tip point opposite ways, so the tail is an S (mirrored for each
+  // direction); at each end, just before it reverses, it bows into a C; and
+  // it cushions at each end (sine easing). The swing and the head-ward lean are spread
   // smoothly along the whole tail so every pose is one continuous curve.
   // Each section then chases its target angle through a spring that softens
   // toward the tip, which adds follow-through to every change of motion.
@@ -147,7 +148,8 @@
   // right, except that beside the back it can't turn far toward the back.
   let tailPhase = 0, tailEdgeX = 277;
   const PIVOT_S = 0.17;                   // arc-length position of the swing's pivot
-  const LAG = 1.7;                        // phase delay from the pivot to the tip (radians)
+  const LAG = 3.0;                        // phase delay from the pivot to the tip (radians)
+  const STRAIGHTEN = 0.85;                // how much of the logo's resting S gives way to the sway's own S
   // Beside the back the tail can only turn a little to the right (toward the
   // back); above the back it swings right as freely as left.
   const RIGHT_ROOM = SEG_U_OF => 0.2 + 0.8 * Math.min(Math.max((SEG_U_OF - 0.12) / 0.3, 0), 1) ** 2;
@@ -184,12 +186,23 @@
       return d;
     });
   })();
+  // Neutral pose for swaying: above the pivot the tail eases toward a straight
+  // line from the pivot to the logo's tail tip, so the sway's S reads the same
+  // in both directions instead of adding to or cancelling the logo's S.
+  const NEUTRAL_DIFF = (() => {
+    const pi = REST_S.findIndex(v => v >= PIVOT_S), tip = REST[REST.length - 1];
+    const ang = Math.atan2(tip[1] - REST[pi][1], tip[0] - REST[pi][0]);
+    return REST_ANG.map((ra, i) => {
+      const t = Math.min(SEG_U[i] / 0.25, 1), ramp = t * t * (3 - 2 * t);
+      return ramp * (ang - ra);
+    });
+  })();
   let tailSettled = false;
   function tailPath(dt) {
     const speed = 2.0 + 0.8 * S.awake + 2.8 * S.excite;    // radians per second
     tailPhase += speed * dt;
     // Swing amplitude in radians; quieter while the tail leans toward the cat.
-    const amp = (0.15 + 0.05 * S.awake + 0.11 * S.excite) * (1 - 0.8 * S.lean);
+    const amp = (0.3 + 0.08 * S.awake + 0.14 * S.excite) * (1 - 0.8 * S.lean);
 
     // Target angle offset for each section.
     const target = REST_LEN.map((len, i) => {
@@ -197,7 +210,7 @@
       const spread = 1 - Math.pow(1 - u, 2.2);            // rotation builds up all the way to the tip
       let swing = amp * spread * Math.sin(tailPhase - LAG * u);
       if (swing > 0) swing *= RIGHT_ROOM(u);              // positive = turning right
-      return swing + S.lean * LEAN_DIFF[i];
+      return swing + (1 - S.lean) * STRAIGHTEN * NEUTRAL_DIFF[i] + S.lean * LEAN_DIFF[i];
     });
 
     // Springs: stiff near the pivot, loose at the tip, slightly underdamped.
