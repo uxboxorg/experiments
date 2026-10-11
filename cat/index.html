@@ -149,34 +149,52 @@
   const PIVOT_S = 0.17;                   // arc-length position of the swing's pivot
   const LAG = 1.7;                        // phase delay from the pivot to the tip (radians)
   const BIAS = 0.6;                       // shifts the swing toward the open side (in units of amplitude)
-  const LEAN_KAPPA = 0.0019;              // curvature of the arc the tail forms when it leans toward the head
   const JOINT_Y = 775, BACK_X = 305;      // where the gap between tail and back ends
   const tailAng = REST_LEN.map(() => 0), tailVel = REST_LEN.map(() => 0);
   // Position along the swinging part (0 at the pivot, 1 at the tip) for each section.
   const SEG_U = REST_LEN.map((_, i) => Math.max(0, (REST_S[i + 1] - PIVOT_S) / (1 - PIVOT_S)));
-  // The lean pose: above the back, the tail becomes one clean arc curving
-  // toward the head (replacing the resting S rather than fighting it).
-  const ARC_FROM = SEG_U.findIndex(u => u >= 0.25);
-  const LEAN_ARC = [];
-  { let run = 0;
-    REST_LEN.forEach((len, i) => {
-      if (i > ARC_FROM) run += len;
-      LEAN_ARC.push(i <= ARC_FROM ? 0 : REST_ANG[ARC_FROM] + LEAN_KAPPA * run - REST_ANG[i]);
-    }); }
+  // The lean pose (from a design sketch): the tail rises from the base,
+  // bulges left through the middle and hooks right at the top, pointing at
+  // the head. Two cubic Béziers in viewBox units; only their direction along
+  // the length is used, so the tail keeps its own length.
+  const LEAN_POSE = [
+    [[207,945], [245,760], [105,552], [140,361]],
+    [[140,361], [165,219], [370,174], [418,174]],
+  ];
+  const LEAN_DIFF = (() => {
+    const pts = [];
+    LEAN_POSE.forEach(([p0, p1, p2, p3], k) => {
+      for (let j = k ? 1 : 0; j <= 60; j++) {
+        const t = j / 60, m = 1 - t;
+        pts.push([0, 1].map(c => m*m*m*p0[c] + 3*m*m*t*p1[c] + 3*m*t*t*p2[c] + t*t*t*p3[c]));
+      }
+    });
+    const len = [0];
+    for (let i = 1; i < pts.length; i++) len.push(len[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+    const total = len[len.length - 1];
+    return REST_LEN.map((_, i) => {
+      const want = (REST_S[i] + REST_S[i + 1]) / 2 * total;
+      let j = 1; while (j < pts.length - 1 && len[j] < want) j++;
+      const ang = Math.atan2(pts[j][1] - pts[j - 1][1], pts[j][0] - pts[j - 1][0]);
+      let d = ang - REST_ANG[i];
+      while (d > Math.PI) d -= 2 * Math.PI;
+      while (d < -Math.PI) d += 2 * Math.PI;
+      return d;
+    });
+  })();
   let tailSettled = false;
-  const smooth01 = (x, e0, e1) => { const t = Math.min(Math.max((x - e0) / (e1 - e0), 0), 1); return t * t * (3 - 2 * t); };
   function tailPath(dt) {
     const speed = 2.0 + 0.8 * S.awake + 2.8 * S.excite;    // radians per second
     tailPhase += speed * dt;
     // Swing amplitude in radians; quieter while the tail leans toward the cat.
-    const amp = (0.11 + 0.04 * S.awake + 0.09 * S.excite) * (1 - 0.55 * S.lean);
+    const amp = (0.11 + 0.04 * S.awake + 0.09 * S.excite) * (1 - 0.8 * S.lean);
 
     // Target angle offset for each section.
     const target = REST_LEN.map((len, i) => {
       const u = SEG_U[i];
       const spread = 1 - Math.pow(1 - u, 2.2);            // rotation builds up all the way to the tip
       const swing = amp * spread * (Math.sin(tailPhase - LAG * u) - BIAS);
-      return swing + S.lean * smooth01(u, 0.15, 0.45) * LEAN_ARC[i];
+      return swing + S.lean * LEAN_DIFF[i];
     });
 
     // Springs: stiff near the pivot, loose at the tip, slightly underdamped.
