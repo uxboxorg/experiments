@@ -25,10 +25,10 @@
 </head>
 <body>
 <div class="stage">
-  <svg id="cat" viewBox="100 90 1180 880" role="img" tabindex="0"
+  <svg id="cat" viewBox="-10 50 1300 920" role="img" tabindex="0"
        aria-label="Black geometric cat. Move the pointer to wake it, click, hold, or press Enter to pet it.">
     <defs>
-      <clipPath id="ground"><rect x="0" y="0" width="1400" height="945"/></clipPath>
+      <clipPath id="ground"><rect x="-500" y="-500" width="2400" height="1445"/></clipPath>
       <clipPath id="lidL"><path id="lidLPath"/></clipPath>
       <clipPath id="lidR"><path id="lidRPath"/></clipPath>
     </defs>
@@ -136,28 +136,32 @@
   function twitch(ear, strength = 1) { ear.t = 0; ear.amp = (0.08 + Math.random() * 0.05) * strength; }
 
   // ---- Tail: swish the smoothed spine, then outline it ----
-  // Classic tail cycle: the bend swings from one C-curve to the opposite one,
-  // passing through S-shapes as it travels up from the base, so the tip
-  // follows through last. Each joint's curvature oscillates with a phase lag
-  // along the tail; summing the bends keeps the tail's length. The lower tail
-  // beside the back stays put so the gap and the rounded joint hold.
+  // "Wave action": the tail swings about a pivot near the joint and every
+  // section repeats the pivot's angle a little later, so going over the tail
+  // trails back against the motion, flips on the way back, and cushions at
+  // each end (sine easing). Rotating sections keeps the tail's length. The
+  // swing favours the open side so the tail doesn't hit the back.
   let tailPhase = 0, tailEdgeX = 277;
-  const FREE_FROM = 0.36;                 // arc-length position where the swish starts
-  const LAG = 3.6;                        // phase delay from there to the tip (radians)
-  const LEAN_K = 0.0030;                  // extra curvature that arcs the tail over toward the head
+  const PIVOT_S = 0.17;                   // arc-length position of the swing's pivot
+  const HINGE = 0.3;                      // how gradually the pivot bends (fraction of the free tail)
+  const LAG = 1.7;                        // phase delay from the pivot to the tip (radians)
+  const BIAS = 0.6;                       // shifts the swing toward the open side (in units of amplitude)
+  const LEAN_K = 0.0029;                  // extra curvature that arcs the tail over toward the head
   const JOINT_Y = 775, BACK_X = 305;      // where the gap between tail and back ends
   function tailPath(dt) {
     const speed = 2.0 + 0.8 * S.awake + 2.8 * S.excite;    // radians per second
     tailPhase += speed * dt;
-    // The swish quietens while the tail is leaning over toward the cat.
-    const K = (0.0015 + 0.0007 * S.awake + 0.0008 * S.excite) * (1 - 0.55 * S.lean); // peak curvature change per unit length
+    // Swing amplitude in radians; quieter while the tail leans toward the cat.
+    const amp = (0.11 + 0.04 * S.awake + 0.09 * S.excite) * (1 - 0.55 * S.lean);
     const dense = [REST[0]];
-    let bend = 0;
+    let lean = 0;
     REST_LEN.forEach((len, i) => {
-      const u = Math.max(0, (REST_S[i + 1] - FREE_FROM) / (1 - FREE_FROM));
-      const ramp = Math.min(u / 0.3, 1), w = ramp * ramp * (3 - 2 * ramp) * (0.7 + 0.5 * u);
-      bend += (K * w * Math.sin(tailPhase - LAG * u) + LEAN_K * S.lean * w * (0.4 + u)) * len;
-      const a = REST_ANG[i] + bend, prev = dense[i];
+      const u = Math.max(0, (REST_S[i + 1] - PIVOT_S) / (1 - PIVOT_S));
+      const hr = Math.min(u / HINGE, 1), hinge = hr * hr * (3 - 2 * hr);
+      const swing = amp * hinge * (Math.sin(tailPhase - LAG * u) - BIAS);
+      const lr = Math.min(Math.max((u - 0.15) / 0.3, 0), 1);  // lean bends above the back, not at the pivot
+      lean += LEAN_K * S.lean * lr * lr * (3 - 2 * lr) * (0.4 + u) * len;
+      const a = REST_ANG[i] + swing + lean, prev = dense[i];
       dense.push([prev[0] + Math.cos(a) * len, prev[1] + Math.sin(a) * len]);
     });
 
