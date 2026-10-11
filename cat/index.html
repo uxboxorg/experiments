@@ -20,7 +20,6 @@
   svg:focus-visible { outline: 2px dashed var(--hint); outline-offset: 8px; }
   .ink { fill: var(--ink); }
   .eye { fill: var(--bg); }
-  .pupil { fill: var(--ink); }
   p { margin: 16px 0 0; user-select: none; }
 </style>
 </head>
@@ -36,14 +35,12 @@
     <g clip-path="url(#ground)">
       <path id="tail" class="ink"/>
       <path id="body" class="ink"/>
-      <g clip-path="url(#lidL)">
-        <circle id="eyeL" class="eye" cx="745" cy="658" r="121"/>
-        <circle id="pupilL" class="pupil" cx="745" cy="700" r="0"/>
-      </g>
-      <g clip-path="url(#lidR)">
-        <circle id="eyeR" class="eye" cx="1014" cy="658" r="100"/>
-        <circle id="pupilR" class="pupil" cx="1014" cy="695" r="0"/>
-      </g>
+      <g id="eyeL"><g clip-path="url(#lidL)">
+        <circle class="eye" cx="745" cy="658" r="121"/>
+      </g></g>
+      <g id="eyeR"><g clip-path="url(#lidR)">
+        <circle class="eye" cx="1014" cy="658" r="100"/>
+      </g></g>
     </g>
   </svg>
   <p>Move your pointer to wake the cat · click to pet</p>
@@ -68,8 +65,8 @@
   const EAR_L = { apex: [712,140], pivot: [731,502] };
   const EAR_R = { apex: [1057,140], pivot: [1000,620] };
   const EYES = [
-    { cx: 745,  cy: 658, r: 121, lid: document.getElementById('lidLRect'), pupil: document.getElementById('pupilL') },
-    { cx: 1014, cy: 658, r: 100, lid: document.getElementById('lidRRect'), pupil: document.getElementById('pupilR') },
+    { cx: 745,  cy: 658, r: 121, lid: document.getElementById('lidLRect'), el: document.getElementById('eyeL') },
+    { cx: 1014, cy: 658, r: 100, lid: document.getElementById('lidRRect'), el: document.getElementById('eyeR') },
   ];
 
   // ---- State ----
@@ -152,20 +149,14 @@
            `L${f(l[0])},${f(l[1])}L888,487L${f(r[0])},${f(r[1])}L1250,990Z`;
   }
 
-  // ---- Eyes: a flat lid line slides over a white disc; pupils follow the pointer ----
+  // ---- Eyes: a flat lid line slides over a white disc; the eye drifts toward the pointer ----
   function drawEyes() {
     EYES.forEach(e => {
-      const open = S.awake * 0.62;                         // 0 = the logo's half-moon
+      const open = S.awake * 0.3;                          // 0 = the logo's half-moon
       let lidY = e.cy - open * e.r;
       lidY += (e.cy + e.r + 2 - lidY) * S.blink;           // blink closes downward
       e.lid.setAttribute('y', f(lidY));
-      const pr = e.r * 0.42 * S.awake;
-      const reach = e.r - pr - 6;
-      const px = e.cx + S.look[0] * reach * 0.85;
-      const py = e.cy + e.r * 0.28 + S.look[1] * reach * 0.45;
-      e.pupil.setAttribute('cx', f(px));
-      e.pupil.setAttribute('cy', f(py));
-      e.pupil.setAttribute('r', f(Math.max(pr, 0)));
+      e.el.setAttribute('transform', `translate(${f(S.look[0] * 14)},${f(S.look[1] * 6)})`);
     });
   }
 
