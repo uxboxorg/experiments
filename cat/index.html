@@ -147,7 +147,8 @@
   // Rotating sections keeps the tail's length; the sway is even left and
   // right, except that beside the back it can't turn far toward the back.
   let tailPhase = 0, tailEdgeX = 277;
-  const PIVOT_S = 0.17;                   // arc-length position of the swing's pivot
+  const PIVOT_S = 0.23;                   // arc-length position of the swing's pivot, just above the joint
+                                          // so the gap's round end stays put
   const LAG = 3.0;                        // phase delay from the pivot to the tip (radians)
   const STRAIGHTEN = 0.85;                // how much of the logo's resting S gives way to the sway's own S
   // Beside the back the tail can only turn a little to the right (toward the
@@ -210,7 +211,8 @@
       const spread = 1 - Math.pow(1 - u, 2.2);            // rotation builds up all the way to the tip
       let swing = amp * spread * Math.sin(tailPhase - LAG * u);
       if (swing > 0) swing *= RIGHT_ROOM(u);              // positive = turning right
-      return swing + (1 - S.lean) * STRAIGHTEN * NEUTRAL_DIFF[i] + S.lean * LEAN_DIFF[i];
+      const fromPivot = Math.min(u / 0.15, 1);             // poses start at the pivot too
+      return swing + (1 - S.lean) * STRAIGHTEN * NEUTRAL_DIFF[i] + S.lean * fromPivot * fromPivot * (3 - 2 * fromPivot) * LEAN_DIFF[i];
     });
 
     // Springs: stiff near the pivot, loose at the tip, slightly underdamped.
@@ -243,8 +245,15 @@
       b.push([p[0] - n[0] * h, p[1] - n[1] * h]);
     });
     // Where the tail's back edge crosses the joint line, for the rounded joint.
-    let best = Infinity;
-    a.forEach(p => { const dy = Math.abs(p[1] - JOINT_Y); if (dy < best) { best = dy; tailEdgeX = p[0]; } });
+    // Interpolate between outline points so the round joint follows the tail
+    // smoothly instead of hopping from one sample to the next.
+    for (let i = 0; i < a.length - 1; i++) {
+      const p0 = a[i], p1 = a[i + 1];
+      if ((p0[1] - JOINT_Y) * (p1[1] - JOINT_Y) <= 0 && p0[1] !== p1[1]) {
+        tailEdgeX = p0[0] + (p1[0] - p0[0]) * (JOINT_Y - p0[1]) / (p1[1] - p0[1]);
+        break;
+      }
+    }
     const r = WIDTHS[WIDTHS.length - 1] / 2;
     const end = b[b.length - 1];
     let d = 'M' + a.map(p => f(p[0]) + ',' + f(p[1])).join('L');
