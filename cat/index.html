@@ -88,7 +88,12 @@
       REST_W[i] = (REST_W[i - 1] + 2 * REST_W[i] + REST_W[i + 1]) / 4;
     }
   }
-  const REST_N = normalsOf(REST);
+  const REST_LEN = [], REST_ANG = [];
+  for (let i = 0; i < REST.length - 1; i++) {
+    const dx = REST[i + 1][0] - REST[i][0], dy = REST[i + 1][1] - REST[i][1];
+    REST_LEN.push(Math.hypot(dx, dy));
+    REST_ANG.push(Math.atan2(dy, dx));
+  }
   const REST_S = [0];
   for (let i = 1; i < REST.length; i++) REST_S.push(REST_S[i - 1] + Math.hypot(REST[i][0] - REST[i - 1][0], REST[i][1] - REST[i - 1][1]));
   REST_S.forEach((v, i, arr) => { arr[i] = v / arr[arr.length - 1]; });
@@ -125,20 +130,28 @@
 
   function twitch(ear, strength = 1) { ear.t = 0; ear.amp = (0.08 + Math.random() * 0.05) * strength; }
 
-  // ---- Tail: sine-wave the smoothed spine, then outline it ----
-  // Each point moves sideways by A(s)·sin(phase − k·s): a wave travelling
-  // from base to tip, still at the ground and widest at the tip.
+  // ---- Tail: swish the smoothed spine, then outline it ----
+  // Classic tail cycle: the bend swings from one C-curve to the opposite one,
+  // passing through S-shapes as it travels up from the base, so the tip
+  // follows through last. Each joint's curvature oscillates with a phase lag
+  // along the tail; summing the bends keeps the tail's length. The lower tail
+  // beside the back stays put so the gap and the rounded joint hold.
   let tailPhase = 0, tailEdgeX = 277;
-  const WAVE_K = Math.PI * 1.5;           // ¾ of a wavelength along the tail
+  const FREE_FROM = 0.36;                 // arc-length position where the swish starts
+  const LAG = 2.4;                        // phase delay from there to the tip (radians)
   const JOINT_Y = 775, BACK_X = 305;      // where the gap between tail and back ends
   function tailPath(dt) {
-    const speed = 1.8 + 1.0 * S.awake + 3.0 * S.excite;    // radians per second
+    const speed = 2.0 + 0.8 * S.awake + 2.8 * S.excite;    // radians per second
     tailPhase += speed * dt;
-    const amp = 20 + 10 * S.awake + 14 * S.excite;          // tip displacement in viewBox units
-    const dense = REST.map((p, i) => {
-      const sv = REST_S[i];
-      const d = amp * Math.pow(sv, 1.3) * Math.sin(tailPhase - WAVE_K * sv);
-      return [p[0] + REST_N[i][0] * d, p[1] + REST_N[i][1] * d];
+    const K = 0.0011 + 0.0006 * S.awake + 0.0007 * S.excite; // peak curvature change per unit length
+    const dense = [REST[0]];
+    let bend = 0;
+    REST_LEN.forEach((len, i) => {
+      const u = Math.max(0, (REST_S[i + 1] - FREE_FROM) / (1 - FREE_FROM));
+      const ramp = Math.min(u / 0.3, 1), w = ramp * ramp * (3 - 2 * ramp) * (0.7 + 0.5 * u);
+      bend += K * w * Math.sin(tailPhase - LAG * u) * len;
+      const a = REST_ANG[i] + bend, prev = dense[i];
+      dense.push([prev[0] + Math.cos(a) * len, prev[1] + Math.sin(a) * len]);
     });
 
     const a = [], b = [];
