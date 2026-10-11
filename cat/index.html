@@ -55,8 +55,11 @@
 
   // ---- Geometry traced from the logo (viewBox units) ----
   // Tail spine from the ground up to the centre of the rounded tip, with widths.
+  // The visible tail is one constant thickness; it only flares below the joint,
+  // where it merges into the body, so the silhouette still meets the ground.
+  const TAIL_W = 100;
   const SPINE  = [[207,945],[207,870],[212,760],[235,640],[275,540],[320,440],[338,330],[312,240],[275,172]];
-  const WIDTHS = [130, 130, 124, 105, 100, 108, 112, 100, 88];
+  const WIDTHS = [130, 130, TAIL_W, TAIL_W, TAIL_W, TAIL_W, TAIL_W, TAIL_W, TAIL_W];
 
   // Unit normal at each point of a polyline (from its neighbours).
   const normalsOf = pts => pts.map((p, i) => {
