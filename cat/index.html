@@ -57,10 +57,41 @@
   // Tail spine from the ground up to the centre of the rounded tip, with widths.
   const SPINE  = [[207,945],[207,870],[212,760],[235,640],[275,540],[320,440],[338,330],[312,240],[275,172]];
   const WIDTHS = [130, 130, 124, 105, 100, 108, 112, 100, 88];
-  const segs = SPINE.slice(1).map((p, i) => {
-    const dx = p[0] - SPINE[i][0], dy = p[1] - SPINE[i][1];
-    return { len: Math.hypot(dx, dy), ang: Math.atan2(dy, dx) };
+
+  // Unit normal at each point of a polyline (from its neighbours).
+  const normalsOf = pts => pts.map((p, i) => {
+    const q0 = pts[Math.max(i - 1, 0)], q1 = pts[Math.min(i + 1, pts.length - 1)];
+    const tx = q1[0] - q0[0], ty = q1[1] - q0[1], l = Math.hypot(tx, ty) || 1;
+    return [-ty / l, tx / l];
   });
+
+  // Resting tail, smoothed once with Catmull-Rom: points, widths, normals and
+  // arc-length position s (0 at the ground, 1 at the tip).
+  const REST = [], REST_W = [], STEPS = 10;
+  for (let i = 0; i < SPINE.length - 1; i++) {
+    const p0 = SPINE[Math.max(i - 1, 0)], p1 = SPINE[i], p2 = SPINE[i + 1], p3 = SPINE[Math.min(i + 2, SPINE.length - 1)];
+    for (let k = 0; k < STEPS; k++) {
+      const u = k / STEPS, u2 = u * u, u3 = u2 * u;
+      const cr = j => 0.5 * ((2 * p1[j]) + (-p0[j] + p2[j]) * u + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * u2 + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * u3);
+      REST.push([cr(0), cr(1)]);
+      REST_W.push(WIDTHS[i] + (WIDTHS[i + 1] - WIDTHS[i]) * u);
+    }
+  }
+  REST.push(SPINE[SPINE.length - 1]);
+  REST_W.push(WIDTHS[WIDTHS.length - 1]);
+  // Relax the curve and the width profile so the outline has no corners at the
+  // traced points (uneven spacing and slope changes). Ends stay pinned.
+  for (let pass = 0; pass < 15; pass++) {
+    for (let i = 1; i < REST.length - 1; i++) {
+      REST[i] = [(REST[i - 1][0] + 2 * REST[i][0] + REST[i + 1][0]) / 4,
+                 (REST[i - 1][1] + 2 * REST[i][1] + REST[i + 1][1]) / 4];
+      REST_W[i] = (REST_W[i - 1] + 2 * REST_W[i] + REST_W[i + 1]) / 4;
+    }
+  }
+  const REST_N = normalsOf(REST);
+  const REST_S = [0];
+  for (let i = 1; i < REST.length; i++) REST_S.push(REST_S[i - 1] + Math.hypot(REST[i][0] - REST[i - 1][0], REST[i][1] - REST[i - 1][1]));
+  REST_S.forEach((v, i, arr) => { arr[i] = v / arr[arr.length - 1]; });
 
   const EAR_L = { apex: [712,140], pivot: [731,502] };
   const EAR_R = { apex: [1057,140], pivot: [1000,620] };
@@ -94,48 +125,27 @@
 
   function twitch(ear, strength = 1) { ear.t = 0; ear.amp = (0.08 + Math.random() * 0.05) * strength; }
 
-  // ---- Tail: bend each spine segment, smooth with Catmull-Rom, then outline ----
-  // Bends accumulate joint by joint, so a wave travelling up from the base
-  // whips the tip around and makes it lag behind and curl.
-  let tailPhase = 0, tailPhase2 = 0, tailEdgeX = 277;
+  // ---- Tail: sine-wave the smoothed spine, then outline it ----
+  // Each point moves sideways by A(s)·sin(phase − k·s): a wave travelling
+  // from base to tip, still at the ground and widest at the tip.
+  let tailPhase = 0, tailEdgeX = 277;
+  const WAVE_K = Math.PI * 1.5;           // ¾ of a wavelength along the tail
   const JOINT_Y = 775, BACK_X = 305;      // where the gap between tail and back ends
-  function tailPath(t, dt) {
-    const speed = 1.4 + 1.0 * S.awake + 3.2 * S.excite;
+  function tailPath(dt) {
+    const speed = 1.8 + 1.0 * S.awake + 3.0 * S.excite;    // radians per second
     tailPhase += speed * dt;
-    tailPhase2 += speed * 0.43 * dt;
-    const drift = 0.8 + 0.2 * Math.sin(t * 0.31);          // keeps the rhythm from feeling mechanical
-    const amp = (0.075 + 0.05 * S.awake + 0.11 * S.excite) * drift;
-    const pts = [SPINE[0]];
-    let bend = 0;
-    segs.forEach((sg, i) => {
-      const s = (i + 1) / segs.length;
-      bend += amp * s * (Math.sin(tailPhase - s * 3.2) + 0.45 * Math.sin(tailPhase2 - s * 1.7 + 1.3));
-      const a = sg.ang + bend;
-      const prev = pts[pts.length - 1];
-      pts.push([prev[0] + Math.cos(a) * sg.len, prev[1] + Math.sin(a) * sg.len]);
+    const amp = 20 + 10 * S.awake + 14 * S.excite;          // tip displacement in viewBox units
+    const dense = REST.map((p, i) => {
+      const sv = REST_S[i];
+      const d = amp * Math.pow(sv, 1.3) * Math.sin(tailPhase - WAVE_K * sv);
+      return [p[0] + REST_N[i][0] * d, p[1] + REST_N[i][1] * d];
     });
 
-    const dense = [], ws = [], STEPS = 10;
-    for (let i = 0; i < pts.length - 1; i++) {
-      const p0 = pts[Math.max(i - 1, 0)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(i + 2, pts.length - 1)];
-      for (let k = 0; k < STEPS; k++) {
-        const u = k / STEPS, u2 = u * u, u3 = u2 * u;
-        const cr = j => 0.5 * ((2 * p1[j]) + (-p0[j] + p2[j]) * u + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * u2 + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * u3);
-        dense.push([cr(0), cr(1)]);
-        ws.push(WIDTHS[i] + (WIDTHS[i + 1] - WIDTHS[i]) * u);
-      }
-    }
-    dense.push(pts[pts.length - 1]);
-    ws.push(WIDTHS[WIDTHS.length - 1]);
-
     const a = [], b = [];
-    dense.forEach((p, i) => {
-      const q0 = dense[Math.max(i - 1, 0)], q1 = dense[Math.min(i + 1, dense.length - 1)];
-      let tx = q1[0] - q0[0], ty = q1[1] - q0[1];
-      const l = Math.hypot(tx, ty) || 1; tx /= l; ty /= l;
-      const h = ws[i] / 2;
-      a.push([p[0] - ty * h, p[1] + tx * h]);
-      b.push([p[0] + ty * h, p[1] - tx * h]);
+    normalsOf(dense).forEach((n, i) => {
+      const p = dense[i], h = REST_W[i] / 2;
+      a.push([p[0] + n[0] * h, p[1] + n[1] * h]);
+      b.push([p[0] - n[0] * h, p[1] - n[1] * h]);
     });
     // Where the tail's back edge crosses the joint line, for the rounded joint.
     let best = Infinity;
@@ -263,7 +273,7 @@
       S.nextTwitch = (S.awake > 0.5 ? 1.5 : 4) + Math.random() * 4;
     }
 
-    tailEl.setAttribute('d', tailPath(now, dt));
+    tailEl.setAttribute('d', tailPath(dt));
     bodyEl.setAttribute('d', bodyPath(dt));
     drawEyes();
     if (!reduceMotion) requestAnimationFrame(frame);
