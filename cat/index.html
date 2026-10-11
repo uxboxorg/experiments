@@ -123,7 +123,7 @@
     blinkAt: 0, blinkStart: -1,
     nextTwitch: 2,
     lean: 0,             // 0..1 tail curled over to point at the cat's head
-    leanUntil: 0, nextLean: 3,
+    leanUntil: 0, nextLean: 8,
   };
 
   const ease = (cur, target, rate, dt) => cur + (target - cur) * (1 - Math.exp(-rate * dt));
@@ -369,7 +369,7 @@
     S.nextLean -= dt;
     if (S.nextLean <= 0) {
       if (!petting) S.leanUntil = now + 1.4 + Math.random() * 1.6;
-      S.nextLean = 5 + Math.random() * 6;
+      S.nextLean = 12 + Math.random() * 13;
     }
     S.lean = ease(S.lean, now < S.leanUntil ? 1 : 0, now < S.leanUntil ? 2.2 : (petting ? 4 : 1.6), dt);
 
