@@ -157,13 +157,13 @@
   const tailAng = REST_LEN.map(() => 0), tailVel = REST_LEN.map(() => 0);
   // Position along the swinging part (0 at the pivot, 1 at the tip) for each section.
   const SEG_U = REST_LEN.map((_, i) => Math.max(0, (REST_S[i + 1] - PIVOT_S) / (1 - PIVOT_S)));
-  // The lean pose (from a design sketch): the tail rises from the base,
-  // bulges left through the middle and hooks right at the top, pointing at
-  // the head. Two cubic Béziers in viewBox units; only their direction along
-  // the length is used, so the tail keeps its own length.
+  // The lean pose (from a design sketch): the tail rises from the base and
+  // turns over in one smooth arc, its end sweeping right toward the head like
+  // a shepherd's crook. Two cubic Béziers in viewBox units; only their
+  // direction along the length is used, so the tail keeps its own length.
   const LEAN_POSE = [
-    [[207,945], [245,760], [105,552], [140,361]],
-    [[140,361], [165,219], [370,174], [418,174]],
+    [[210,945], [195,780], [165,620], [180,470]],
+    [[180,470], [196,300], [400,200], [575,290]],
   ];
   const LEAN_DIFF = (() => {
     const pts = [];
