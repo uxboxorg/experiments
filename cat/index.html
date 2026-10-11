@@ -143,12 +143,14 @@
   // smoothly along the whole tail so every pose is one continuous curve.
   // Each section then chases its target angle through a spring that softens
   // toward the tip, which adds follow-through to every change of motion.
-  // Rotating sections keeps the tail's length; the swing favours the open
-  // side so the tail doesn't hit the back.
+  // Rotating sections keeps the tail's length; the sway is even left and
+  // right, except that beside the back it can't turn far toward the back.
   let tailPhase = 0, tailEdgeX = 277;
   const PIVOT_S = 0.17;                   // arc-length position of the swing's pivot
   const LAG = 1.7;                        // phase delay from the pivot to the tip (radians)
-  const BIAS = 0.6;                       // shifts the swing toward the open side (in units of amplitude)
+  // Beside the back the tail can only turn a little to the right (toward the
+  // back); above the back it swings right as freely as left.
+  const RIGHT_ROOM = SEG_U_OF => 0.2 + 0.8 * Math.min(Math.max((SEG_U_OF - 0.12) / 0.3, 0), 1) ** 2;
   const JOINT_Y = 775, BACK_X = 305;      // where the gap between tail and back ends
   const tailAng = REST_LEN.map(() => 0), tailVel = REST_LEN.map(() => 0);
   // Position along the swinging part (0 at the pivot, 1 at the tip) for each section.
@@ -187,13 +189,14 @@
     const speed = 2.0 + 0.8 * S.awake + 2.8 * S.excite;    // radians per second
     tailPhase += speed * dt;
     // Swing amplitude in radians; quieter while the tail leans toward the cat.
-    const amp = (0.11 + 0.04 * S.awake + 0.09 * S.excite) * (1 - 0.8 * S.lean);
+    const amp = (0.15 + 0.05 * S.awake + 0.11 * S.excite) * (1 - 0.8 * S.lean);
 
     // Target angle offset for each section.
     const target = REST_LEN.map((len, i) => {
       const u = SEG_U[i];
       const spread = 1 - Math.pow(1 - u, 2.2);            // rotation builds up all the way to the tip
-      const swing = amp * spread * (Math.sin(tailPhase - LAG * u) - BIAS);
+      let swing = amp * spread * Math.sin(tailPhase - LAG * u);
+      if (swing > 0) swing *= RIGHT_ROOM(u);              // positive = turning right
       return swing + S.lean * LEAN_DIFF[i];
     });
 
