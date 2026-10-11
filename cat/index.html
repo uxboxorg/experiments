@@ -26,11 +26,11 @@
 <body>
 <div class="stage">
   <svg id="cat" viewBox="100 90 1180 880" role="img" tabindex="0"
-       aria-label="Black geometric cat. Move the pointer to wake it, click or press Enter to pet it.">
+       aria-label="Black geometric cat. Move the pointer to wake it, click, hold, or press Enter to pet it.">
     <defs>
       <clipPath id="ground"><rect x="0" y="0" width="1400" height="945"/></clipPath>
-      <clipPath id="lidL"><rect id="lidLRect" x="620" y="658" width="250" height="300"/></clipPath>
-      <clipPath id="lidR"><rect id="lidRRect" x="910" y="658" width="210" height="300"/></clipPath>
+      <clipPath id="lidL"><path id="lidLPath"/></clipPath>
+      <clipPath id="lidR"><path id="lidRPath"/></clipPath>
     </defs>
     <g clip-path="url(#ground)">
       <path id="tail" class="ink"/>
@@ -43,7 +43,7 @@
       </g></g>
     </g>
   </svg>
-  <p>Move your pointer to wake the cat · click to pet</p>
+  <p>Move your pointer to wake the cat · click or hold to pet</p>
 </div>
 
 <script>
@@ -65,14 +65,16 @@
   const EAR_L = { apex: [712,140], pivot: [731,502] };
   const EAR_R = { apex: [1057,140], pivot: [1000,620] };
   const EYES = [
-    { cx: 745,  cy: 658, r: 121, lid: document.getElementById('lidLRect'), el: document.getElementById('eyeL') },
-    { cx: 1014, cy: 658, r: 100, lid: document.getElementById('lidRRect'), el: document.getElementById('eyeR') },
+    { cx: 745,  cy: 658, r: 121, lid: document.getElementById('lidLPath'), el: document.getElementById('eyeL') },
+    { cx: 1014, cy: 658, r: 100, lid: document.getElementById('lidRPath'), el: document.getElementById('eyeR') },
   ];
 
   // ---- State ----
   const S = {
     awake: 0,            // 0 = sleepy (original logo), 1 = fully awake
     excite: 0,           // tail energy boost from petting / hovering the tail
+    happy: 0,            // 0..1 cheeks pushed up into a smiling squint
+    happyUntil: 0, held: false,
     blink: 0,            // 0..1 lid closure from blinking
     pointer: null,       // pointer position in SVG units
     look: [0, 0],        // smoothed gaze direction (-1..1)
@@ -149,13 +151,23 @@
            `L${f(l[0])},${f(l[1])}L888,487L${f(r[0])},${f(r[1])}L1250,990Z`;
   }
 
-  // ---- Eyes: a flat lid line slides over a white disc; the eye drifts toward the pointer ----
+  // ---- Eyes: a flat top lid and a curved cheek clip a white disc ----
+  // Sleepy shows the logo's half-moon; happy lifts the top lid and pushes the
+  // cheek up into a smiling squint. The whole eye drifts toward the pointer.
   function drawEyes() {
+    const h = S.happy;
     EYES.forEach(e => {
-      const open = S.awake * 0.3;                          // 0 = the logo's half-moon
-      let lidY = e.cy - open * e.r;
-      lidY += (e.cy + e.r + 2 - lidY) * S.blink;           // blink closes downward
-      e.lid.setAttribute('y', f(lidY));
+      const x0 = e.cx - e.r - 6, x1 = e.cx + e.r + 6, low = e.cy + e.r + 6;
+      // Cheek: a dome rising from below, sloping down toward the cat's right.
+      const yL = low + (e.cy + 0.02 * e.r - low) * h;
+      const yR = low + (e.cy + 0.25 * e.r - low) * h;
+      const cY = low + (e.cy - 0.42 * e.r - low) * h;
+      const cX = e.cx - 0.15 * e.r;
+      const open = S.awake * 0.3 + (1 - S.awake * 0.3) * h;  // 0 = the logo's half-moon
+      let lidY = e.cy - open * (e.r + 2);
+      const shut = Math.min(yL, yR) - 2;
+      lidY = Math.min(lidY + (low - lidY) * S.blink, shut); // blink closes down onto the cheek
+      e.lid.setAttribute('d', `M${f(x0)},${f(lidY)}H${f(x1)}V${f(yR)}Q${f(cX)},${f(cY)} ${f(x0)},${f(yL)}Z`);
       e.el.setAttribute('transform', `translate(${f(S.look[0] * 14)},${f(S.look[1] * 6)})`);
     });
   }
@@ -177,9 +189,14 @@
     S.excite = 1;
     S.lastMove = performance.now() / 1000;
     twitch(S.earL, 1.6); twitch(S.earR, 1.6);
-    S.blinkStart = performance.now() / 1000;
+    S.happyUntil = performance.now() / 1000 + 1.6;
   }
-  svg.addEventListener('pointerdown', ev => ev.preventDefault()); // no focus ring on mouse clicks
+  svg.addEventListener('pointerdown', ev => {
+    ev.preventDefault(); // no focus ring on mouse clicks
+    S.held = true;
+  });
+  addEventListener('pointerup', () => { S.held = false; });
+  addEventListener('pointercancel', () => { S.held = false; });
   svg.addEventListener('click', pet);
   svg.addEventListener('keydown', ev => {
     if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); pet(); }
@@ -200,6 +217,10 @@
     if (S.pointer && S.pointer[0] < 420 && S.pointer[1] > 100 && S.pointer[1] < 945 && idle < 1) tailTarget = 0.7;
     S.excite = ease(S.excite, tailTarget, S.excite > tailTarget ? 0.9 : 4, dt);
 
+    // Petting (or holding the pointer down on the cat) brings out the cheeks.
+    const happyTarget = S.held || now < S.happyUntil ? 1 : 0;
+    S.happy = ease(S.happy, happyTarget, happyTarget ? 9 : 3, dt);
+
     // Gaze toward the pointer, relative to the face centre.
     let gx = 0, gy = 0;
     if (S.pointer && idle < 4) {
@@ -212,7 +233,7 @@
     S.earLean = ease(S.earLean, gx, 3, dt);
 
     // Blinks while awake.
-    if (S.awake > 0.6 && now > S.blinkAt) {
+    if (S.awake > 0.6 && S.happy < 0.1 && now > S.blinkAt) {
       S.blinkStart = now;
       S.blinkAt = now + 2 + Math.random() * 4;
     }
