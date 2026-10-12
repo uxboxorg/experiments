@@ -8,13 +8,16 @@
      Deliberately single-theme: the stage must look identical in every recording. */
   :root {
     color-scheme: dark;
-    --surround: #181914;      /* outside the frame, so the crop edge is obvious */
-    --paper: #f5f5f0;         /* closed state, a faint olive-tinted white */
-    --olive: #646752;         /* sampled from the reference panel */
-    --olive-ink: #8d907a;     /* corner notes on paper */
-    --white: #ffffff;
-    --mist: rgba(255, 255, 255, 0.62); /* corner notes on olive */
-    --hint: #9a9c8a;
+    --night: #021711;         /* brand dark */
+    --signal: #32ff81;        /* brand green */
+    --surround: #3a3f3c;      /* outside the frame, so the crop edge is obvious */
+    --closed-bg: var(--night);
+    --closed-fg: var(--signal);
+    --closed-dim: rgba(50, 255, 129, 0.55);
+    --open-bg: var(--signal);
+    --open-fg: var(--night);
+    --open-dim: rgba(2, 23, 17, 0.62);
+    --hint: #b7c2bc;
 
     --display: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
     --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
@@ -43,7 +46,7 @@
     width: min(100vw - 32px, (100vh - 32px) * var(--ratio-n));
     max-width: 100%;
     aspect-ratio: var(--ratio);
-    background: var(--paper);
+    background: var(--closed-bg);
     container-type: size;
     overflow: hidden;
     cursor: pointer;
@@ -52,7 +55,7 @@
   body.recording .stage { cursor: none; }
   .panel {
     position: absolute; inset: 0;
-    background: var(--olive);
+    background: var(--open-bg);
     opacity: 0;
     transition: opacity var(--fade) linear;
   }
@@ -64,10 +67,10 @@
     left: 50%; top: 50%;
     width: min(30cqw, 40cqh);
     transform: translate(-50%, -50%);
-    color: var(--olive);
+    color: var(--closed-fg);
     overflow: visible;
   }
-  .open .icon { color: var(--white); }
+  .open .icon { color: var(--open-fg); }
   .icon .line {
     fill: none;
     stroke: currentColor;
@@ -100,19 +103,19 @@
     margin: 0;
     font: 400 max(10px, 1.45cqw)/1.45 var(--mono);
     letter-spacing: 0.02em;
-    color: var(--olive-ink);
+    color: var(--closed-dim);
     transition: color var(--fade) linear;
     font-variant-numeric: tabular-nums;
   }
-  .open .note { color: var(--mist); }
+  .open .note { color: var(--open-dim); }
   .note b {
     display: block;
     font: 500 max(12px, 2.1cqw)/1.2 var(--display);
     letter-spacing: -0.01em;
-    color: var(--olive);
+    color: var(--closed-fg);
     transition: color var(--fade) linear;
   }
-  .open .note b { color: var(--white); }
+  .open .note b { color: var(--open-fg); }
   .tl { left: 5cqw; top: 5cqw; }
   .tr { right: 5cqw; top: 5cqw; text-align: right; }
   .br { right: 5cqw; bottom: 5cqw; text-align: right; }
@@ -151,7 +154,7 @@
     text-align: center;
     transition: opacity 300ms ease;
   }
-  .help kbd { font: inherit; color: var(--paper); }
+  .help kbd { font: inherit; color: #ffffff; }
   body.hide-help .help { opacity: 0; pointer-events: none; }
 
   @media (prefers-reduced-motion: reduce) {
@@ -172,7 +175,7 @@
 
   <p class="note tl"><b>Menu toggle</b>Interaction study</p>
   <p class="note br">520 ms · cubic-bezier(.6, 0, .3, 1)<br>Playback <span class="speed" id="speed">1×</span></p>
-  <p class="note tr"><b class="state"><span class="is-closed">Closed</span><span class="is-open">Open</span></b></p>
+  <p class="note tr"><b class="state"><span class="is-closed">Closed</span><span class="is-open">Opened</span></b></p>
 
   <svg class="cursor" viewBox="0 0 24 24" aria-hidden="true">
     <g fill="#fff" stroke="#111" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
