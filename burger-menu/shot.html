@@ -126,20 +126,6 @@
   .state .is-open, .open .state .is-closed { opacity: 0; }
   .open .state .is-open { opacity: 1; }
 
-  /* --- Fake cursor ---------------------------------------------------- */
-  .cursor {
-    position: absolute;
-    left: calc(50% + min(9cqw, 12cqh));
-    top: calc(50% + min(3cqw, 4cqh));
-    width: max(18px, 3.4cqw);
-    pointer-events: none;
-    transform-origin: 30% 10%;
-    transition: transform 110ms ease-out, opacity 300ms ease;
-    filter: drop-shadow(0 0.25cqw 0.4cqw rgba(0, 0, 0, 0.25));
-  }
-  .cursor.pressed { transform: scale(0.86); }
-  body:not(.fake-cursor) .cursor { opacity: 0; }
-
   /* --- Help (outside the stage) --------------------------------------- */
   .help {
     position: fixed; left: 50%; bottom: 16px;
@@ -177,16 +163,10 @@
   <p class="note br">520 ms · cubic-bezier(.6, 0, .3, 1)<br>Playback <span class="speed" id="speed">1×</span></p>
   <p class="note tr"><b class="state"><span class="is-closed">Closed</span><span class="is-open">Opened</span></b></p>
 
-  <svg class="cursor" viewBox="0 0 24 24" aria-hidden="true">
-    <g fill="#fff" stroke="#111" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15V4a2 2 0 0 1 4 0v5.5V9a2 2 0 0 1 4 0v1a2 2 0 0 1 3 1z"/>
-      <path d="M11 9.5V13M14 10v3M18 11v2" fill="none"/>
-    </g>
-  </svg>
 </div>
 
 <div class="help" id="help">
-  <kbd>Space</kbd> autoplay · <kbd>T</kbd> track · <kbd>C</kbd> cursor · <kbd>S</kbd> slow · <kbd>R</kbd> ratio <span id="ratio">4:3</span> · <kbd>F</kbd> fullscreen · <kbd>H</kbd> hide this
+  <kbd>Space</kbd> autoplay · <kbd>T</kbd> track · <kbd>S</kbd> slow · <kbd>R</kbd> ratio <span id="ratio">4:3</span> · <kbd>F</kbd> fullscreen · <kbd>H</kbd> hide this
 </div>
 
 <script>
@@ -208,7 +188,6 @@
 
   const body = document.body;
   const stage = document.getElementById('stage');
-  const cursor = document.querySelector('.cursor');
   const speedLabel = document.getElementById('speed');
   const wait = ms => new Promise(r => setTimeout(r, ms));
 
@@ -220,13 +199,6 @@
   }
   function toggle() { stage.classList.toggle('open'); }
 
-  async function click() {
-    cursor.classList.add('pressed');
-    await wait(110);
-    toggle();
-    await wait(90);
-    cursor.classList.remove('pressed');
-  }
 
   // Loop: two cycles at full speed, then one at quarter speed with the track
   // showing. About 15 seconds, which fits a Dribbble video shot.
@@ -243,7 +215,7 @@
         for (let i = 0; i < 2 && alive(); i++) {
           await wait(HOLD);
           if (!alive()) return;
-          await click();
+          toggle();
           await wait(morph);
         }
         if (!alive()) return;
@@ -253,11 +225,9 @@
   function setPlaying(on) {
     playing = on;
     body.classList.toggle('recording', on);
-    body.classList.toggle('fake-cursor', on && !cursorOff);
     if (on) autoplay(); else setSlow(body.classList.contains('slow'));
   }
 
-  let cursorOff = false;
   const ratios = [['4 / 3', 4 / 3, '4:3'], ['16 / 9', 16 / 9, '16:9'], ['1 / 1', 1, '1:1'], ['4 / 5', 4 / 5, '4:5']];
   let ratioIndex = 0;
 
@@ -270,7 +240,6 @@
     const k = e.key.toLowerCase();
     if (k === ' ') { e.preventDefault(); setPlaying(!playing); }
     else if (k === 't') { trackForced = !trackForced; body.classList.toggle('show-track', trackForced || body.classList.contains('slow')); }
-    else if (k === 'c') { cursorOff = !cursorOff; body.classList.toggle('fake-cursor', playing && !cursorOff); }
     else if (k === 's' && !playing) { setSlow(!body.classList.contains('slow')); }
     else if (k === 'r') {
       ratioIndex = (ratioIndex + 1) % ratios.length;
