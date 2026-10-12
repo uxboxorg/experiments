@@ -124,6 +124,8 @@
   /* Both words share one grid cell, so the hidden one takes no room. */
   .note b.state { display: grid; justify-items: end; font-family: var(--mono); font-weight: 400; letter-spacing: 0; }
   .bl { font-family: var(--display); font-weight: 500; letter-spacing: 0; }
+  .note.bl { color: var(--closed-fg); }
+  .open .note.bl { color: var(--open-fg); }
   .state span { grid-area: 1 / 1; transition: opacity var(--fade) linear; }
   .state .is-open, .open .state .is-closed { opacity: 0; }
   .open .state .is-open { opacity: 1; }
