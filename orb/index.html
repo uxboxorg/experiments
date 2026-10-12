@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thinking Orb</title>
+<style>
+  :root { --bg: #000; --ink: #e8e8e8; --hint: #7a7a7a; --line: #262626; --chip: #121212; --on: #f2f2f2; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    overflow: hidden;
+  }
+  #stage { position: relative; min-height: 0; }
+  #orb { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #label {
+    position: absolute; left: 0; right: 0; bottom: 12px; text-align: center;
+    color: var(--hint); user-select: none; letter-spacing: .02em;
+  }
+  #label b { color: var(--ink); font-weight: 500; }
+  nav {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+    padding: 16px; border-top: 1px solid var(--line);
+  }
+  nav button {
+    font: inherit; color: var(--ink); background: var(--chip);
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+  }
+  nav button[aria-pressed="true"] { background: var(--on); color: #000; border-color: var(--on); }
+  nav button:focus-visible { outline: 2px solid var(--hint); outline-offset: 2px; }
+  nav .sep { width: 1px; background: var(--line); margin: 0 4px; }
+</style>
+<script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+</head>
+<body>
+<div id="stage">
+  <canvas id="orb" aria-label="AI status orb"></canvas>
+  <div id="label" aria-live="polite"></div>
+</div>
+<nav id="states"></nav>
+
+<script type="module">
+import * as THREE from 'three';
+
+// ---- States --------------------------------------------------------------
+// Each state is a set of shape/shading targets. The orb eases toward the
+// active state's targets, so any state can follow any other.
+//   radius   overall size          wobble  slow noise warp of the surface
+//   ribs     meridian folds (ref 1) ribSpd  how fast the folds travel
+//   twist    spirals the folds      dimples moving dents (ref 2)
+//   bulge    one-sided swell (ref 3) sat    orbiting droplet (ref 4)
+//   jitter   fast shiver            glow    overall brightness
+//   hue      reddens the film       cool    cools the film
+//   speed    time scale of all motion
+const BASE = {
+  radius: 1, wobble: .006, ribs: 0, ribSpd: 1, twist: 0, dimples: 0,
+  bulge: 0, sat: 0, satSpd: 1, jitter: 0, glow: 1, hue: 0, cool: 0, speed: 1,
+};
+const STATES = {
+  idle:        { label: 'Idle',        hint: 'Ready, nothing happening',
+                 wobble: .007, speed: .6 },
+  listening:   { label: 'Listening',   hint: 'User is typing or speaking',
+                 radius: 1.04, wobble: .008, dimples: 1, glow: 1.1, speed: .9 },
+  thinking:    { label: 'Thinking',    hint: 'Reasoning before answering',
+                 wobble: .01, ribs: .035, ribSpd: 1.6, speed: 1 },
+  researching: { label: 'Researching', hint: 'Searching the web / reading sources',
+                 wobble: .007, sat: 1, satSpd: 1, speed: 1 },
+  working:     { label: 'Working',     hint: 'Running tools, editing files',
+                 wobble: .008, ribs: .028, ribSpd: 4, twist: 2.4, glow: 1.1, speed: 1.2 },
+  typing:      { label: 'Responding',  hint: 'Streaming the answer',
+                 wobble: .007, bulge: 1, speed: 1 },
+  waiting:     { label: 'Needs you',   hint: 'Waiting for approval or input',
+                 radius: .96, wobble: .005, glow: .8, cool: .7, speed: .45 },
+  error:       { label: 'Error',       hint: 'Something failed',
+                 radius: .95, wobble: .012, jitter: 1, glow: .9, hue: 1, speed: 1 },
+};
+// One-shot reactions, layered on top of whatever state is active.
+const EVENTS = { success: 'Done' };
+
+// ---- Renderer --------------------------------------------------------------
+const canvas = document.getElementById('orb');
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, premultipliedAlpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+const scene = new THREE.Scene();
+const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+const uniforms = {
+  uTime:     { value: 0 },
+  uRes:      { value: new THREE.Vector2() },
+  uRadius:   { value: 1 },
+  uWobble:   { value: 0 },
+  uRibs:     { value: 0 },
+  uRibPhase: { value: 0 },
+  uTwist:    { value: 0 },
+  uDimples:  { value: 0 },
+  uBulge:    { value: 0 },
+  uBulgeDir: { value: new THREE.Vector3(1, .2, .3).normalize() },
+  uSatPos:   { value: new THREE.Vector3() },
+  uSatR:     { value: 0 },
+  uJitter:   { value: 0 },
+  uGlow:     { value: 1 },
+  uHue:      { value: 0 },
+  uCool:     { value: 0 },
+};
+
+const material = new THREE.ShaderMaterial({
+  uniforms,
+  vertexShader: /* glsl */`
+    varying vec2 vUv;
+    void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }
+  `,
+  fragmentShader: /* glsl */`
+    precision highp float;
+    varying vec2 vUv;
+    uniform float uCool, uTime, uRadius, uWobble, uRibs, uRibPhase, uTwist, uDimples, uBulge, uSatR, uJitter, uGlow, uHue;
+    uniform vec2 uRes;
+    uniform vec3 uBulgeDir, uSatPos;
+
+    // Ashima 3D simplex noise
+    vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}
+    vec4 mod289(vec4 x){return x-floor(x*(1./289.))*289.;}
+    vec4 permute(vec4 x){return mod289(((x*34.)+1.)*x);}
+    vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-.85373472095314*r;}
+    float snoise(vec3 v){
+      const vec2 C=vec2(1./6.,1./3.); const vec4 D=vec4(0.,.5,1.,2.);
+      vec3 i=floor(v+dot(v,C.yyy)); vec3 x0=v-i+dot(i,C.xxx);
+      vec3 g=step(x0.yzx,x0.xyz); vec3 l=1.-g; vec3 i1=min(g.xyz,l.zxy); vec3 i2=max(g.xyz,l.zxy);
+      vec3 x1=x0-i1+C.xxx; vec3 x2=x0-i2+C.yyy; vec3 x3=x0-D.yyy;
+      i=mod289(i);
+      vec4 p=permute(permute(permute(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));
+      float n_=.142857142857; vec3 ns=n_*D.wyz-D.xzx;
+      vec4 j=p-49.*floor(p*ns.z*ns.z); vec4 x_=floor(j*ns.z); vec4 y_=floor(j-7.*x_);
+      vec4 x=x_*ns.x+ns.yyyy; vec4 y=y_*ns.x+ns.yyyy; vec4 h=1.-abs(x)-abs(y);
+      vec4 b0=vec4(x.xy,y.xy); vec4 b1=vec4(x.zw,y.zw);
+      vec4 s0=floor(b0)*2.+1.; vec4 s1=floor(b1)*2.+1.; vec4 sh=-step(h,vec4(0.));
+      vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy; vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+      vec3 p0=vec3(a0.xy,h.x); vec3 p1=vec3(a0.zw,h.y); vec3 p2=vec3(a1.xy,h.z); vec3 p3=vec3(a1.zw,h.w);
+      vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+      p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
+      vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.); m=m*m;
+      return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+    }
+
+    float smin(float a, float b, float k){
+      float h = clamp(.5 + .5*(b-a)/k, 0., 1.);
+      return mix(b, a, h) - k*h*(1.-h);
+    }
+
+    const float R = .62; // base radius in view units
+
+    float map(vec3 p){
+      // Twist spirals the meridian folds around the vertical axis.
+      float a = uTwist * p.y;
+      float c = cos(a), s = sin(a);
+      vec3 q = vec3(c*p.x - s*p.z, p.y, s*p.x + c*p.z);
+      vec3 n = normalize(q);
+      float t = uTime;
+
+      float d = 0.;
+      d += uWobble * (snoise(n*1.5 + vec3(0., 0., t*.35)) + .5*snoise(n*3. - t*.45));
+
+      // Meridian folds: creases that run pole to pole and travel around.
+      float phi = atan(n.z, n.x);
+      float band = 1. - n.y*n.y;
+      d += uRibs * band * sin(phi*6. + uRibPhase) * (.65 + .35*sin(n.y*2.5 + t*.8));
+      d += uRibs * .5 * band * sin(phi*11. - uRibPhase*1.3);
+
+      // Small dents drifting across the film.
+      if (uDimples > .001) {
+        for (int i = 0; i < 4; i++) {
+          float fi = float(i);
+          vec3 cdir = normalize(vec3(
+            sin(t*(.31+.07*fi) + fi*2.1),
+            sin(t*(.23+.05*fi) + fi*1.3) * .8,
+            cos(t*(.27+.06*fi) + fi*2.7)));
+          float pulse = .5 + .5*sin(t*1.7 + fi*1.9);
+          d -= uDimples * .03 * pulse * exp(-(1. - dot(n, cdir)) * 90.);
+        }
+      }
+
+      // One-sided swell, like a voice pushing the surface out.
+      d += uBulge * exp(-(1. - dot(n, uBulgeDir)) * 7.);
+
+      d += uJitter * .012 * snoise(n*7. + t*9.);
+
+      float sdf = length(p) - R*uRadius*(1. + d);
+
+      // Droplet that slides around the rim, merged by a smooth union.
+      if (uSatR > .001) sdf = smin(sdf, length(p - uSatPos) - uSatR, .09);
+      return sdf;
+    }
+
+    vec3 calcNormal(vec3 p){
+      const vec2 e = vec2(.0015, -.0015);
+      return normalize(e.xyy*map(p+e.xyy) + e.yyx*map(p+e.yyx) + e.yxy*map(p+e.yxy) + e.xxx*map(p+e.xxx));
+    }
+
+    // Thin-film palette: purple -> orange -> gold -> pale cyan as the film thickens.
+    vec3 film(float x){
+      x = fract(x);
+      vec3 purple = vec3(.55, .3, 1.);
+      vec3 orange = vec3(1., .5, .1);
+      vec3 gold   = vec3(1., .8, .4);
+      vec3 cyan   = vec3(.55, .95, 1.);
+      vec3 col = mix(purple, orange, smoothstep(0., .3, x));
+      col = mix(col, gold,   smoothstep(.3, .5, x));
+      col = mix(col, cyan,   smoothstep(.5, .75, x));
+      col = mix(col, purple, smoothstep(.75, 1., x));
+      return col;
+    }
+
+    // Art-directed lighting, keyed to where the surface faces on screen:
+    // a warm crescent on the right, a smaller warm patch lower left, a violet
+    // sheen top left and a white-cyan hairline all around (see the refs).
+    vec3 shade(vec3 p, vec3 n, vec3 v, bool back){
+      float g = 1. - abs(dot(n, v));                    // 0 facing us, 1 at the silhouette
+      float wob = .35 * snoise(p*2.4 + vec3(0., uTime*.15, 0.));
+      vec3 no = back ? -n : n;                          // outward normal for both walls
+      float ang = atan(no.y, no.x) + wob;
+      float warmM = smoothstep(.3, .95, cos(ang + .25)) + .6*smoothstep(.75, 1., cos(ang - 3.75));
+      float violM = smoothstep(.45, 1., cos(ang - 2.25));
+      vec3 warm = mix(vec3(1., .42, .06), vec3(1., .72, .3), smoothstep(.6, 1., g));
+      vec3 viol = vec3(.5, .32, 1.);
+      warm = mix(warm, vec3(1., .12, .22), uHue);         // error: red film
+      warm = mix(warm, vec3(.45, .7, 1.), uCool);         // waiting: cool film
+      vec3 sheen = film(.25 + .6*g + wob + uHue*.3);
+      vec3 c;
+      if (back) {
+        float w = pow(g, 2.3);
+        c = (warm * warmM * 4. + viol * violM * 2.2) * w;
+        c += sheen * w * .12;
+      } else {
+        c = (warm * warmM * .8 + viol * violM * 1. + sheen * .35) * pow(g, 4.);
+        c += mix(vec3(.6, .95, 1.), sheen, .3) * pow(g, 8.) * 2.4;        // hairline rim
+      }
+      return c;
+    }
+
+    void main(){
+      vec2 uv = (vUv*2. - 1.) * vec2(uRes.x/uRes.y, 1.);
+      float m = min(1., uRes.y/uRes.x);
+      uv /= max(m, uRes.y/uRes.x);   // keep the orb inside the short side
+      vec3 ro = vec3(0., 0., 3.);
+      vec3 rd = normalize(vec3(uv, -3.6));
+
+      // Cheap bounding sphere test.
+      float bound = R * 1.6;
+      float b = dot(ro, rd), cc = dot(ro, ro) - bound*bound, h = b*b - cc;
+      if (h < 0.) { gl_FragColor = vec4(0.); return; }
+
+      float t = -b - sqrt(h);
+      float tEnd = -b + sqrt(h);
+      bool hit = false;
+      float minD = 1e3;
+      for (int i = 0; i < 90; i++) {
+        float d = map(ro + rd*t);
+        minD = min(minD, d);
+        if (d < .0008) { hit = true; break; }
+        t += d * .75;
+        if (t > tEnd) break;
+      }
+      if (!hit) {
+        // Soft outer glow so the silhouette is anti-aliased and slightly blooms.
+        vec3 halo = vec3(.7, .9, 1.) * exp(-minD * 260.) * .55 * uGlow;
+        gl_FragColor = vec4(halo, max(halo.r, max(halo.g, halo.b)));
+        return;
+      }
+
+      vec3 v = -rd;
+      vec3 pF = ro + rd*t;
+      vec3 nF = calcNormal(pF);
+      vec3 col = shade(pF, nF, v, false);
+
+      // March through the inside to the far wall of the bubble.
+      float t2 = t + .02;
+      for (int i = 0; i < 70; i++) {
+        float d = -map(ro + rd*t2);
+        if (d < .0008) break;
+        t2 += max(d * .75, .002);
+      }
+      vec3 pB = ro + rd*t2;
+      vec3 nB = -calcNormal(pB);
+      col += shade(pB, nB, v, true) * .9;
+
+      col *= uGlow;
+      col = 1. - exp(-col * 1.3);           // soft tone map
+      float a = max(col.r, max(col.g, col.b));
+      gl_FragColor = vec4(col, a);           // premultiplied, composites on dark UI
+    }
+  `,
+  transparent: true,
+  depthTest: false,
+});
+scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
+
+function resize() {
+  const { clientWidth: w, clientHeight: h } = canvas.parentElement;
+  renderer.setSize(w, h, false);
+  renderer.getDrawingBufferSize(uniforms.uRes.value);
+}
+new ResizeObserver(resize).observe(canvas.parentElement);
+resize();
+
+// ---- Animation -------------------------------------------------------------
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cur = { ...BASE, ...STATES.idle };
+let target = { ...BASE, ...STATES.idle };
+let active = 'idle';
+let level = null;              // external audio / typing level 0..1, null = simulated
+let pop = 0, popV = 0;         // spring for the success pop
+let shake = 0;
+let t = 0, ribPhase = 0, satAng = 0, satLife = 0;
+let last = performance.now();
+
+function setState(name) {
+  if (EVENTS[name]) return trigger(name);
+  if (!STATES[name]) return;
+  active = name;
+  target = { ...BASE, ...STATES[name] };
+  if (name === 'error') shake = 1;
+  updateUI();
+}
+function trigger(name) {
+  if (name === 'success') { popV += 2.6; flash = 1; flashName = EVENTS[name]; updateUI(); }
+}
+let flash = 0, flashName = '';
+
+// Speech-like envelope: syllables of random length and loudness.
+let syl = 0, sylT = 0, sylDur = .2, sylAmp = .6;
+function speechLevel(dt) {
+  sylT += dt;
+  if (sylT > sylDur) {
+    sylT = 0;
+    sylDur = .09 + Math.random() * .22;
+    sylAmp = Math.random() < .18 ? 0 : .35 + Math.random() * .65;   // occasional pause
+  }
+  const env = Math.sin(Math.PI * Math.min(1, sylT / sylDur));
+  syl += (sylAmp * env - syl) * Math.min(1, dt * 18);
+  return syl;
+}
+
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000);
+  last = now;
+  const k = 1 - Math.exp(-dt * 3.2);
+  for (const key in target) cur[key] += (target[key] - cur[key]) * k;
+
+  const sp = reduceMotion ? cur.speed * .3 : cur.speed;
+  t += dt * sp;
+  ribPhase += dt * sp * cur.ribSpd;
+
+  // Success: damped spring on the radius.
+  popV += (-pop * 90 - popV * 9) * dt;
+  pop += popV * dt;
+  flash = Math.max(0, flash - dt * .7);
+  shake = Math.max(0, shake - dt * 1.2);
+
+  // Responding: the bulge follows a speech envelope and drifts around the side.
+  const voice = level ?? speechLevel(dt);
+  const bulge = cur.bulge * (.015 + .085 * voice);
+  const ba = t * .35;
+  uniforms.uBulgeDir.value.set(Math.cos(ba) * .9, Math.sin(t * .5) * .35, Math.sin(ba) * .5 + .4).normalize();
+
+  // Listening: external level swells the orb slightly.
+  const listenSwell = active === 'listening' && level != null ? level * .05 : 0;
+
+  // Researching: a droplet buds off, slides around the rim, and is reabsorbed.
+  satAng += dt * sp * cur.satSpd * 1.1;
+  satLife = (satLife + dt * sp * .22) % 1;
+  const life = Math.sin(Math.PI * satLife);            // 0 -> 1 -> 0 per trip
+  const satR = cur.sat * .085 * Math.pow(life, .7);
+  const orbitR = .62 * cur.radius * (1.02 + .1 * life);
+  uniforms.uSatPos.value.set(Math.cos(satAng) * orbitR, Math.sin(satAng * .7) * .25 * orbitR + Math.sin(satAng) * .55 * orbitR, Math.sin(satAng) * .3);
+  uniforms.uSatPos.value.normalize().multiplyScalar(orbitR);
+
+  uniforms.uTime.value = t;
+  uniforms.uRadius.value = cur.radius * (1 + .012 * Math.sin(t * 1.3)) + pop * .08 + listenSwell;
+  uniforms.uWobble.value = cur.wobble + Math.abs(pop) * .03;
+  uniforms.uRibs.value = cur.ribs;
+  uniforms.uRibPhase.value = ribPhase;
+  uniforms.uTwist.value = cur.twist;
+  uniforms.uDimples.value = cur.dimples * (level != null && active === 'listening' ? .4 + level * 1.6 : 1);
+  uniforms.uBulge.value = bulge;
+  uniforms.uSatR.value = satR;
+  uniforms.uJitter.value = cur.jitter * (.35 + shake * 1.5);
+  uniforms.uGlow.value = cur.glow * (1 + flash * .5) * (active === 'waiting' ? .85 + .15 * Math.sin(t * 3) : 1);
+  uniforms.uHue.value = cur.hue;
+  uniforms.uCool.value = cur.cool;
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// ---- Demo UI ---------------------------------------------------------------
+const nav = document.getElementById('states');
+const labelEl = document.getElementById('label');
+const buttons = {};
+for (const [name, s] of Object.entries(STATES)) {
+  const b = document.createElement('button');
+  b.textContent = s.label;
+  b.title = s.hint;
+  b.onclick = () => { stopDemo(); setState(name); };
+  nav.append(b);
+  buttons[name] = b;
+}
+nav.append(Object.assign(document.createElement('span'), { className: 'sep' }));
+for (const [name, text] of Object.entries(EVENTS)) {
+  const b = document.createElement('button');
+  b.textContent = text + ' ✓';
+  b.title = 'One-shot reaction when a task finishes';
+  b.onclick = () => setState(name);
+  nav.append(b);
+}
+const demoBtn = document.createElement('button');
+demoBtn.textContent = 'Demo';
+demoBtn.title = 'Play a typical conversation turn';
+nav.append(demoBtn);
+
+function updateUI() {
+  for (const [n, b] of Object.entries(buttons)) b.setAttribute('aria-pressed', String(n === active));
+  demoBtn.setAttribute('aria-pressed', String(demoTimer != null));
+  const s = STATES[active];
+  labelEl.innerHTML = `<b>${s.label}</b> · ${s.hint}`;
+}
+
+// A typical turn: user types, model thinks, searches, uses tools, answers.
+const SCRIPT = [
+  ['idle', 2500], ['listening', 3500], ['thinking', 4500], ['researching', 6000],
+  ['thinking', 2500], ['working', 5000], ['typing', 6000], ['success', 2200],
+  ['waiting', 4000], ['error', 2500], ['idle', 2500],
+];
+let demoTimer = null;
+function runDemo(i = 0) {
+  const [name, ms] = SCRIPT[i % SCRIPT.length];
+  setState(name);
+  if (EVENTS[name]) setState('idle');
+  demoTimer = setTimeout(() => runDemo(i + 1), ms);
+  updateUI();
+}
+function stopDemo() { clearTimeout(demoTimer); demoTimer = null; updateUI(); }
+demoBtn.onclick = () => demoTimer != null ? stopDemo() : runDemo();
+
+// Public API for embedding: orb.setState('thinking'), orb.setLevel(0..1 | null).
+window.orb = { setState, setLevel: v => { level = v; }, states: Object.keys(STATES), events: Object.keys(EVENTS) };
+
+setState('idle');
+const initial = new URLSearchParams(location.search).get('state');
+if (initial) setState(initial); else runDemo();
+</script>
+</body>
+</html>
