@@ -122,7 +122,8 @@
   .br { right: 5cqw; bottom: 5cqw; text-align: right; }
   .speed { display: inline-block; min-width: 5ch; }
   /* Both words share one grid cell, so the hidden one takes no room. */
-  .note b.state { display: grid; justify-items: end; }
+  .note b.state { display: grid; justify-items: end; font-family: var(--mono); font-weight: 400; letter-spacing: 0; }
+  .bl { font-family: var(--display); font-weight: 500; letter-spacing: 0; }
   .state span { grid-area: 1 / 1; transition: opacity var(--fade) linear; }
   .state .is-open, .open .state .is-closed { opacity: 0; }
   .open .state .is-open { opacity: 1; }
