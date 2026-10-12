@@ -1,0 +1,289 @@
+<title>Burger Curl Shot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+  /* Layout: one fixed-ratio stage, centred on a dark surround, sized for screen
+     recording. The icon owns the middle; spec notes sit quietly in the corners.
+     Deliberately single-theme: the stage must look identical in every recording. */
+  :root {
+    color-scheme: dark;
+    --surround: #181914;      /* outside the frame, so the crop edge is obvious */
+    --paper: #f5f5f0;         /* closed state, a faint olive-tinted white */
+    --olive: #646752;         /* sampled from the reference panel */
+    --olive-ink: #8d907a;     /* corner notes on paper */
+    --white: #ffffff;
+    --mist: rgba(255, 255, 255, 0.62); /* corner notes on olive */
+    --hint: #9a9c8a;
+
+    --display: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+
+    --ratio: 4 / 3;
+    --ratio-n: 1.3333;
+    --morph: 520ms;
+    --fade: 300ms;
+    --ease: cubic-bezier(0.6, 0, 0.3, 1);
+  }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--surround);
+    color: var(--hint);
+    font-family: var(--display);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  body.slow { --morph: 2080ms; --fade: 1200ms; }
+
+  /* --- Stage ---------------------------------------------------------- */
+  .stage {
+    position: relative;
+    width: min(100vw - 32px, (100vh - 32px) * var(--ratio-n));
+    max-width: 100%;
+    aspect-ratio: var(--ratio);
+    background: var(--paper);
+    container-type: size;
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+  }
+  body.recording .stage { cursor: none; }
+  .panel {
+    position: absolute; inset: 0;
+    background: var(--olive);
+    opacity: 0;
+    transition: opacity var(--fade) linear;
+  }
+  .open .panel { opacity: 1; }
+
+  /* --- Icon ----------------------------------------------------------- */
+  .icon {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: min(30cqw, 40cqh);
+    transform: translate(-50%, -50%);
+    color: var(--olive);
+    overflow: visible;
+  }
+  .open .icon { color: var(--white); }
+  .icon .line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.6;
+    stroke-dasharray: var(--c-len) 9999;
+    stroke-dashoffset: var(--c-off);
+    transition:
+      stroke-dasharray var(--morph) var(--ease),
+      stroke-dashoffset var(--morph) var(--ease);
+  }
+  .open .icon .line {
+    stroke-dasharray: var(--o-len) 9999;
+    stroke-dashoffset: var(--o-off);
+  }
+  /* The hidden track each bar travels along. */
+  .icon .track {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 0.9;
+    stroke-dasharray: 0.1 3.2;
+    stroke-linecap: round;
+    opacity: 0;
+    transition: opacity 400ms ease;
+  }
+  .show-track .icon .track { opacity: 0.55; }
+
+  /* --- Corner notes --------------------------------------------------- */
+  .note {
+    position: absolute;
+    margin: 0;
+    font: 400 max(10px, 1.45cqw)/1.45 var(--mono);
+    letter-spacing: 0.02em;
+    color: var(--olive-ink);
+    transition: color var(--fade) linear;
+    font-variant-numeric: tabular-nums;
+  }
+  .open .note { color: var(--mist); }
+  .note b {
+    display: block;
+    font: 500 max(12px, 2.1cqw)/1.2 var(--display);
+    letter-spacing: -0.01em;
+    color: var(--olive);
+    transition: color var(--fade) linear;
+  }
+  .open .note b { color: var(--white); }
+  .tl { left: 5cqw; top: 5cqw; }
+  .tr { right: 5cqw; top: 5cqw; text-align: right; }
+  .bl { left: 5cqw; bottom: 5cqw; }
+  .br { right: 5cqw; bottom: 5cqw; text-align: right; }
+  .state { display: inline-grid; }
+  .state span { grid-area: 1 / 1; transition: opacity var(--fade) linear; }
+  .state .is-open, .open .state .is-closed { opacity: 0; }
+  .open .state .is-open { opacity: 1; }
+  .speed { display: inline-block; min-width: 5ch; }
+
+  /* --- Fake cursor ---------------------------------------------------- */
+  .cursor {
+    position: absolute;
+    left: calc(50% + min(9cqw, 12cqh));
+    top: calc(50% + min(3cqw, 4cqh));
+    width: max(18px, 3.4cqw);
+    pointer-events: none;
+    transform-origin: 30% 10%;
+    transition: transform 110ms ease-out, opacity 300ms ease;
+    filter: drop-shadow(0 0.25cqw 0.4cqw rgba(0, 0, 0, 0.25));
+  }
+  .cursor.pressed { transform: scale(0.86); }
+  body:not(.fake-cursor) .cursor { opacity: 0; }
+
+  /* --- Help (outside the stage) --------------------------------------- */
+  .help {
+    position: fixed; left: 50%; bottom: 16px;
+    transform: translateX(-50%);
+    width: max-content; max-width: calc(100vw - 32px);
+    padding: 8px 14px;
+    background: rgba(24, 25, 20, 0.92);
+    color: var(--hint);
+    border: 1px solid #34362c;
+    border-radius: 999px;
+    font: 12px/1.4 var(--mono);
+    text-align: center;
+    transition: opacity 300ms ease;
+  }
+  .help kbd { font: inherit; color: var(--paper); }
+  body.hide-help .help { opacity: 0; pointer-events: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root { --morph: 0ms; --fade: 0ms; }
+  }
+</style>
+
+<div class="stage" id="stage" role="button" tabindex="0" aria-label="Menu icon. Click to open or close.">
+  <div class="panel"></div>
+
+  <svg class="icon" viewBox="23 6 122 116" aria-hidden="true">
+    <path class="track" d="M40 34 H126 C144 34 152 48 152 66 C152 88 138 118 122 102 L46 26"/>
+    <path class="track" d="M40 94 H126 C144 94 152 80 152 62 C152 40 138 10 122 26 L46 102"/>
+    <path class="line" id="lineTop" d="M40 34 H126 C144 34 152 48 152 66 C152 88 138 118 122 102 L46 26"/>
+    <path class="line" id="lineMid" d="M40 64 H126"/>
+    <path class="line" id="lineBot" d="M40 94 H126 C144 94 152 80 152 62 C152 40 138 10 122 26 L46 102"/>
+  </svg>
+
+  <p class="note tl"><b>Menu toggle</b>Interaction study</p>
+  <p class="note tr"><b class="state"><span class="is-closed">Closed</span><span class="is-open">Open</span></b>Click to toggle</p>
+  <p class="note bl">Two bars curl round a loop<br>and land as the X</p>
+  <p class="note br">520 ms · cubic-bezier(.6, 0, .3, 1)<br>Playback <span class="speed" id="speed">1×</span></p>
+
+  <svg class="cursor" viewBox="0 0 24 24" aria-hidden="true">
+    <g fill="#fff" stroke="#111" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15V4a2 2 0 0 1 4 0v5.5V9a2 2 0 0 1 4 0v1a2 2 0 0 1 3 1z"/>
+      <path d="M11 9.5V13M14 10v3M18 11v2" fill="none"/>
+    </g>
+  </svg>
+</div>
+
+<div class="help" id="help">
+  <kbd>Space</kbd> autoplay · <kbd>T</kbd> track · <kbd>C</kbd> cursor · <kbd>S</kbd> slow · <kbd>R</kbd> ratio <span id="ratio">4:3</span> · <kbd>F</kbd> fullscreen · <kbd>H</kbd> hide this
+</div>
+
+<script>
+  const BAR = 86;
+  const DIAG = Math.hypot(76, 76);
+  for (const id of ['lineTop', 'lineBot']) {
+    const p = document.getElementById(id);
+    const total = p.getTotalLength();
+    p.style.setProperty('--c-len', BAR);
+    p.style.setProperty('--c-off', 0);
+    p.style.setProperty('--o-len', DIAG);
+    p.style.setProperty('--o-off', -(total - DIAG));
+  }
+  const mid = document.getElementById('lineMid');
+  mid.style.setProperty('--c-len', BAR);
+  mid.style.setProperty('--c-off', 0);
+  mid.style.setProperty('--o-len', 0);
+  mid.style.setProperty('--o-off', -44);
+
+  const body = document.body;
+  const stage = document.getElementById('stage');
+  const cursor = document.querySelector('.cursor');
+  const speedLabel = document.getElementById('speed');
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  let trackForced = false;
+  function setSlow(on) {
+    body.classList.toggle('slow', on);
+    speedLabel.textContent = on ? '0.25×' : '1×';
+    body.classList.toggle('show-track', on || trackForced);
+  }
+  function toggle() { stage.classList.toggle('open'); }
+
+  async function click() {
+    cursor.classList.add('pressed');
+    await wait(110);
+    toggle();
+    await wait(90);
+    cursor.classList.remove('pressed');
+  }
+
+  // Loop: two cycles at full speed, then one at quarter speed with the track
+  // showing. About 15 seconds, which fits a Dribbble video shot.
+  const HOLD = 1400;
+  let playing = false, run = 0;
+  async function autoplay() {
+    const id = ++run;
+    const alive = () => playing && id === run;
+    stage.classList.remove('open');
+    while (alive()) {
+      for (const slow of [false, false, true]) {
+        setSlow(slow);
+        const morph = slow ? 2080 : 520;
+        for (let i = 0; i < 2 && alive(); i++) {
+          await wait(HOLD);
+          if (!alive()) return;
+          await click();
+          await wait(morph);
+        }
+        if (!alive()) return;
+      }
+    }
+  }
+  function setPlaying(on) {
+    playing = on;
+    body.classList.toggle('recording', on);
+    body.classList.toggle('fake-cursor', on && !cursorOff);
+    if (on) autoplay(); else setSlow(body.classList.contains('slow'));
+  }
+
+  let cursorOff = false;
+  const ratios = [['4 / 3', 4 / 3, '4:3'], ['16 / 9', 16 / 9, '16:9'], ['1 / 1', 1, '1:1'], ['4 / 5', 4 / 5, '4:5']];
+  let ratioIndex = 0;
+
+  stage.addEventListener('click', () => { if (!playing) toggle(); });
+  stage.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); if (!playing) toggle(); }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key.toLowerCase();
+    if (k === ' ') { e.preventDefault(); setPlaying(!playing); }
+    else if (k === 't') { trackForced = !trackForced; body.classList.toggle('show-track', trackForced || body.classList.contains('slow')); }
+    else if (k === 'c') { cursorOff = !cursorOff; body.classList.toggle('fake-cursor', playing && !cursorOff); }
+    else if (k === 's' && !playing) { setSlow(!body.classList.contains('slow')); }
+    else if (k === 'r') {
+      ratioIndex = (ratioIndex + 1) % ratios.length;
+      const [css, n, label] = ratios[ratioIndex];
+      document.documentElement.style.setProperty('--ratio', css);
+      document.documentElement.style.setProperty('--ratio-n', n);
+      document.getElementById('ratio').textContent = label;
+    }
+    else if (k === 'f') {
+      if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+      else document.documentElement.requestFullscreen?.().catch(() => {});
+    }
+    else if (k === 'h') { body.classList.toggle('hide-help'); }
+  });
+
+  setPlaying(true);
+  setTimeout(() => body.classList.add('hide-help'), 5000);
+</script>
