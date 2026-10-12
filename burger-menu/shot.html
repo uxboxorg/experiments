@@ -117,7 +117,8 @@
   .tr { right: 5cqw; top: 5cqw; text-align: right; }
   .br { right: 5cqw; bottom: 5cqw; text-align: right; }
   .speed { display: inline-block; min-width: 5ch; }
-  .state { display: inline-grid; }
+  /* Both words share one grid cell, so the hidden one takes no room. */
+  .note b.state { display: grid; justify-items: end; }
   .state span { grid-area: 1 / 1; transition: opacity var(--fade) linear; }
   .state .is-open, .open .state .is-closed { opacity: 0; }
   .open .state .is-open { opacity: 1; }
@@ -171,7 +172,7 @@
 
   <p class="note tl"><b>Menu toggle</b>Interaction study</p>
   <p class="note br">520 ms · cubic-bezier(.6, 0, .3, 1)<br>Playback <span class="speed" id="speed">1×</span></p>
-  <p class="note tr"><b class="state"><span class="is-closed">Closed</span><span class="is-open">Open</span></b>Click to toggle</p>
+  <p class="note tr"><b class="state"><span class="is-closed">Closed</span><span class="is-open">Open</span></b></p>
 
   <svg class="cursor" viewBox="0 0 24 24" aria-hidden="true">
     <g fill="#fff" stroke="#111" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
