@@ -15,7 +15,7 @@ precision highp float;
 uniform vec2 uRes;
 uniform float uTime, uR, uWob, uRibs, uRibPhase, uDimples, uBulge, uBulgeAng,
               uSatR, uSatAng, uSatDist, uLayers, uJitter, uGlow, uHue, uCool, uCurl, uBloom, uDots;
-uniform vec3 uDotY;
+uniform vec3 uDotY, uDotS;
 
 float h1(float n){ return fract(sin(n) * 43758.5453); }
 float h2(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -50,13 +50,17 @@ float sdSat(vec2 p){
   vec2 l = p - dir*uSatDist;
   return length(vec2(dot(l, vec2(-dir.y, dir.x))*.5, dot(l, dir)*1.15)) - uSatR;
 }
-// Responding: three small orbs in a row, each lifted by uDotY.
+// Responding: three small orbs in a row. uDotY lifts each one; uDotS
+// stretches it tall (> 0) or squashes it flat (< 0), keeping its volume and
+// its bottom on the baseline.
 const float DOT_GAP = .44, DOT_R = .13;
 float sdDots(vec2 p){
   float d = 1e3;
   for (int i = 0; i < 3; i++) {
-    vec2 c = vec2((float(i) - 1.)*DOT_GAP*uDots, uDotY[i]);
-    d = min(d, length(p - c) - DOT_R*uDots);
+    float r = DOT_R*uDots;
+    vec2 sc = vec2(1. / (1. + uDotS[i]), 1. + uDotS[i]);
+    vec2 c = vec2((float(i) - 1.)*DOT_GAP*uDots, uDotY[i] + r*(sc.y - 1.));
+    d = min(d, (length((p - c) / sc) - r) * min(sc.x, sc.y));
   }
   return d;
 }
@@ -258,7 +262,7 @@ void main(){
                    radius: .95, wobble: .012, jitter: 1, glow: .9, hue: 1 },
   };
   const UNIFORMS = ['uRes', 'uTime', 'uR', 'uWob', 'uRibs', 'uRibPhase', 'uDimples', 'uBulge',
-    'uBulgeAng', 'uSatR', 'uSatAng', 'uSatDist', 'uLayers', 'uJitter', 'uGlow', 'uHue', 'uCool', 'uCurl', 'uBloom', 'uDots', 'uDotY'];
+    'uBulgeAng', 'uSatR', 'uSatAng', 'uSatDist', 'uLayers', 'uJitter', 'uGlow', 'uHue', 'uCool', 'uCurl', 'uBloom', 'uDots', 'uDotY', 'uDotS'];
   const R = .78; // orb radius as a fraction of half the canvas' short side
 
   function compile(gl, type, src) {
@@ -301,6 +305,8 @@ void main(){
     let pop = 0, popV = 0, flash = 0, shake = 0;
     let t = 0, ribPhase = 0, satAng = 0, satLife = 0;
     let syl = 0, sylT = 0, sylDur = .2, sylAmp = .6;
+    const HOP_PERIOD = 1.5;
+    const dots = [0, 1, 2].map(() => ({ y: 0, s: 0, sv: 0 }));
     let last = performance.now(), raf = 0, visible = true;
 
     // Speech-like envelope for the responding bulge: syllables and pauses.
@@ -377,9 +383,28 @@ void main(){
       // Responding: the orb shrinks into three small orbs that hop in turn,
       // like a typing indicator; speech loudness lifts them a little higher.
       gl.uniform1f(U.uDots, cur.dots);
-      const hop = i => .09 * cur.dots * (1 + .5 * voice) *
-        Math.pow(Math.max(0, Math.sin(t * 2 * Math.PI / 1.3 - i * .9)), 2);
-      gl.uniform3f(U.uDotY, hop(0), hop(1), hop(2));
+      // Each orb crouches, launches on a ballistic arc (stretching with its
+      // speed), lands and wobbles flat-to-round on a spring before the next wave.
+      const sway = .012 * Math.sin(t * .9);
+      for (let i = 0; i < 3; i++) {
+        const d = dots[i];
+        const u = ((t / HOP_PERIOD - i * .14) % 1 + 1) % 1;
+        const air = .42;
+        let y = 0, target = 0;
+        if (u < air) {
+          const k = u / air, amp = .1 * (1 + .4 * voice);
+          y = 4 * amp * k * (1 - k);
+          const vy = 4 * amp * (1 - 2 * k) / (air * HOP_PERIOD);
+          target = Math.min(.2, Math.abs(vy) * .28);
+        } else if (u > .9) {
+          target = -.1 * Math.sin(Math.PI * (u - .9) / .1);   // crouch before take-off
+        }
+        d.sv += ((target - d.s) * 320 - d.sv * 13) * dt;
+        d.s += d.sv * dt;
+        d.y = (y + sway) * cur.dots;
+      }
+      gl.uniform3f(U.uDotY, dots[0].y, dots[1].y, dots[2].y);
+      gl.uniform3f(U.uDotS, dots[0].s * cur.dots, dots[1].s * cur.dots, dots[2].s * cur.dots);
       gl.uniform1f(U.uBloom, cur.bulge * (.1 + 1.1 * swellT + .3 * voice));
       gl.uniform1f(U.uSatR, cur.sat * .15 * R * Math.pow(life, .6));
       gl.uniform1f(U.uSatAng, satAng);
