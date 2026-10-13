@@ -13,7 +13,7 @@
   const FRAG = `
 precision highp float;
 uniform vec2 uRes;
-uniform float uTime, uR, uWob, uRibs, uRibPhase, uDimples, uBulge, uBulgeAng,
+uniform float uTime, uR, uWob, uRibs, uRibPhase, uBulge, uBulgeAng,
               uSatR, uSatAng, uSatDist, uLayers, uJitter, uGlow, uHue, uCool, uCurl, uBloom, uDots;
 uniform vec3 uDotY, uDotS;
 
@@ -80,6 +80,49 @@ vec3 film(float x){
   return mix(c, vec3(.5, .3, 1.), smoothstep(.75, 1., x));
 }
 
+// Thin-film interference: reflected colour of a soap film d nm thick, seen
+// at cos(angle) cosi. Each channel averages three nearby wavelengths so the
+// bands are soft, as with white light.
+// Film thickness (nm) over the sphere: thinner at the top as the film
+// drains, with slow smooth swirls (sums of sines, so no grid artefacts).
+float filmThickness(vec3 N, float t){
+  vec2 u = N.xy;
+  float s = sin(u.x*2.3 + u.y*1.1 + t*.31) + sin(u.y*2.9 - u.x*.7 - t*.23)
+          + .5*sin((u.x - u.y)*4.1 + t*.47) + .5*sin(length(u + vec2(.3, -.2))*6. - t*.6);
+                    // Drains fast near the top (white-cyan), thickens slowly below (gold -> red -> violet).
+  return 205. + 26.*s - N.y*(N.y > 0. ? 145. : 50.);   // ~110 nm at the top (white-cyan), ~260 at the bottom (violet)
+}
+vec3 thinFilm(float d, float cosi){
+  float sint = sqrt(max(1. - cosi*cosi, 0.)) / 1.33;
+  float opd = 2. * 1.33 * d * sqrt(1. - sint*sint);   // optical path difference
+  vec3 c = vec3(0.);
+  for (int k = -1; k <= 1; k++) {
+    vec3 lam = vec3(640., 535., 455.) + float(k)*22.;
+    vec3 s = sin(3.14159 * opd / lam);
+    c += s*s;
+  }
+  c /= 3.;
+  return mix(vec3(dot(c, vec3(.333))), c, .8);   // white light is never fully saturated
+}
+// The room the bubble reflects: dark, with a warm softbox to the left (just
+// below eye level, slightly behind), a cool strip light above and behind,
+// and a faint backdrop glow behind the bubble that lights its edge. The back
+// wall is concave, so it shows the softbox large (the crescent on the right);
+// the convex front wall shows it small (the smear at 8-9 o'clock).
+vec3 env(vec3 r, float back){
+  vec3 c = vec3(0.);
+  // Tall strip softbox to the left and behind (azimuth around the vertical axis).
+  float az = atan(r.x, -r.z);
+  float hw = mix(.2, .62, back);
+  float key = smoothstep(hw, hw - .1, abs(az + 1.15)) * smoothstep(mix(.45, 1., back), mix(.2, .6, back), abs(r.y + mix(.1, .3, back)));
+  c += vec3(1., .85, .65) * key * mix(3.5, 9., back);
+  // Wide strip light overhead, behind.
+  float top = smoothstep(.55, .7, r.y) * smoothstep(.75, .55, abs(r.x + .15)) * smoothstep(.05, -.25, r.z);
+  c += vec3(.85, .95, 1.) * top * mix(3., .15, back);
+  c += vec3(.85, .93, 1.) * smoothstep(-.88, -.98, r.z) * 1.4;   // backdrop: thin bright edge
+  return c;
+}
+
 void main(){
   float scale = .5 * min(uRes.x, uRes.y);
   vec2 p = (gl_FragCoord.xy - .5*uRes) / scale;
@@ -107,40 +150,29 @@ void main(){
   float q = clamp(1. + min(d, 0.)/max(Rloc, 1e-3), 0., 1.);
   float inside = smoothstep(px, -px, d);
 
-  // Screen angle of the surface (0 = 3 o'clock, pi/2 = 12 o'clock), with a
-  // slow shimmer so the colour bands drift like a real film.
-  float a = atan(n.y, n.x) + .12*vn(n*1.8 + vec2(t*.15, 0.));
-  float qq = q + .02*vn(n*3. + vec2(t*.2, 2.));
-  // Soft angular range [a0, a1] (radians, may wrap) with edge softness sf.
-  #define AR(a0, a1, sf) arange(a, a0, a1, sf)
-  #define QB(a0, a1, b0, b1) (smoothstep(a0, a1, qq) * (1. - smoothstep(b0, b1, qq)))
-
-  // Colour map measured from the reference rest frame, unwrapped to angle x
-  // depth (q = r/R). Angles: 0 = 3 o'clock, counter-clockwise.
-  vec3 cyan = vec3(.35, .85, 1.);
+  float a = atan(n.y, n.x);
   vec3 vi = mix(vec3(.5, .22, 1.), vec3(.3, .5, 1.), uCool);
-  vec3 gold = vec3(1., .86, .45), orange = vec3(1., .58, .12), ember = vec3(.8, .16, .03);
-  vec3 col = vec3(0.);
+  vec3 gold = vec3(1., .86, .45), orange = vec3(1., .58, .12);
 
-  // Warm crescent on the inner side, 1 to 5 o'clock: pale yellow-white at
-  // 1-2 o'clock, amber, deep red-orange at 4-5, with a soft inner edge.
-  float crW = exp(-pow(adiff(a, .05)/.75, 2.));
-  float crIn = .84 - .14*crW;
-  vec3 cr = mix(ember, orange, smoothstep(crIn, crIn + .12, qq));
-  cr = mix(cr, gold, smoothstep(.84, .93, qq) * smoothstep(-.6, .4, a));
-  cr = mix(cr, vec3(1., .95, .82), smoothstep(.2, .9, a) * smoothstep(.86, .95, qq) * .7);
-  cr = mix(cr, ember, smoothstep(-.3, -1., a) * .6);
-  col += cr * AR(-1.1, 1.15, .3) * smoothstep(crIn - .06, crIn + .1, qq) * (1. - smoothstep(.95, .985, qq))
-       * (.6 + 2.5*crW);
-  // Wide glassy cyan-white band on the outer edge, 9 to 1 o'clock.
-  vec3 sheen = mix(mix(cyan, vec3(1.), .5), vec3(1., .94, .78), smoothstep(1.45, .95, a));
-  col += sheen * AR(.95, 2.9, .35) * QB(.88, .925, .965, .99) * mix(1.1, 1.8, smoothstep(.93, .975, qq));
-  // Thin violet line just inside that band, 10-11 o'clock.
-  col += vi * AR(1.9, 2.75, .3) * QB(.82, .85, .865, .885) * 1.1;
-  // Dim orange glow on the inner edge at 8-9 o'clock.
-  col += mix(ember, orange, .55) * AR(3.2, 3.7, .2) * QB(.76, .83, .87, .91) * .6;
-  // Teal-magenta lip along the bottom outer edge, 5 to 7 o'clock.
-  col += film(a*1.2 + .1) * AR(4.2, 5.25, .25) * QB(.9, .935, .965, .985) * .9;
+  // --- Soap film -----------------------------------------------------------
+  // Treat each blob as a sphere: q = r/R gives the 3D normal. We see the
+  // front wall reflecting the room, and through it the back wall's inside
+  // reflecting it again (mirrored). Each reflection is tinted by thin-film
+  // interference and weighted by Fresnel, so the face is nearly clear and
+  // the colour gathers towards the edge, as on a real bubble.
+  float nz = sqrt(max(1. - q*q, 0.));
+  vec3 Nf = vec3(n*q, nz);                   // front wall, facing the viewer
+  vec3 Rf = reflect(vec3(0., 0., -1.), Nf);
+  vec3 Nb = vec3(-n*q, nz);                  // back wall, facing inwards
+  vec3 Rb = reflect(vec3(0., 0., -1.), Nb);
+  // Film thickness in nm: thin at the top, draining thicker towards the
+  // bottom, with slow swirls; each wall gets its own pattern.
+    // Thickness follows where each wall really is: the back wall's point sits
+  // at the same height as the front one (outward normal (n q, -nz)).
+  float dF = filmThickness(Nf, t), dB = filmThickness(vec3(n*q, -nz), t + 17.) - 20.;
+  float F = .01 + .99*pow(1. - nz, 3.);      // reflectance: faint face-on, strong at the edge
+  vec3 col = env(Rf, 0.) * thinFilm(dF, nz) * F * 4.
+           + env(Rb, 1.) * thinFilm(dB, nz) * F * 3.4;
 
   // Error / waiting tints.
   col = mix(col, vec3(dot(col, vec3(.6, .3, .1))) * vec3(1., .15, .3), uHue);
@@ -183,29 +215,11 @@ void main(){
 
   // Responding (ref 1074): pink-lavender to near-white flare where it swells.
   vec3 bloom = vec3(1., .45, .85);
-  col += bloom * exp(-pow(adiff(a, .35)/.45, 2.)) * QB(.72, .8, .9, .95) * uBloom * 1.3;
+  col += bloom * exp(-pow(adiff(a, .35)/.45, 2.)) * smoothstep(.72, .8, q) * (1. - smoothstep(.9, .95, q)) * uBloom * 1.3;
 
   // Droplet (ref f4c6): filled with the same film, not hollow.
   col *= 1. - .6*satW;   // the droplet is a glassy bead: clear inside, bright cyan-white lip
   col += mix(vec3(.85, .97, 1.), film(q + t*.1), .3) * satW * smoothstep(.6, .95, q) * 1.4;
-
-  // Listening (ref 0e18): small dark dents drifting along the bright band,
-  // each fading in and out with a thin bright edge; 1-2 visible at a time.
-  if (uDimples > .001) {
-    for (int i = 0; i < 4; i++) {
-      float fi = float(i);
-      float cyc = t*.23 + fi*.25;
-      float life = pow(max(0., sin(6.2832*fract(cyc))), .7);
-      float slot = floor(mod(fi + floor(cyc), 3.));
-      float ang = (slot < .5 ? 1.6 : slot < 1.5 ? -.2 : 3.6) + (fract(cyc) - .5)*(mod(fi, 2.) < .5 ? .6 : -.6);
-      vec2 c = vec2(cos(ang), sin(ang)) * uR * (slot < .5 ? .86 : .82);
-      float r = (.04 + .01*h1(fi + 4.)) * uDimples * life;
-      float dd = length(p - c) - r;
-      col *= 1. - .9*smoothstep(px, -px, dd);
-      vec2 rd = normalize(p - c + 1e-5);
-      col += vec3(.9, .97, 1.) * exp(-pow(dd/(1.2*px + .0015), 2.)) * smoothstep(.2, .9, dot(rd, vec2(-.6, .8))) * 1.3 * life;
-    }
-  }
 
   col *= inside;
 
@@ -236,19 +250,19 @@ void main(){
   col *= uGlow;
   // Hue-preserving tone curve keeps the film saturated where it is bright.
   float mx = max(col.r, max(col.g, col.b));
-  col *= (1. - exp(-mx*1.25)) / max(mx, 1e-4);
+  col *= (1. - exp(-mx*1.5)) / max(mx, 1e-4);
   gl_FragColor = vec4(col, max(col.r, max(col.g, col.b)));
 }`;
 
   // Shape targets per state. The orb eases toward the active state's values.
   const BASE = {
-    radius: 1, wobble: .006, ribs: 0, ribSpd: 1, ribPulse: 0, dimples: 0, bulge: 0,
+    radius: 1, wobble: .006, ribs: 0, ribSpd: 1, ribPulse: 0, bulge: 0,
     sat: 0, layers: 0, dots: 0, jitter: 0, glow: 1, hue: 0, cool: 0, speed: 1,
   };
   const STATES = {
     idle:        { label: 'Idle',        hint: 'Ready, nothing happening', wobble: .004, speed: .6 },
     listening:   { label: 'Listening',   hint: 'User is typing or speaking',
-                   radius: 1.02, wobble: .028, dimples: 1, glow: 1.08, speed: .7 },
+                   radius: 1.02, wobble: .028, glow: 1.08, speed: .7 },
     thinking:    { label: 'Thinking',    hint: 'Reasoning before answering',
                    wobble: .01, ribs: 1, ribSpd: 1, ribPulse: 1 },
     researching: { label: 'Researching', hint: 'Searching the web, reading sources',
@@ -261,7 +275,7 @@ void main(){
     error:       { label: 'Error',       hint: 'Something failed',
                    radius: .95, wobble: .012, jitter: 1, glow: .9, hue: 1 },
   };
-  const UNIFORMS = ['uRes', 'uTime', 'uR', 'uWob', 'uRibs', 'uRibPhase', 'uDimples', 'uBulge',
+  const UNIFORMS = ['uRes', 'uTime', 'uR', 'uWob', 'uRibs', 'uRibPhase', 'uBulge',
     'uBulgeAng', 'uSatR', 'uSatAng', 'uSatDist', 'uLayers', 'uJitter', 'uGlow', 'uHue', 'uCool', 'uCurl', 'uBloom', 'uDots', 'uDotY', 'uDotS'];
   const R = .78; // orb radius as a fraction of half the canvas' short side
 
@@ -376,7 +390,6 @@ void main(){
       gl.uniform1f(U.uWob, cur.wobble + Math.abs(pop) * .03 + swell * .012);
       gl.uniform1f(U.uRibs, ribs);
       gl.uniform1f(U.uRibPhase, ribPhase);
-      gl.uniform1f(U.uDimples, cur.dimples * (level != null && active === 'listening' ? .4 + level * 1.6 : 1));
       gl.uniform1f(U.uBulge, bulge);
       gl.uniform1f(U.uBulgeAng, bulgeAng);
       gl.uniform1f(U.uCurl, curl);
