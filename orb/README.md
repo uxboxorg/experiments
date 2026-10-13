@@ -6,6 +6,18 @@ An iridescent soap-bubble status orb for an AI chat bot, modelled on the four cl
 
 The bubble is drawn in 2D, not raymarched, so each pixel costs one pass. A deformable outline gives the silhouette. The back wall's warm crescent, the violet streak and the front wall's cyan film band are layered by depth from the edge. The canvas only redraws while it is on screen.
 
+## Fidelity check (gauntlet loop)
+
+The shader was tuned in a build → critique → revise loop against the four reference clips. Each round rendered every state frame-locked next to the matching clip. Fresh critic agents that had not built the work then scored it 1–10 on silhouette, palette, detail and motion; 8 or higher on everything passes. From round 6 on, three critics judged each round and only their consensus was applied.
+
+| Round | Scores |
+|---|---|
+| 0 | 2–5 |
+| 4 | 5–7 |
+| 8 | 4–8 (rest silhouette 8) |
+
+Motion and silhouette now read as the reference events: folds closing into rings, the droplet's path, the swell. Palette has stayed at 5 since round 4, and later critics began reversing each other's requests. Closing that gap probably needs the reference's lighting baked into a small texture, which a purely procedural 2D shader can't reproduce.
+
 ## States
 
 The states come from how shipping assistants signal status. Amazon's Echo light ring separates **listening**, **thinking** and **speaking**, and the speaking pulse tracks the loudness of the voice. Agent chat UIs add separate states for reasoning, tool calls, streamed text and errors. They also add a state where the bot is waiting on the user, so a single "loading" spinner never hides what is going on.
