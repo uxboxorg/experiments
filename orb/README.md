@@ -25,7 +25,7 @@ The states come from how shipping assistants signal status. Amazon's Echo light 
 | State | When to use it | Motion (ref clip) |
 |---|---|---|
 | `idle` | Ready, nothing in flight | Slow breathing, almost still |
-| `listening` | User is typing or speaking | Grows slightly and the outline wobbles gently out of round. `orb.setLevel()` swells it with mic or keystroke rate |
+| `listening` | User is typing or speaking | Reacts to the voice like a bubble near a speaker: the outline trembles in soft standing waves, faint colour rings flow outward through the film and it brightens slightly on each phrase. `orb.setLevel()` drives it from the mic; otherwise it follows a simulated speech rhythm |
 | `thinking` | Reasoning before the first token | Folds sweep in as vertical streaks, open into rings and fade, on a ~5 s cycle (`008d…`) |
 | `researching` | Web search, reading sources | The rim layers, then a droplet buds off, slides around the edge and merges back (`f4c6…`) |
 | `working` | Tool calls, editing files, running code | Folds turn fast and the rim splits into offset layers |

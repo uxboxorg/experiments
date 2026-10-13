@@ -14,7 +14,7 @@
 precision highp float;
 uniform vec2 uRes;
 uniform float uTime, uR, uWob, uRibs, uRibPhase, uBulge, uBulgeAng,
-              uSatR, uSatAng, uSatDist, uLayers, uJitter, uGlow, uHue, uCool, uCurl, uBloom, uDots;
+              uSatR, uSatAng, uSatDist, uLayers, uJitter, uGlow, uHue, uCool, uCurl, uBloom, uDots, uVoice;
 uniform vec3 uDotY, uDotS;
 
 float h1(float n){ return fract(sin(n) * 43758.5453); }
@@ -41,7 +41,9 @@ float radiusAt(float th){
   float b = exp(-pow(adiff(th, uBulgeAng)/.8, 2.));
   float j = vn(vec2(cos(th), sin(th))*7. + vec2(uTime*7., 0.));
   float rib = uRibs * .008 * sin(8.*th + uRibPhase*3.) * smoothstep(.3, .9, sin(th));   // ripples at 11-1
-  return uR * (1. + uWob*w + uBulge*b + uJitter*.012*j + rib);
+  // Listening: the film trembles in standing-wave shapes, like a bubble near a speaker.
+    float v = uVoice * .03 * (sin(4.*th + .7)*sin(uTime*9.) + .6*sin(6.*th - 1.)*sin(uTime*13. + 1.));
+  return uR * (1. + uWob*w + uBulge*b + uJitter*.012*j + rib + v);
 }
 float sdMain(vec2 p){ return length(p) - radiusAt(atan(p.y, p.x)); }
 // Droplet: an ellipse stretched along the rim (about 2:1).
@@ -90,7 +92,9 @@ float filmThickness(vec3 N, float t){
   float s = sin(u.x*2.3 + u.y*1.1 + t*.31) + sin(u.y*2.9 - u.x*.7 - t*.23)
           + .5*sin((u.x - u.y)*4.1 + t*.47) + .5*sin(length(u + vec2(.3, -.2))*6. - t*.6);
                     // Drains fast near the top (white-cyan), thickens slowly below (gold -> red -> violet).
-  return 205. + 26.*s - N.y*(N.y > 0. ? 145. : 50.);   // ~110 nm at the top (white-cyan), ~260 at the bottom (violet)
+  // Listening: colour rings flow outward through the film like sound.
+  float ring = uVoice * 60. * sin(length(N.xy)*16. - t*7.);
+  return 205. + 26.*s + ring - N.y*(N.y > 0. ? 145. : 50.);   // ~110 nm at the top (white-cyan), ~260 at the bottom (violet)
 }
 vec3 thinFilm(float d, float cosi){
   float sint = sqrt(max(1. - cosi*cosi, 0.)) / 1.33;
@@ -173,6 +177,8 @@ void main(){
   float F = .01 + .99*pow(1. - nz, 3.);      // reflectance: faint face-on, strong at the edge
   vec3 col = env(Rf, 0.) * thinFilm(dF, nz) * F * 4.
            + env(Rb, 1.) * thinFilm(dB, nz) * F * 3.4;
+  // Listening: a faint sheen across the face shows the sound rings in the film.
+    col += thinFilm(dF, nz) * pow(uVoice, 2.) * .3 * smoothstep(.35, .8, q) * (1. - smoothstep(.88, 1., q));
 
   // Error / waiting tints.
   col = mix(col, vec3(dot(col, vec3(.6, .3, .1))) * vec3(1., .15, .3), uHue);
@@ -256,13 +262,13 @@ void main(){
 
   // Shape targets per state. The orb eases toward the active state's values.
   const BASE = {
-    radius: 1, wobble: .006, ribs: 0, ribSpd: 1, ribPulse: 0, bulge: 0,
+    radius: 1, wobble: .006, ribs: 0, ribSpd: 1, ribPulse: 0, bulge: 0, listen: 0,
     sat: 0, layers: 0, dots: 0, jitter: 0, glow: 1, hue: 0, cool: 0, speed: 1,
   };
   const STATES = {
     idle:        { label: 'Idle',        hint: 'Ready, nothing happening', wobble: .004, speed: .6 },
     listening:   { label: 'Listening',   hint: 'User is typing or speaking',
-                   radius: 1.02, wobble: .028, glow: 1.08, speed: .7 },
+                   radius: 1.03, wobble: .01, listen: 1, glow: 1.12 },
     thinking:    { label: 'Thinking',    hint: 'Reasoning before answering',
                    wobble: .01, ribs: 1, ribSpd: 1, ribPulse: 1 },
     researching: { label: 'Researching', hint: 'Searching the web, reading sources',
@@ -276,7 +282,7 @@ void main(){
                    radius: .95, wobble: .012, jitter: 1, glow: .9, hue: 1 },
   };
   const UNIFORMS = ['uRes', 'uTime', 'uR', 'uWob', 'uRibs', 'uRibPhase', 'uBulge',
-    'uBulgeAng', 'uSatR', 'uSatAng', 'uSatDist', 'uLayers', 'uJitter', 'uGlow', 'uHue', 'uCool', 'uCurl', 'uBloom', 'uDots', 'uDotY', 'uDotS'];
+    'uBulgeAng', 'uSatR', 'uSatAng', 'uSatDist', 'uLayers', 'uJitter', 'uGlow', 'uHue', 'uCool', 'uCurl', 'uBloom', 'uDots', 'uDotY', 'uDotS', 'uVoice'];
   const R = .78; // orb radius as a fraction of half the canvas' short side
 
   function compile(gl, type, src) {
@@ -381,7 +387,7 @@ void main(){
         if (cur.bulge < .01) bulgeAng = -1.6;   // soft lobe at 5-7 o'clock
       }
       const r = (R * (cur.radius + .09 * swell) * (1 + .012 * Math.sin(t * 1.3)) + pop * .06) * (1 - cur.dots)
-        + (active === 'listening' && level != null ? level * .04 : 0);
+        + cur.listen * voice * .025 * R;   // swells a little with each phrase
 
       resize();
       gl.uniform2f(U.uRes, canvas.width, canvas.height);
@@ -396,6 +402,8 @@ void main(){
       // Responding: the orb shrinks into three small orbs that hop in turn,
       // like a typing indicator; speech loudness lifts them a little higher.
       gl.uniform1f(U.uDots, cur.dots);
+      // Listening: speech (mic level, or a simulated rhythm) drives the trembling and the rings.
+      gl.uniform1f(U.uVoice, cur.listen * (.2 + .8 * voice));
       // Each orb crouches, launches on a ballistic arc (stretching with its
       // speed), lands and wobbles flat-to-round on a spring before the next wave.
       const sway = .012 * Math.sin(t * .9);
@@ -424,7 +432,7 @@ void main(){
       gl.uniform1f(U.uSatDist, r * (.97 + .1 * life));
       gl.uniform1f(U.uLayers, cur.layers * (.6 + .4 * Math.sin(t * 1.7)) + swell * 1.3 + cur.ribs * cur.ribPulse * burst * .6 + Math.abs(pop) * 2);
       gl.uniform1f(U.uJitter, cur.jitter * (.35 + shake * 1.5));
-      gl.uniform1f(U.uGlow, cur.glow * (1 + flash * .5) * (active === 'waiting' ? .85 + .15 * Math.sin(t * 3) : 1));
+            gl.uniform1f(U.uGlow, cur.glow * (1 + flash * .5 + cur.listen * voice * .25) * (active === 'waiting' ? .85 + .15 * Math.sin(t * 3) : 1));
       gl.uniform1f(U.uHue, cur.hue);
       gl.uniform1f(U.uCool, cur.cool);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
