@@ -14,7 +14,7 @@
 precision highp float;
 uniform vec2 uRes;
 uniform float uTime, uR, uWob, uRibs, uRibPhase, uDimples, uBulge, uBulgeAng,
-              uSatR, uSatAng, uSatDist, uLayers, uJitter, uGlow, uHue, uCool;
+              uSatR, uSatAng, uSatDist, uLayers, uJitter, uGlow, uHue, uCool, uCurl, uBloom;
 
 float h1(float n){ return fract(sin(n) * 43758.5453); }
 float h2(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -24,6 +24,11 @@ float vn(vec2 p){
              mix(h2(i + vec2(0., 1.)), h2(i + vec2(1., 1.)), f.x), f.y) * 2. - 1.;
 }
 float adiff(float a, float b){ return atan(sin(a - b), cos(a - b)); }
+float arange(float a, float a0, float a1, float sf){
+  float m = .5*(a0 + a1);
+  float x = m + adiff(a, m);
+  return smoothstep(a0 - sf, a0 + sf, x) * (1. - smoothstep(a1 - sf, a1 + sf, x));
+}
 float smin(float a, float b, float k){
   float h = clamp(.5 + .5*(b - a)/k, 0., 1.);
   return mix(b, a, h) - k*h*(1. - h);
@@ -31,17 +36,22 @@ float smin(float a, float b, float k){
 
 // Silhouette radius at screen angle th: slow wobble, one-sided bulge, shiver.
 float radiusAt(float th){
-  vec2 c = vec2(cos(th), sin(th));
-  float w = vn(c*1.4 + vec2(uTime*.31, 1.7)) + .5*vn(c*2.9 + vec2(4.1, -uTime*.43));
-  float b = exp(-pow(adiff(th, uBulgeAng)/.5, 2.));
-  float j = vn(c*7. + vec2(uTime*7., 0.));
-  return uR * (1. + uWob*w + uBulge*b + uJitter*.012*j);
+  float w = .5*sin(3.*th + uTime*.7) + .5*sin(2.*th - uTime*.5 + 1.) + .25*sin(5.*th + uTime*1.1 + 2.);
+  float b = exp(-pow(adiff(th, uBulgeAng)/.8, 2.));
+  float j = vn(vec2(cos(th), sin(th))*7. + vec2(uTime*7., 0.));
+  float rib = uRibs * .006 * sin(8.*th + uRibPhase*3.);
+  return uR * (1. + uWob*w + uBulge*b + uJitter*.012*j + rib);
 }
 float sdMain(vec2 p){ return length(p) - radiusAt(atan(p.y, p.x)); }
-float sdSat(vec2 p){ return length(p - vec2(cos(uSatAng), sin(uSatAng))*uSatDist) - uSatR; }
+// Droplet: an ellipse stretched along the rim (about 2:1).
+float sdSat(vec2 p){
+  vec2 dir = vec2(cos(uSatAng), sin(uSatAng));
+  vec2 l = p - dir*uSatDist;
+  return length(vec2(dot(l, vec2(-dir.y, dir.x))*.5, dot(l, dir)*1.15)) - uSatR;
+}
 float sdf(vec2 p){
   float d = sdMain(p);
-  if (uSatR > .001) d = smin(d, sdSat(p), .07);
+  if (uSatR > .001) d = smin(d, sdSat(p), .13);
   return d;
 }
 
@@ -68,96 +78,140 @@ void main(){
 
   // Depth into the bubble: q ~ r/R, so 1 at the silhouette and 0 at the centre.
   float Rloc = radiusAt(atan(p.y, p.x));
-  if (uSatR > .001) Rloc = mix(Rloc, uSatR, clamp(.5 + .5*(sdMain(p) - sdSat(p))/.07, 0., 1.));
+  float satW = 0.;
+  if (uSatR > .001) {
+    satW = clamp(.5 + .5*(sdMain(p) - sdSat(p))/.1, 0., 1.);
+    Rloc = mix(Rloc, uSatR*1.6, satW);
+  }
   float q = clamp(1. + min(d, 0.)/Rloc, 0., 1.);
   float inside = smoothstep(px, -px, d);
 
-  float a = atan(n.y, n.x) + .3*vn(n*1.8 + vec2(t*.15, 0.));
-  float qq = q + .03*vn(n*3. + vec2(t*.2, 2.));
+  // Screen angle of the surface (0 = 3 o'clock, pi/2 = 12 o'clock), with a
+  // slow shimmer so the colour bands drift like a real film.
+  float a = atan(n.y, n.x) + .12*vn(n*1.8 + vec2(t*.15, 0.));
+  float qq = q + .02*vn(n*3. + vec2(t*.2, 2.));
+  // Soft angular range [a0, a1] (radians, may wrap) with edge softness sf.
+  #define AR(a0, a1, sf) arange(a, a0, a1, sf)
+  #define QB(a0, a1, b0, b1) (smoothstep(a0, a1, qq) * (1. - smoothstep(b0, b1, qq)))
 
-  // Back wall: a wide warm crescent on the right that thins over the top, a
-  // small warm patch lower left and a violet edge top left (the refs' rest frame).
-  float right = smoothstep(-.1, .9, cos(a + .2));
-  float top = smoothstep(.3, 1., cos(a - 1.5));
-  float lowLeft = smoothstep(.6, 1., cos(a - 3.6));
-  float band = smoothstep(mix(.87, .64, right), .95, qq) * (1. - .55*smoothstep(.975, 1., q));
-  band *= band;
-  float warmM = right + .6*top + 1.2*lowLeft;
-  vec3 warmMid = vec3(1., .42, .05), warmOut = vec3(1., .78, .35);
-  vec3 warm = mix(vec3(.7, .08, .02), warmMid, smoothstep(.72, .87, qq));
-  warm = mix(warm, warmOut, smoothstep(.9, .99, qq));
-  warm = mix(warm, vec3(1., .12, .22), uHue);
-  warm = mix(warm, vec3(.35, .65, 1.), uCool);
-  vec3 viol = mix(vec3(.45, .25, 1.), vec3(.25, .5, 1.), uCool);
-  float violM = smoothstep(.55, 1., cos(a - 2.2)) + .3*smoothstep(.8, 1., cos(a + 1.75));
-  float violBand = smoothstep(.8, .86, qq) * (1. - smoothstep(.88, .93, qq));
-  vec3 col = warm*warmM*band*1.9 + viol*violM*violBand*1.1;
-  col += film(.3 + .5*q + .3*vn(p*2.5 + t*.2) + uHue*.3) * pow(q, 24.) * .3;
-  // Front wall: a cyan-white film band just inside the edge, widest top left,
-  // breaking into iridescent colour along the bottom.
-  vec3 fCol = mix(vec3(.55, .9, 1.), film(atan(n.y, n.x)*.5 + q*2. + t*.05), .3 + .45*smoothstep(.2, -.9, n.y));
-  col += fCol * smoothstep(.9, .985, q) * (.3 + .7*smoothstep(-.3, .9, cos(a - 2.))) * .7;
-  // Hot highlight on the outer part of the crescent, upper right.
-  col += mix(vec3(1., .93, .75), warm, .3) * smoothstep(.55, 1., cos(a - .8)) * smoothstep(.88, .965, q) * (1. - smoothstep(.975, 1., q)) * .9;
+  // Colour map measured from the reference rest frame, unwrapped to angle x
+  // depth (q = r/R). Angles: 0 = 3 o'clock, counter-clockwise.
+  vec3 cyan = vec3(.35, .85, 1.);
+  vec3 vi = mix(vec3(.5, .22, 1.), vec3(.3, .5, 1.), uCool);
+  vec3 gold = vec3(1., .86, .45), orange = vec3(1., .58, .12), ember = vec3(.8, .16, .03);
+  vec3 col = vec3(0.);
 
-  // Meridian folds (ref 008d): pole-to-pole creases on a turning sphere. A
-  // meridian at longitude phi projects to x = R sin(phi) sqrt(1 - y^2), so the
-  // lines start as vertical streaks and open into rings as they turn.
+  // Warm crescent: hot yellow-orange on the outer side at 1-3 o'clock, deep
+  // red-orange on a hard inner edge at 3-4, ending at about 4:30. It is
+  // thickest at 2-4 o'clock and thins to a sliver over the top.
+  vec3 cr = mix(ember, orange, smoothstep(.66, .74, qq));
+  cr = mix(cr, gold, smoothstep(.76, .9, qq));
+  cr = mix(cr, ember, smoothstep(-.1, -.9, a) * .6);
+  float crIn = .62 + .2*smoothstep(.6, 2.1, a) + .16*smoothstep(.1, -1.2, a);
+  float streak = .92 + .08*vn(vec2(a*3. + t*.1, qq*40.));
+  float crI = exp(-pow(adiff(a, .45)/1.1, 2.)) * 2.1;
+  col += cr * AR(-1.15, 2.1, .15) * smoothstep(crIn, crIn + .07, qq) * (1. - smoothstep(.88, .94, qq))
+       * crI * streak;
+  // Violet at the inner foot of the band, 10-11 o'clock.
+  col += vi * AR(1.75, 2.6, .3) * QB(.77, .83, .86, .9) * .9;
+  // Near-white cyan film band on the outer side, 3 to 10:30 o'clock.
+  float cyM = exp(-pow(adiff(a, 2.35)/1.25, 2.));
+  col += mix(cyan, vec3(1.), .55 + .4*smoothstep(.93, .975, qq)) * QB(mix(.95, .87, cyM), mix(.96, .9, cyM), .965, .985) * (.5 + 1.6*cyM);
+  // Narrow orange streak tight against the inner rim at 9 o'clock.
+  col += mix(mix(ember, orange, .6), vi, smoothstep(3.2, 3.6, a)) * AR(3.1, 3.6, .2) * QB(.76, .83, .87, .92) * .55;
+  // Faint teal-violet film along the lower left.
+  col += mix(vec3(.1, .7, .75), vi, .3 + .3*sin(a*3. + t*.2)) * AR(3.85, 5.2, .3) * QB(.86, .88, .91, .93) * .12;
+
+  // Error / waiting tints.
+  col = mix(col, vec3(dot(col, vec3(.6, .3, .1))) * vec3(1., .15, .3), uHue);
+  col = mix(col, vec3(dot(col, vec3(.3, .4, .3))) * vec3(.45, .7, 1.), uCool);
+
+  // Meridian folds (ref 008d): broad pole-to-pole bands on a turning sphere.
+  // A meridian at longitude phi projects to x = R sin(phi) sqrt(1 - y^2): the
+  // bands sweep across, then uCurl gathers them near phi = 90 deg, where they
+  // read as offset concentric rings inside the rim.
   if (uRibs > .001) {
     float yy = clamp(p.y/uR, -1., 1.);
     float wy = sqrt(max(1. - yy*yy, 1e-3));
-    float u = p.x / (uR*wy);
     vec3 rc = vec3(0.);
     for (int k = 0; k < 6; k++) {
       float fk = float(k);
-      float phi = uRibPhase*(1. + .17*fk) + fk*1.05;
+      float phi = mix(uRibPhase*(1. + .11*fk) + fk*.8, .55 + .17*fk, uCurl);
+      vec2 off = uCurl * vec2(.05, .03) * fk / 3.;
       float x0 = sin(phi);
-      float dist = abs(u - x0) * uR * wy;
-      float w = max(px, .003 + .006*abs(cos(phi)));
-      float L = exp(-dist*dist/(w*w)) + .3*exp(-dist*dist/(16.*w*w));
-      vec3 lc = mix(vec3(.6, .35, 1.), warmMid, smoothstep(-.6, .6, x0));
-      rc += mix(lc, warmOut, L*.5) * L * (.5 + .5*cos(phi));
+      float u = (p.x - off.x)/(uR*clamp(sqrt(max(1. - pow((p.y - off.y)/uR, 2.), 1e-3)), .03, 1.));
+      float dist = min(abs(u - x0), abs(u + x0)) * uR * wy;   // both halves of the great circle
+      float w = max(px, mix(.016 + .02*abs(cos(phi)), .007, uCurl));
+      float L = exp(-pow(dist/w, 4.));
+      // Curl: the folds close into concentric rings offset towards 2 o'clock.
+      vec2 rp = (p - vec2(.06, .035)*(1. - fk/3.)) / vec2(.92, 1.);
+      float ringD = abs(length(rp) - uR*(.5 + .14*fk));
+      L = mix(L, exp(-pow(ringD/.008, 2.)), uCurl);
+      // Warm on the right, violet on the left, a thin pale core; folds crowd
+      // towards the sides, so the ones crossing the middle stay dim.
+      float side = (p.x - off.x) / uR;
+      vec3 lc = mix(mix(vi, vec3(.9), .3) * .55, mix(orange, gold, .5), smoothstep(-.3, .3, side));
+      lc = mix(lc, vec3(1., .93, .8), .75*exp(-dist*dist/(.2*w*w)));
+      float keep = 1. - uCurl*step(2.5, fk);   // only 3 rings remain once curled
+      rc += lc * L * mix(pow(abs(x0), 1.5), 1., uCurl) * keep;
     }
-    col += rc * uRibs * 1.4 * smoothstep(1., .8, abs(yy));
+    col += rc * uRibs * 2.4 * smoothstep(1., .8, abs(yy));
   }
 
-  // Bright swell where the surface bulges (ref 1074).
-  col += warmOut * exp(-pow(adiff(a, uBulgeAng)/.35, 2.)) * smoothstep(.6, .97, q) * min(uBulge*14., 1.2);
+  // Responding (ref 1074): pink-lavender to near-white flare where it swells.
+  vec3 bloom = mix(vec3(1., .3, .7), orange, smoothstep(.2, 1.2, adiff(a, uBulgeAng) + .6));
+  col += bloom * exp(-pow(adiff(a, uBulgeAng)/.45, 2.)) * QB(.74, .8, .9, .95) * uBloom;
 
-  // Small dents drifting over the film (ref 0e18).
-  float hw = max(px*1.1, .0035);
+  // Droplet (ref f4c6): filled with the same film, not hollow.
+  col += film(vn(p*7. + t)*.8 + t*.1) * satW * smoothstep(0., .6, q) * 1.2;
+
+  // Listening (ref 0e18): small dark dents drifting along the bright band,
+  // each fading in and out with a thin bright edge; 1-2 visible at a time.
   if (uDimples > .001) {
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 4; i++) {
       float fi = float(i);
-      float ang = t*(.21 + .05*fi)*(mod(fi, 2.)*2. - 1.) + fi*1.26;
-      float rad = uR*(.76 + .18*(.5 + .5*sin(t*(.37 + .07*fi) + fi*2.)));
-      float r = (.014 + .012*h1(fi + 1.)) * uDimples * (.6 + .4*sin(t*1.7 + fi));
-      float dd = length(p - vec2(cos(ang), sin(ang))*rad) - r;
-      col *= 1. - .85*smoothstep(px, -px, dd);
-      col += film(fi*.2 + t*.1) * exp(-pow(dd/(hw*1.2), 2.)) * .9 * smoothstep(0., .004, r);
+      float cyc = t*.23 + fi*.25;
+      float life = pow(max(0., sin(6.2832*fract(cyc))), .7);
+      float slot = floor(mod(fi + floor(cyc), 3.));
+      float ang = (slot < .5 ? .1 : slot < 1.5 ? -.55 : 3.5) + (fract(cyc) - .5)*(mod(fi, 2.) < .5 ? .7 : -.7);
+      vec2 c = vec2(cos(ang), sin(ang)) * uR * (slot < 1.5 ? .8 : .88);
+      float r = (.02 + .007*h1(fi + 4.)) * uDimples * life;
+      float dd = length(p - c) - r;
+      col *= 1. - .9*smoothstep(px, -px, dd);
+      vec2 rd = normalize(p - c + 1e-5);
+      col += vec3(.9, .97, 1.) * exp(-pow(dd/(1.2*px + .0015), 2.)) * smoothstep(.2, .9, dot(rd, vec2(-.6, .8))) * 1.3 * life;
     }
   }
 
   col *= inside;
 
-  // Front wall: hairline rims in white-cyan with a little iridescence.
-  // More colour along the bottom of the rim, near-white on the top and left.
-  vec3 rimCol = mix(vec3(.7, .95, 1.), film(atan(n.y, n.x)*.32 + t*.07), .25 + .5*smoothstep(.2, -.9, n.y));
-  col += rimCol * (1.3*exp(-pow((d + .006)/hw, 2.)) + .5*exp(-pow((d + .02)/(hw*1.4), 2.)));
-
-  // Extra offset rims while the film is busy (ref f4c6 swell).
-  if (uLayers > .001) {
-    for (int i = 0; i < 3; i++) {
-      float fi = float(i);
-      vec2 o = .022*uLayers*vec2(cos(t*1.3 + fi*2.1), sin(t*1.1 + fi*2.7));
-      vec2 po = p - o;
-      float dl = length(po) - radiusAt(atan(po.y, po.x))*(1. + .012*uLayers*(fi + 1.));
-      col += rimCol * .45 * uLayers * exp(-pow(dl/hw, 2.));
-    }
+  // Front wall: a white-cyan specular rim, brightest at 7-11 o'clock where it
+  // splits into offset hairlines, thin at 1-4 o'clock; colour fringes only on
+  // short stretches (violet-blue at 5-7, orange at 8).
+  float hw = max(px*.9, .0026);
+  float ra = atan(n.y, n.x);
+  float rimI = .45 + 1.2*arange(ra, 2.4, 4.3, .35) + .25*arange(ra, 1.2, 2.4, .3);
+  vec3 tint = vec3(.88, .97, 1.);
+  tint = mix(tint, film(ra*1.4 + .2), arange(ra, 4.1, 5.4, .2));
+  tint = mix(tint, vec3(1., .6, .2), arange(ra, 3.55, 3.85, .1) * .8);
+  for (int i = 0; i < 4; i++) {
+    float fi = float(i);
+    vec2 o = vec2(-.016, -.006) * fi * (1. + uLayers*2.)
+           + uLayers * .012 * vec2(cos(t*1.3 + fi*2.1), sin(t*1.1 + fi*2.7));
+    vec2 po = p - o;
+    float ta = atan(po.y, po.x);
+    float dl = length(po) - radiusAt(ta) * (1. - .006*fi + .01*uLayers*fi + .004*fi*sin(ta*(3. + fi) + t*.4 + fi));
+    if (uSatR > .001 && i == 0) dl = smin(dl, sdSat(p), .13);
+    float sp = hw*.45;
+    vec3 g = vec3(exp(-pow((dl - sp)/hw, 2.)), exp(-pow(dl/hw, 2.)), exp(-pow((dl + sp)/hw, 2.)));
+    float side = i == 0 ? rimI : (.15 + .85*arange(ta, 2.3, 4.5, .3)) * (1.2 - .25*fi);
+    col += g * tint * side * 1.5 * (1. + .6*uLayers);
   }
 
   col *= uGlow;
-  col = 1. - exp(-col*1.2);
+  // Hue-preserving tone curve keeps the film saturated where it is bright.
+  float mx = max(col.r, max(col.g, col.b));
+  col *= (1. - exp(-mx*1.25)) / max(mx, 1e-4);
   gl_FragColor = vec4(col, max(col.r, max(col.g, col.b)));
 }`;
 
@@ -169,13 +223,13 @@ void main(){
   const STATES = {
     idle:        { label: 'Idle',        hint: 'Ready, nothing happening', speed: .6 },
     listening:   { label: 'Listening',   hint: 'User is typing or speaking',
-                   radius: 1.03, wobble: .01, dimples: 1, glow: 1.08, speed: .9 },
+                   radius: 1.02, wobble: .03, dimples: 1, glow: 1.08, speed: .9 },
     thinking:    { label: 'Thinking',    hint: 'Reasoning before answering',
-                   wobble: .01, ribs: 1, ribSpd: .9, ribPulse: 1 },
+                   wobble: .01, ribs: 1, ribSpd: 1, ribPulse: 1 },
     researching: { label: 'Researching', hint: 'Searching the web, reading sources',
-                   radius: 1.03, wobble: .01, sat: 1, layers: .6 },
+                   wobble: .012, sat: 1 },
     working:     { label: 'Working',     hint: 'Running tools, editing files',
-                   wobble: .012, ribs: .8, ribSpd: 2.6, layers: 1, glow: 1.08, speed: 1.2 },
+                   wobble: .012, ribs: .7, ribSpd: 2.6, layers: .5, glow: 1.08, speed: 1.2 },
     typing:      { label: 'Responding',  hint: 'Streaming the answer', bulge: 1 },
     waiting:     { label: 'Needs you',   hint: 'Waiting for approval or input',
                    radius: .96, wobble: .005, glow: .75, cool: .75, speed: .45 },
@@ -183,7 +237,7 @@ void main(){
                    radius: .95, wobble: .012, jitter: 1, glow: .9, hue: 1 },
   };
   const UNIFORMS = ['uRes', 'uTime', 'uR', 'uWob', 'uRibs', 'uRibPhase', 'uDimples', 'uBulge',
-    'uBulgeAng', 'uSatR', 'uSatAng', 'uSatDist', 'uLayers', 'uJitter', 'uGlow', 'uHue', 'uCool'];
+    'uBulgeAng', 'uSatR', 'uSatAng', 'uSatDist', 'uLayers', 'uJitter', 'uGlow', 'uHue', 'uCool', 'uCurl', 'uBloom'];
   const R = .78; // orb radius as a fraction of half the canvas' short side
 
   function compile(gl, type, src) {
@@ -224,7 +278,7 @@ void main(){
     let target = { ...cur };
     let level = null;
     let pop = 0, popV = 0, flash = 0, shake = 0;
-    let t = 0, ribPhase = 0, satAng = -Math.PI / 2, satLife = 0;
+    let t = 0, ribPhase = 0, satAng = 0, satLife = 0;
     let syl = 0, sylT = 0, sylDur = .2, sylAmp = .6;
     let last = performance.now(), raf = 0, visible = true;
 
@@ -249,40 +303,61 @@ void main(){
 
       const sp = reduceMotion ? cur.speed * .3 : cur.speed;
       t += dt * sp;
-      ribPhase += dt * sp * cur.ribSpd;
       popV += (-pop * 90 - popV * 9) * dt;
       pop += popV * dt;
       flash = Math.max(0, flash - dt * .7);
       shake = Math.max(0, shake - dt * 1.2);
 
-      // Thinking: folds sweep in and fade out on a ~5 s cycle, like the ref clip.
-      const wave = Math.pow(.5 - .5 * Math.cos(t * 2 * Math.PI / 5.2), 1.5);
-      const ribs = cur.ribs * (1 - cur.ribPulse + cur.ribPulse * wave);
+      // Thinking (ref 008d): every 5.2 s a short ~1.5 s burst of folds sweeps
+      // across, opens into rings and is gone; the orb rests in between.
+      // Timeline per 5.2 s cycle: folds sweep in (8-25%), curl into rings
+      // (22-38%), fade (38-55%), rest.
+      const ph = (t % 5.2) / 5.2;
+      const ss = (a, b, x) => { const v = Math.min(1, Math.max(0, (x - a) / (b - a))); return v * v * (3 - 2 * v); };
+      const burst = ss(.06, .16, ph) * (1 - ss(.38, .55, ph));
+      const curl = cur.ribPulse * ss(.22, .38, ph);
+      const ribs = cur.ribs * (1 - cur.ribPulse + cur.ribPulse * burst);
+      ribPhase += dt * sp * cur.ribSpd * (1 - cur.ribPulse + cur.ribPulse * (.3 + 2.5 * burst));
 
+      // Responding (ref 1074): a swell that blooms on the right (2-4 o'clock),
+      // drifts up to the top and relaxes; speech loudness rides on top of it.
       const voice = level ?? speech(dt);
-      const bulge = cur.bulge * (.012 + .07 * voice);
+      const tp = (t % 5.2) / 5.2;
+      const swellT = Math.sin(Math.PI * tp);
+      let bulge = cur.bulge * (.012 + .045 * swellT + .02 * voice);
+      let bulgeAng = .4 + 1.0 * ss(.45, .85, tp);   // 2 o'clock, then up towards 12-1
 
-      // Researching: a droplet buds off the rim, travels round and merges back.
-      satAng += dt * sp * cur.sat * 1.2;
-      satLife = (satLife + dt * sp * .22) % 1;
-      const life = Math.sin(Math.PI * satLife);
-      const r = R * cur.radius * (1 + .012 * Math.sin(t * 1.3)) + pop * .06
+      // Researching (ref f4c6): the bubble swells with layered rims, then a
+      // droplet buds off near 1 o'clock, travels counter-clockwise to about
+      // 7 o'clock and merges back.
+      satLife = (satLife + dt * sp * .2) % 1;
+      const swell = cur.sat * Math.sin(Math.PI * Math.min(1, satLife / .35));
+      const drop = Math.min(1, Math.max(0, (satLife - .25) / .75));
+      const life = Math.sin(Math.PI * drop);
+      satAng = 1.05 + 3.1 * drop;
+      if (cur.sat > .01) {            // the swell is lopsided, with a lobe at ~5 o'clock
+        bulge += cur.sat * .04 * swell;
+        if (cur.bulge < .01) bulgeAng = -1.05;
+      }
+      const r = R * (cur.radius + .1 * swell) * (1 + .012 * Math.sin(t * 1.3)) + pop * .06
         + (active === 'listening' && level != null ? level * .04 : 0);
 
       resize();
       gl.uniform2f(U.uRes, canvas.width, canvas.height);
       gl.uniform1f(U.uTime, t);
       gl.uniform1f(U.uR, r);
-      gl.uniform1f(U.uWob, cur.wobble + Math.abs(pop) * .03);
+      gl.uniform1f(U.uWob, cur.wobble + Math.abs(pop) * .03 + swell * .04);
       gl.uniform1f(U.uRibs, ribs);
       gl.uniform1f(U.uRibPhase, ribPhase);
       gl.uniform1f(U.uDimples, cur.dimples * (level != null && active === 'listening' ? .4 + level * 1.6 : 1));
       gl.uniform1f(U.uBulge, bulge);
-      gl.uniform1f(U.uBulgeAng, -.15 + .5 * Math.sin(t * .35));
+      gl.uniform1f(U.uBulgeAng, bulgeAng);
+      gl.uniform1f(U.uCurl, curl);
+      gl.uniform1f(U.uBloom, Math.min(2.4, cur.bulge * (.012 + .045 * swellT + .02 * voice) * 40));
       gl.uniform1f(U.uSatR, cur.sat * .15 * R * Math.pow(life, .6));
       gl.uniform1f(U.uSatAng, satAng);
-      gl.uniform1f(U.uSatDist, r * (.93 + .17 * life));
-      gl.uniform1f(U.uLayers, cur.layers * (.6 + .4 * Math.sin(t * 1.7)) + Math.abs(pop) * 2);
+      gl.uniform1f(U.uSatDist, r * (.97 + .1 * life));
+      gl.uniform1f(U.uLayers, cur.layers * (.6 + .4 * Math.sin(t * 1.7)) + swell * 1.3 + cur.ribs * cur.ribPulse * burst * .6 + Math.abs(pop) * 2);
       gl.uniform1f(U.uJitter, cur.jitter * (.35 + shake * 1.5));
       gl.uniform1f(U.uGlow, cur.glow * (1 + flash * .5) * (active === 'waiting' ? .85 + .15 * Math.sin(t * 3) : 1));
       gl.uniform1f(U.uHue, cur.hue);
