@@ -29,7 +29,7 @@ The states come from how shipping assistants signal status. Amazon's Echo light 
 | `thinking` | Reasoning before the first token | Folds sweep in as vertical streaks, open into rings and fade, on a ~5 s cycle (`008d…`) |
 | `researching` | Web search, reading sources | The rim layers, then a droplet buds off, slides around the edge and merges back (`f4c6…`) |
 | `working` | Tool calls, editing files, running code | Folds turn fast and the rim splits into offset layers |
-| `typing` | Streaming the answer | One side swells in a speech-like rhythm (`1074…`). `setLevel()` can drive it from TTS volume |
+| `typing` | Streaming the answer | Splits into three small orbs that hop in turn like a typing indicator, then merges back. `setLevel()` (e.g. TTS volume) makes them hop higher |
 | `waiting` | Needs approval or input from the user | Smaller, cooler and dimmer, with a slow pulse |
 | `error` | A request or tool failed | Shrinks, shivers and turns red |
 | `success` (one-shot) | A task just finished | Springy pop and flash, then it returns to the current state |

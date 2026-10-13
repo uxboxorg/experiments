@@ -14,7 +14,8 @@
 precision highp float;
 uniform vec2 uRes;
 uniform float uTime, uR, uWob, uRibs, uRibPhase, uDimples, uBulge, uBulgeAng,
-              uSatR, uSatAng, uSatDist, uLayers, uJitter, uGlow, uHue, uCool, uCurl, uBloom;
+              uSatR, uSatAng, uSatDist, uLayers, uJitter, uGlow, uHue, uCool, uCurl, uBloom, uDots;
+uniform vec3 uDotY;
 
 float h1(float n){ return fract(sin(n) * 43758.5453); }
 float h2(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -49,9 +50,20 @@ float sdSat(vec2 p){
   vec2 l = p - dir*uSatDist;
   return length(vec2(dot(l, vec2(-dir.y, dir.x))*.5, dot(l, dir)*1.15)) - uSatR;
 }
+// Responding: three small orbs in a row, each lifted by uDotY.
+const float DOT_GAP = .44, DOT_R = .13;
+float sdDots(vec2 p){
+  float d = 1e3;
+  for (int i = 0; i < 3; i++) {
+    vec2 c = vec2((float(i) - 1.)*DOT_GAP*uDots, uDotY[i]);
+    d = min(d, length(p - c) - DOT_R*uDots);
+  }
+  return d;
+}
 float sdf(vec2 p){
   float d = sdMain(p);
   if (uSatR > .001) d = smin(d, sdSat(p), .13);
+  if (uDots > .001) d = smin(d, sdDots(p), .02 + .12*(1. - uDots));   // bud out, then separate
   return d;
 }
 
@@ -68,7 +80,7 @@ void main(){
   float scale = .5 * min(uRes.x, uRes.y);
   vec2 p = (gl_FragCoord.xy - .5*uRes) / scale;
   float px = 1. / scale;
-  if (length(p) > uR*1.55) { gl_FragColor = vec4(0.); return; }
+  if (length(p) > max(uR*1.55, .75*step(.001, uDots))) { gl_FragColor = vec4(0.); return; }
   float d = sdf(p);
   if (d > .05) { gl_FragColor = vec4(0.); return; }
 
@@ -83,7 +95,12 @@ void main(){
     satW = clamp(.5 + .5*(sdMain(p) - sdSat(p))/.1, 0., 1.);
     Rloc = mix(Rloc, uSatR*1.6, satW);
   }
-  float q = clamp(1. + min(d, 0.)/Rloc, 0., 1.);
+  float dotW = 0.;
+  if (uDots > .001) {
+    dotW = clamp(.5 + .5*(sdMain(p) - sdDots(p))/.05, 0., 1.);
+    Rloc = mix(Rloc, DOT_R*uDots, dotW);   // each small orb is shaded as its own bubble
+  }
+  float q = clamp(1. + min(d, 0.)/max(Rloc, 1e-3), 0., 1.);
   float inside = smoothstep(px, -px, d);
 
   // Screen angle of the surface (0 = 3 o'clock, pi/2 = 12 o'clock), with a
@@ -204,9 +221,10 @@ void main(){
     float ta = atan(po.y, po.x);
     float dl = length(po) - radiusAt(ta) * (1. - .008*fi + .012*uLayers*fi);
     if (uSatR > .001 && i == 0) dl = smin(dl, sdSat(p), .13);
+    if (uDots > .001 && i == 0) dl = smin(dl, sdDots(p), .02 + .12*(1. - uDots));
     float sp = hw*.25;
     vec3 g = vec3(exp(-pow((dl - sp)/hw, 2.)), exp(-pow(dl/hw, 2.)), exp(-pow((dl + sp)/hw, 2.)));
-    float side = i == 0 ? rimI : arange(ta, 2.3, 4.5, .35) * (1.2 - .3*fi) * (1. + uLayers);
+    float side = i == 0 ? rimI : arange(ta, 2.3, 4.5, .35) * (1.2 - .3*fi) * (1. + uLayers) * (1. - uDots);
     vec3 tc = i == 0 ? tint : vec3(.9, .97, 1.);
     col += g * tc * side * 1.6;
   }
@@ -221,7 +239,7 @@ void main(){
   // Shape targets per state. The orb eases toward the active state's values.
   const BASE = {
     radius: 1, wobble: .006, ribs: 0, ribSpd: 1, ribPulse: 0, dimples: 0, bulge: 0,
-    sat: 0, layers: 0, jitter: 0, glow: 1, hue: 0, cool: 0, speed: 1,
+    sat: 0, layers: 0, dots: 0, jitter: 0, glow: 1, hue: 0, cool: 0, speed: 1,
   };
   const STATES = {
     idle:        { label: 'Idle',        hint: 'Ready, nothing happening', wobble: .004, speed: .6 },
@@ -233,14 +251,14 @@ void main(){
                    wobble: .012, sat: 1 },
     working:     { label: 'Working',     hint: 'Running tools, editing files',
                    wobble: .012, ribs: .7, ribSpd: 2.6, layers: .5, glow: 1.08, speed: 1.2 },
-    typing:      { label: 'Responding',  hint: 'Streaming the answer', bulge: 1 },
+    typing:      { label: 'Responding',  hint: 'Streaming the answer', dots: 1 },
     waiting:     { label: 'Needs you',   hint: 'Waiting for approval or input',
                    radius: .96, wobble: .005, glow: .75, cool: .75, speed: .45 },
     error:       { label: 'Error',       hint: 'Something failed',
                    radius: .95, wobble: .012, jitter: 1, glow: .9, hue: 1 },
   };
   const UNIFORMS = ['uRes', 'uTime', 'uR', 'uWob', 'uRibs', 'uRibPhase', 'uDimples', 'uBulge',
-    'uBulgeAng', 'uSatR', 'uSatAng', 'uSatDist', 'uLayers', 'uJitter', 'uGlow', 'uHue', 'uCool', 'uCurl', 'uBloom'];
+    'uBulgeAng', 'uSatR', 'uSatAng', 'uSatDist', 'uLayers', 'uJitter', 'uGlow', 'uHue', 'uCool', 'uCurl', 'uBloom', 'uDots', 'uDotY'];
   const R = .78; // orb radius as a fraction of half the canvas' short side
 
   function compile(gl, type, src) {
@@ -342,7 +360,7 @@ void main(){
         bulge += cur.sat * .015 * swell;
         if (cur.bulge < .01) bulgeAng = -1.6;   // soft lobe at 5-7 o'clock
       }
-      const r = R * (cur.radius + .09 * swell) * (1 + .012 * Math.sin(t * 1.3)) + pop * .06
+      const r = (R * (cur.radius + .09 * swell) * (1 + .012 * Math.sin(t * 1.3)) + pop * .06) * (1 - cur.dots)
         + (active === 'listening' && level != null ? level * .04 : 0);
 
       resize();
@@ -356,6 +374,12 @@ void main(){
       gl.uniform1f(U.uBulge, bulge);
       gl.uniform1f(U.uBulgeAng, bulgeAng);
       gl.uniform1f(U.uCurl, curl);
+      // Responding: the orb shrinks into three small orbs that hop in turn,
+      // like a typing indicator; speech loudness lifts them a little higher.
+      gl.uniform1f(U.uDots, cur.dots);
+      const hop = i => .09 * cur.dots * (1 + .5 * voice) *
+        Math.pow(Math.max(0, Math.sin(t * 2 * Math.PI / 1.3 - i * .9)), 2);
+      gl.uniform3f(U.uDotY, hop(0), hop(1), hop(2));
       gl.uniform1f(U.uBloom, cur.bulge * (.1 + 1.1 * swellT + .3 * voice));
       gl.uniform1f(U.uSatR, cur.sat * .15 * R * Math.pow(life, .6));
       gl.uniform1f(U.uSatAng, satAng);
