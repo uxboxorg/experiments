@@ -39,7 +39,7 @@ float radiusAt(float th){
   float w = .6*sin(2.*th - uTime*.5 + 1.) + .4*sin(3.*th + uTime*.7);
   float b = exp(-pow(adiff(th, uBulgeAng)/.8, 2.));
   float j = vn(vec2(cos(th), sin(th))*7. + vec2(uTime*7., 0.));
-  float rib = uRibs * .006 * sin(8.*th + uRibPhase*3.);
+  float rib = uRibs * .008 * sin(8.*th + uRibPhase*3.) * smoothstep(.3, .9, sin(th));   // ripples at 11-1
   return uR * (1. + uWob*w + uBulge*b + uJitter*.012*j + rib);
 }
 float sdMain(vec2 p){ return length(p) - radiusAt(atan(p.y, p.x)); }
@@ -101,23 +101,25 @@ void main(){
   vec3 gold = vec3(1., .86, .45), orange = vec3(1., .58, .12), ember = vec3(.8, .16, .03);
   vec3 col = vec3(0.);
 
-  // Warm crescent on the inner side, 1 to 5 o'clock only, widest at 2-4 and
-  // thinning to nothing near 12 and 6. Across its width: yellow-white at the
-  // rim, amber, then deep red-orange fading softly into the black centre.
+  // Warm crescent on the inner side, 1 to 5 o'clock: pale yellow-white at
+  // 1-2 o'clock, amber, deep red-orange at 4-5, with a soft inner edge.
   float crW = exp(-pow(adiff(a, .05)/.75, 2.));
-  float crIn = .86 - .15*crW;
-  vec3 cr = mix(ember, orange, smoothstep(crIn, crIn + .1, qq));
-  cr = mix(cr, gold, smoothstep(.86, .93, qq));
-  cr = mix(cr, vec3(1., .95, .8), smoothstep(.93, .97, qq) * .6);
-  col += cr * AR(-1.1, 1.15, .3) * smoothstep(crIn - .02, crIn + .08, qq) * (1. - smoothstep(.95, .985, qq))
+  float crIn = .84 - .14*crW;
+  vec3 cr = mix(ember, orange, smoothstep(crIn, crIn + .12, qq));
+  cr = mix(cr, gold, smoothstep(.84, .93, qq) * smoothstep(-.6, .4, a));
+  cr = mix(cr, vec3(1., .95, .82), smoothstep(.2, .9, a) * smoothstep(.86, .95, qq) * .7);
+  cr = mix(cr, ember, smoothstep(-.3, -1., a) * .6);
+  col += cr * AR(-1.1, 1.15, .3) * smoothstep(crIn - .06, crIn + .1, qq) * (1. - smoothstep(.95, .985, qq))
        * (.6 + 2.5*crW);
-  // Broad cyan-white sheen across the top, 11 to 1 o'clock, warming towards 1.
-  vec3 sheen = mix(mix(cyan, vec3(1.), .5), vec3(1., .92, .7), smoothstep(1.6, 1.0, a));
-  col += sheen * AR(.95, 2.3, .3) * QB(.87, .91, .955, .98) * 1.5;
-  // Soft violet band under the sheen at 10-11 o'clock.
-  col += vi * AR(1.85, 2.75, .3) * QB(.78, .84, .87, .9) * 1.;
-  // Faint amber ember at 8-9 o'clock.
-  col += mix(ember, orange, .5) * AR(3.2, 3.75, .2) * QB(.78, .84, .88, .92) * .4;
+  // Wide glassy cyan-white band on the outer edge, 9 to 1 o'clock.
+  vec3 sheen = mix(mix(cyan, vec3(1.), .5), vec3(1., .94, .78), smoothstep(1.45, .95, a));
+  col += sheen * AR(.95, 2.9, .35) * QB(.88, .925, .965, .99) * mix(1.1, 1.8, smoothstep(.93, .975, qq));
+  // Thin violet line just inside that band, 10-11 o'clock.
+  col += vi * AR(1.9, 2.75, .3) * QB(.82, .85, .865, .885) * 1.1;
+  // Dim orange glow on the inner edge at 8-9 o'clock.
+  col += mix(ember, orange, .55) * AR(3.2, 3.7, .2) * QB(.76, .83, .87, .91) * .6;
+  // Teal-magenta lip along the bottom outer edge, 5 to 7 o'clock.
+  col += film(a*1.2 + .1) * AR(4.2, 5.25, .25) * QB(.9, .935, .965, .985) * .9;
 
   // Error / waiting tints.
   col = mix(col, vec3(dot(col, vec3(.6, .3, .1))) * vec3(1., .15, .3), uHue);
@@ -131,38 +133,40 @@ void main(){
     float yy = clamp(p.y/uR, -1., 1.);
     float wy = sqrt(max(1. - yy*yy, 1e-3));
     vec3 rc = vec3(0.);
-    for (int k = 0; k < 6; k++) {
+    for (int k = 0; k < 8; k++) {
       float fk = float(k);
       float phi = mix(uRibPhase*(1. + .11*fk) + fk*.8, .55 + .17*fk, uCurl);
       vec2 off = uCurl * vec2(.05, .03) * fk / 3.;
       float x0 = sin(phi);
       float u = (p.x - off.x)/(uR*clamp(sqrt(max(1. - pow((p.y - off.y)/uR, 2.), 1e-3)), .03, 1.));
       float dist = min(abs(u - x0), abs(u + x0)) * uR * wy;   // both halves of the great circle
-      float w = max(px, mix(.016 + .02*abs(cos(phi)), .007, uCurl));
+      float w = max(px, mix(.005 + .006*abs(cos(phi)), .006, uCurl));
       float L = exp(-pow(dist/w, 4.));
       // Curl: the folds close into concentric rings offset towards 2 o'clock.
-      vec2 rp = (p - vec2(.12 + .04*fk, .05)) / vec2(.88, 1.);
-      float ringD = abs(length(rp) - uR*(.4 + .13*fk));
-      float arc = smoothstep(-.35, .45, rp.x/max(length(rp), 1e-3));   // brighter on the right, open on the left
-      L = mix(L, exp(-pow(ringD/(.007 + .006*arc), 2.)) * arc, uCurl);
+      // Curl: the folds close into ellipses nested just inside the rim,
+      // offset up and to the left, warmer and brighter on the right.
+      vec2 rp = (p - vec2(-.03, .05) * (1. - fk/3.)) / vec2(.94, 1.);
+      float ringD = abs(length(rp) - uR*(.9 - .07*fk));
+      float arc = .35 + .65*smoothstep(-.6, .6, rp.x/max(length(rp), 1e-3));
+      L = mix(L, exp(-pow(ringD/.006, 2.)) * arc, uCurl);
       // Warm on the right, violet on the left, a thin pale core; folds crowd
       // towards the sides, so the ones crossing the middle stay dim.
       float side = (p.x - off.x) / uR;
       vec3 lc = mix(vi, mix(orange, gold, .45), smoothstep(-.3, .3, side));
       lc = mix(lc, vec3(1., .93, .8), .75*exp(-dist*dist/(.2*w*w)));
-      float keep = 1. - uCurl*step(2.5, fk);   // only 3 rings remain once curled
+      float keep = 1. - smoothstep(0., .5, uCurl)*step(2.5, fk);   // only 3 rings remain once curled
       rc += lc * L * mix(.45 + .55*abs(x0), 1., uCurl) * keep;
     }
-    col += rc * uRibs * 2.8 * smoothstep(1., .8, abs(yy));
+    col += rc * uRibs * 2.2 * smoothstep(1., .85, abs(yy));
   }
 
   // Responding (ref 1074): pink-lavender to near-white flare where it swells.
-  vec3 bloom = mix(vec3(1., .72, .95), vec3(1.), .35);
-  col += bloom * exp(-pow(adiff(a, uBulgeAng)/.5, 2.)) * QB(.84, .89, .955, .98) * uBloom * .8;
+  vec3 bloom = vec3(1., .45, .85);
+  col += bloom * exp(-pow(adiff(a, .35)/.45, 2.)) * QB(.72, .8, .9, .95) * uBloom * 1.3;
 
   // Droplet (ref f4c6): filled with the same film, not hollow.
-  col *= 1. - .8*satW;   // the droplet is a clear lens: dark inside, lit by its rim
-  col += vi * satW * smoothstep(.5, .95, q) * .25;
+  col *= 1. - .6*satW;   // the droplet is a glassy bead: clear inside, bright cyan-white lip
+  col += mix(vec3(.85, .97, 1.), film(q + t*.1), .3) * satW * smoothstep(.6, .95, q) * 1.4;
 
   // Listening (ref 0e18): small dark dents drifting along the bright band,
   // each fading in and out with a thin bright edge; 1-2 visible at a time.
@@ -172,9 +176,9 @@ void main(){
       float cyc = t*.23 + fi*.25;
       float life = pow(max(0., sin(6.2832*fract(cyc))), .7);
       float slot = floor(mod(fi + floor(cyc), 3.));
-      float ang = (slot < .5 ? 1.75 : slot < 1.5 ? .05 : 3.6) + (fract(cyc) - .5)*(mod(fi, 2.) < .5 ? .6 : -.6);
-      vec2 c = vec2(cos(ang), sin(ang)) * uR * (slot < .5 ? .93 : .82);
-      float r = (.026 + .006*h1(fi + 4.)) * uDimples * life;
+      float ang = (slot < .5 ? 1.6 : slot < 1.5 ? -.2 : 3.6) + (fract(cyc) - .5)*(mod(fi, 2.) < .5 ? .6 : -.6);
+      vec2 c = vec2(cos(ang), sin(ang)) * uR * (slot < .5 ? .86 : .82);
+      float r = (.04 + .01*h1(fi + 4.)) * uDimples * life;
       float dd = length(p - c) - r;
       col *= 1. - .9*smoothstep(px, -px, dd);
       vec2 rd = normalize(p - c + 1e-5);
@@ -192,18 +196,19 @@ void main(){
   float rimI = .3 + 1.5*arange(ra, 2.3, 4.2, .35) + .6*arange(ra, 1.1, 2.3, .3) + .35*arange(ra, 4.2, 5.4, .2);
   vec3 tint = vec3(.88, .97, 1.);
   tint = mix(tint, film(ra*1.4 + .2), arange(ra, 4.1, 5.4, .2));
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 3; i++) {
     float fi = float(i);
-    vec2 o = vec2(-.02, -.007) * fi * (1. + uLayers*1.5)
+    vec2 o = vec2(-.028, -.009) * fi * (1. + uLayers*1.5)
            + uLayers * .01 * vec2(cos(t*1.3 + fi*2.1), sin(t*1.1 + fi*2.7));
     vec2 po = p - o;
     float ta = atan(po.y, po.x);
     float dl = length(po) - radiusAt(ta) * (1. - .008*fi + .012*uLayers*fi);
     if (uSatR > .001 && i == 0) dl = smin(dl, sdSat(p), .13);
-    float sp = hw*.5;
+    float sp = hw*.25;
     vec3 g = vec3(exp(-pow((dl - sp)/hw, 2.)), exp(-pow(dl/hw, 2.)), exp(-pow((dl + sp)/hw, 2.)));
-    float side = i == 0 ? rimI : arange(ta, 2.4, 4.4, .3) * (1.1 - .25*fi) * (1. + uLayers);
-    col += g * tint * side * 1.5;
+    float side = i == 0 ? rimI : arange(ta, 2.3, 4.5, .35) * (1.2 - .3*fi) * (1. + uLayers);
+    vec3 tc = i == 0 ? tint : vec3(.9, .97, 1.);
+    col += g * tc * side * 1.6;
   }
 
   col *= uGlow;
@@ -221,7 +226,7 @@ void main(){
   const STATES = {
     idle:        { label: 'Idle',        hint: 'Ready, nothing happening', wobble: .004, speed: .6 },
     listening:   { label: 'Listening',   hint: 'User is typing or speaking',
-                   radius: 1.02, wobble: .016, dimples: 1, glow: 1.08, speed: .9 },
+                   radius: 1.02, wobble: .028, dimples: 1, glow: 1.08, speed: .7 },
     thinking:    { label: 'Thinking',    hint: 'Reasoning before answering',
                    wobble: .01, ribs: 1, ribSpd: 1, ribPulse: 1 },
     researching: { label: 'Researching', hint: 'Searching the web, reading sources',
@@ -310,10 +315,10 @@ void main(){
       // across, opens into rings and is gone; the orb rests in between.
       // Timeline per 5.2 s cycle: folds sweep in (8-25%), curl into rings
       // (22-38%), fade (38-55%), rest.
-      const ph = (t % 5.2) / 5.2;
+      const ph = (t % 6.5) / 6.5;   // a burst, then a long settled rest
       const ss = (a, b, x) => { const v = Math.min(1, Math.max(0, (x - a) / (b - a))); return v * v * (3 - 2 * v); };
-      const burst = ss(.06, .16, ph) * (1 - ss(.38, .55, ph));
-      const curl = cur.ribPulse * ss(.22, .38, ph);
+      const burst = ss(.05, .12, ph) * (1 - ss(.3, .44, ph));
+      const curl = cur.ribPulse * ss(.17, .3, ph);
       const ribs = cur.ribs * (1 - cur.ribPulse + cur.ribPulse * burst);
       ribPhase += dt * sp * cur.ribSpd * (1 - cur.ribPulse + cur.ribPulse * (.3 + 2.5 * burst));
 
@@ -322,8 +327,8 @@ void main(){
       const voice = level ?? speech(dt);
       const tp = (t % 5.2) / 5.2;
       const swellT = Math.sin(Math.PI * tp);
-      let bulge = cur.bulge * (.006 + .022 * swellT + .01 * voice);
-      let bulgeAng = .45 - .5 * ss(.3, .8, tp);   // eases from 2 o'clock to 3
+      let bulge = cur.bulge * (.006 + .04 * swellT + .012 * voice);
+      let bulgeAng = .75;   // upper right, 12-2 o'clock
 
       // Researching (ref f4c6): the bubble swells with layered rims, then a
       // droplet buds off near 1 o'clock, travels counter-clockwise to about
@@ -334,7 +339,7 @@ void main(){
       const life = Math.sin(Math.PI * drop);
       satAng = 1.05 + 3.1 * drop;
       if (cur.sat > .01) {            // the swell is lopsided, with a lobe at ~5 o'clock
-        bulge += cur.sat * .04 * swell;
+        bulge += cur.sat * .015 * swell;
         if (cur.bulge < .01) bulgeAng = -1.6;   // soft lobe at 5-7 o'clock
       }
       const r = R * (cur.radius + .09 * swell) * (1 + .012 * Math.sin(t * 1.3)) + pop * .06
@@ -344,14 +349,14 @@ void main(){
       gl.uniform2f(U.uRes, canvas.width, canvas.height);
       gl.uniform1f(U.uTime, t);
       gl.uniform1f(U.uR, r);
-      gl.uniform1f(U.uWob, cur.wobble + Math.abs(pop) * .03 + swell * .04);
+      gl.uniform1f(U.uWob, cur.wobble + Math.abs(pop) * .03 + swell * .012);
       gl.uniform1f(U.uRibs, ribs);
       gl.uniform1f(U.uRibPhase, ribPhase);
       gl.uniform1f(U.uDimples, cur.dimples * (level != null && active === 'listening' ? .4 + level * 1.6 : 1));
       gl.uniform1f(U.uBulge, bulge);
       gl.uniform1f(U.uBulgeAng, bulgeAng);
       gl.uniform1f(U.uCurl, curl);
-      gl.uniform1f(U.uBloom, cur.bulge * (.25 + .9 * swellT + .4 * voice));
+      gl.uniform1f(U.uBloom, cur.bulge * (.1 + 1.1 * swellT + .3 * voice));
       gl.uniform1f(U.uSatR, cur.sat * .15 * R * Math.pow(life, .6));
       gl.uniform1f(U.uSatAng, satAng);
       gl.uniform1f(U.uSatDist, r * (.97 + .1 * life));
