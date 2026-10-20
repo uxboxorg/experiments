@@ -31,6 +31,7 @@
   --fill2: rgba(120, 120, 128, .2);
   --blue: #007AFF;
   --green: #34C759;
+  --green-text: #248A3D;
   --red: #FF3B30;
   --orange: #B35C00;
   --indigo: #5856D6;
@@ -55,7 +56,7 @@
     --page: #0E0F12; --page-ink: #F2F2F5; --page-muted: #A0A0A8; --frame: #2A2A2E; --frame-edge: #4A4A50;
     --bg: #000000; --card: #1C1C1E; --label: #FFFFFF; --label2: rgba(235, 235, 245, .62); --label3: rgba(235, 235, 245, .3);
     --sep: rgba(84, 84, 88, .55); --fill: rgba(118, 118, 128, .24); --fill2: rgba(118, 118, 128, .34);
-    --blue: #0A84FF; --green: #30D158; --red: #FF453A; --orange: #FF9F0A; --indigo: #5E5CE6; --olive: #A3B65A;
+    --blue: #0A84FF; --green: #30D158; --green-text: #30D158; --red: #FF453A; --orange: #FF9F0A; --indigo: #5E5CE6; --olive: #A3B65A;
     --glass: rgba(44, 44, 48, .58); --glass-strong: rgba(48, 48, 52, .82); --glass-edge: rgba(255, 255, 255, .14);
     --glass-shade: 0 10px 30px rgba(0, 0, 0, .4), 0 1px 2px rgba(0, 0, 0, .3);
     --sheet: rgba(30, 30, 32, .985); --scrim: rgba(0, 0, 0, .5);
@@ -67,7 +68,7 @@
   --page: #0E0F12; --page-ink: #F2F2F5; --page-muted: #A0A0A8; --frame: #2A2A2E; --frame-edge: #4A4A50;
   --bg: #000000; --card: #1C1C1E; --label: #FFFFFF; --label2: rgba(235, 235, 245, .62); --label3: rgba(235, 235, 245, .3);
   --sep: rgba(84, 84, 88, .55); --fill: rgba(118, 118, 128, .24); --fill2: rgba(118, 118, 128, .34);
-  --blue: #0A84FF; --green: #30D158; --red: #FF453A; --orange: #FF9F0A; --indigo: #5E5CE6; --olive: #A3B65A;
+  --blue: #0A84FF; --green: #30D158; --green-text: #30D158; --red: #FF453A; --orange: #FF9F0A; --indigo: #5E5CE6; --olive: #A3B65A;
   --glass: rgba(44, 44, 48, .58); --glass-strong: rgba(48, 48, 52, .82); --glass-edge: rgba(255, 255, 255, .14);
   --glass-shade: 0 10px 30px rgba(0, 0, 0, .4), 0 1px 2px rgba(0, 0, 0, .3);
   --sheet: rgba(30, 30, 32, .985); --scrim: rgba(0, 0, 0, .5);
@@ -340,6 +341,8 @@ button.row[disabled] { cursor: default; }
 .action .no { width: 44px; height: 44px; border-radius: 50%; background: var(--fill); color: var(--label2); display: grid; place-items: center; }
 .action.done { grid-template-columns: auto 1fr; align-items: center; }
 .action.done .ok { background: var(--green); }
+.logo-tile { display: grid; place-items: center; flex: none; box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .22); }
+.logo-tile svg { display: block; }
 .merchant { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-size: 20px; background: var(--fill); flex: none; }
 
 /* ---------- Money ---------- */
@@ -683,6 +686,18 @@ const I = {
   info: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5"/></svg>',
 };
 
+const LUCIDE = {"coffee": "<path d=\"M10 2v2\" /> <path d=\"M14 2v2\" /> <path d=\"M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1\" /> <path d=\"M6 2v2\" />", "shopping-basket": "<path d=\"m15 11-1 9\" /> <path d=\"m19 11-4-7\" /> <path d=\"M2 11h20\" /> <path d=\"m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4\" /> <path d=\"M4.5 15.5h15\" /> <path d=\"m5 11 4-7\" /> <path d=\"m9 11 1 9\" />", "fuel": "<path d=\"M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0v-6.998a2 2 0 0 0-.59-1.42L18 5\" /> <path d=\"M14 21V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v16\" /> <path d=\"M2 21h13\" /> <path d=\"M3 9h11\" />", "piggy-bank": "<path d=\"M11 17h3v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a3.16 3.16 0 0 0 2-2h1a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-1a5 5 0 0 0-2-4V3a4 4 0 0 0-3.2 1.6l-.3.4H11a6 6 0 0 0-6 6v1a5 5 0 0 0 2 4v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1z\" /> <path d=\"M16 10h.01\" /> <path d=\"M2 8v1a2 2 0 0 0 2 2h1\" />", "mountain-snow": "<path d=\"m8 3 4 8 5-5 5 15H2L8 3z\" /> <path d=\"M4.14 15.08c2.62-1.57 5.24-1.43 7.86.42 2.74 1.94 5.49 2 8.23.19\" />", "plane": "<path d=\"M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z\" />", "receipt": "<path d=\"M12 17V7\" /> <path d=\"M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8\" /> <path d=\"M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z\" />", "wallet": "<path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\" /> <path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\" />", "message-circle": "<path d=\"M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719\" />", "landmark": "<path d=\"M10 18v-7\" /> <path d=\"M11.119 2.205a2 2 0 0 1 1.762 0l7.84 3.846A.5.5 0 0 1 20.5 7h-17a.5.5 0 0 1-.22-.949z\" /> <path d=\"M14 18v-7\" /> <path d=\"M18 18v-7\" /> <path d=\"M3 22h18\" /> <path d=\"M6 18v-7\" />", "trending-up": "<path d=\"M16 7h6v6\" /> <path d=\"m22 7-8.5 8.5-5-5L2 17\" />", "credit-card": "<rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"2\" /> <line x1=\"2\" x2=\"22\" y1=\"10\" y2=\"10\" /> <path d=\"M6 14h2\" />", "stethoscope": "<path d=\"M11 2v2\" /> <path d=\"M5 2v2\" /> <path d=\"M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1\" /> <path d=\"M8 15a6 6 0 0 0 12 0v-3\" /> <circle cx=\"20\" cy=\"10\" r=\"2\" />"};
+const BRAND_PATHS = {"n26": "M0 3.803v1.195h7.436V3.803H0zM12.69 7.29c-2.034 0-3.038 1.252-3.038 2.684 0 .234.027.468.092.728l1.393.135a3.697 3.697 0 0 1-.09-.793c0-1.072.71-1.586 1.598-1.586.866 0 1.507.485 1.507 1.652 0 1.186-.58 1.995-1.464 2.88-.925.923-2.4 2.027-3.112 2.534v1.092h6.135v-1.195h-4.168c.695-.48 1.69-1.279 2.133-1.72.502-.503 1.931-1.794 1.931-3.636 0-1.903-1.24-2.775-2.918-2.775zm8.34 0c-1.976 0-3.454 1.517-3.454 4.916 0 3.017 1.233 4.508 3.356 4.508 1.754 0 3.068-1.198 3.068-3.172 0-1.542-.823-3.066-2.793-3.066-1.1 0-1.884.51-2.281 1.263 0-1.78.62-3.33 2.094-3.33.937 0 1.309.538 1.507 1.422l1.366-.271c-.321-1.527-1.292-2.27-2.864-2.27zM.075 7.389v9.228h1.33v-6.312c0-.56-.013-.898-.039-1.223h.026c.136.372.298.699.539 1.123l3.732 6.412h1.69V7.39H6.04v6.31c0 .56.013.898.04 1.223h-.028a7.252 7.252 0 0 0-.537-1.123L1.783 7.389H.076zm20.817 4.185c1.114 0 1.744.822 1.744 1.992 0 1.256-.717 2.034-1.701 2.034-1.09 0-1.843-1.001-1.973-2.329.33-1.133 1.063-1.697 1.93-1.697zM0 19.008v1.19h7.436v-1.19H0z", "revolut": "M20.9133 6.9566C20.9133 3.1208 17.7898 0 13.9503 0H2.424v3.8605h10.9782c1.7376 0 3.177 1.3651 3.2087 3.043.016.84-.2994 1.633-.8878 2.2324-.5886.5998-1.375.9303-2.2144.9303H9.2322a.2756.2756 0 0 0-.2755.2752v3.431c0 .0585.018.1142.052.1612L16.2646 24h5.3114l-7.2727-10.094c3.6625-.1838 6.61-3.2612 6.61-6.9494zM6.8943 5.9229H2.424V24h4.4704z", "deutschebank": "M3.375 3.375v17.25h17.25V3.375H3.375zM0 0h24v24H0V0zm5.25 18.225 9.15-12.45h4.35L9.6 18.225H5.25z", "commerzbank": "M6.277 1.538a.018.018 0 0 0-.012.007l-4.74 8.21-1.398 2.418c.446.774.794 1.353 1.22 2.09.671 1.164 1.548 1.597 3.13 1.889a12.9 12.9 0 0 1 .697-1.392l2.783-4.824 2.786-4.826c.404-.702 1.296-2.143 2.57-2.965-.04.025-.07.059-.109.085.07-.047.137-.094.209-.136.46-.278.98-.467 1.413-.515.339-.038 1.465-.041 2.74-.041zm11.59.505c-1.048-.008-1.462.007-2.545.008-1.39 0-2.381.887-3.083 1.773.372.493.68.971.863 1.288a13357.605 13357.605 0 0 0 5.571 9.648c.404.7 1.209 2.196 1.284 3.71.029.574-.079 1.165-.265 1.592-.131.3-.652 1.207-1.256 2.253L24 12.678v-.008a.013.013 0 0 0-.002-.005zM.001 8.163l.095 4.946L0 8.163zm.093 4.946 1.132 1.964 4.264 7.384a.015.015 0 0 0 .012.005h12.265c.446-.779.664-1.147 1.311-2.282.709-1.242.278-2.681-.037-3.472-.618.076-1.18.093-1.547.093H6.35c-.809 0-2.505-.05-3.853-.741-.513-.263-.972-.65-1.248-1.027-.176-.238-.625-1.003-1.156-1.924z", "caixabank": "M4.938 16c.183 0 .315.13.487.1.239.09.212.383.462.455.19.384.312.797.419 1.21-.077.244.129.384.056.608l.072.04a1.8 1.8 0 0 1-.114.716c.038.426-.17.78-.353 1.14-.13.083-.19.314-.372.273-.323.102-.353.584-.748.524-.25.189-.596.083-.895.09-.176-.09-.419-.067-.536-.22a3.3 3.3 0 0 1-.84-.57c-.102-.22-.333-.318-.363-.57.09-.302-.1-.576-.02-.88l-.06-.504.19-.87c.326-.171.235-.561.558-.683.2-.467.683-.566 1.059-.797.14-.03.311.05.422-.08.205-.03.394.179.577.018m1.496-3.682c.202.14.19.422.372.566l.092.622-.456.669c-.573.303-1.431.433-1.967-.054-.304-.269-.383-.664-.304-1.059l.213-.573c.122-.084.28-.103.365-.243.28-.182.645-.14.967-.213.244.08.607-.05.718.282zm14.967-9.766c-.084 1.424-1.253 2.38-1.868 3.584-.266.714-.89 1.14-1.33 1.784-.405.418-.796.87-1.134 1.334.06.333.418.424.618.667.456.27.502.786.896 1.102.232 0 .232.341.487.3.535.577.967 1.173 1.412 1.795a1.3 1.3 0 0 0 .37.607c.355.514.647 1.064 1.01 1.584.055.585.549.979.7 1.526.22.292.312.635.513.926.316.684.524 1.406.9 2.062.069.152-.023.3-.103.41-.14.114-.25-.091-.414-.06a14 14 0 0 1-2.38-1.2c-.79-.638-1.656-1.09-2.43-1.758-.304-.076-.428-.433-.71-.574-.747-.462-1.344-1.131-2.1-1.563-.341-.266-.683-.518-1.028-.79-.266-.027-.354-.331-.607-.422-.563-.342-1.08-.82-1.656-1.14-.05.077 0 .203-.05.282-.383.373-.28.949-.554 1.364-.01.595-.425 1.028-.596 1.556-.475.846-.888 1.712-1.382 2.55-.657.87-1.01 1.919-1.937 2.614-.205.253-.436.383-.686.546-.114-.03-.274-.012-.304-.152-.114-.212.03-.532-.121-.725.132-.297.05-.627.113-.95l-.053-.14c.01-.444.23-.82.14-1.272a3 3 0 0 0 .206-.91 5 5 0 0 0 .303-1.212 1.5 1.5 0 0 0 .153-.836c.098-.265.117-.576.39-.77.039-.17 0-.342.03-.524.27-.827.608-1.625.817-2.471 0-.061-.06-.08-.103-.092-.596-.03-1.15.092-1.705-.06a14 14 0 0 1-2.695-.311c-.348-.07-.774-.027-1.097-.23-.209.009-.452.05-.653-.063-.418-.2-.919-.167-1.329-.391-.315.038-.54-.16-.82-.19-.274.019-.425-.212-.615-.364v-.092c.5-.683 1.31-.876 2.038-1.139.714-.224 1.511-.243 2.26-.395.475-.08.987.05 1.465-.03.858.02 1.682.16 2.532.182.282.038.544.172.828.16l-.01-.122-.8-1.09c-.302-.705-.857-1.302-1.046-2.05-.182-.219-.012-.553-.152-.796-.011-.11.075-.19.13-.282.17-.068.363.05.535-.06.515.12.986.303 1.503.405.53.21 1.078.422 1.556.776.593.425 1.31.698 1.773 1.351.125.114.316.133.475.091.14-.019.17-.19.303-.243.627-.39 1.334-.615 1.948-1.048.255-.25.657-.28.81-.627.189-.09.36-.212.565-.265.353-.247.707-.52 1.09-.72a1.1 1.1 0 0 0 .515-.244c.627-.342 1.284-.627 1.88-1.02.13-.355.524-.27.805-.355.14.034.334.012.395.19z", "bunq": "M16.414 14.62h1.103v-2.896a2.484 2.484 0 0 0-2.483-2.483 2.484 2.484 0 0 0-2.482 2.483v2.897h1.103v-2.897c0-.837.618-1.517 1.38-1.517.76 0 1.379.68 1.379 1.517zm-6.07-5.24h1.104v2.896a2.484 2.484 0 0 1-2.482 2.483 2.484 2.484 0 0 1-2.483-2.483V9.379h1.103v2.897c0 .837.618 1.517 1.38 1.517.76 0 1.379-.68 1.379-1.517zM0 7.034V12c0 .046.001.093.004.139H0v2.482h.965l.055-.48A2.76 2.76 0 0 0 5.518 12a2.76 2.76 0 0 0-4.414-2.208V7.035zm2.69 3.172c.951 0 1.724.803 1.724 1.793 0 .99-.773 1.793-1.725 1.793-.951 0-1.724-.803-1.724-1.793 0-.99.773-1.793 1.724-1.793zm18.552-.965A2.76 2.76 0 0 0 18.482 12a2.76 2.76 0 0 0 4.414 2.207v2.758H24V12a2.15 2.15 0 0 0-.004-.139H24V9.38h-.965l-.055.48a2.741 2.741 0 0 0-1.738-.617zm.069.965c.951 0 1.724.803 1.724 1.793 0 .99-.773 1.793-1.724 1.793-.952 0-1.725-.803-1.725-1.793 0-.99.773-1.793 1.725-1.793Z", "sparkasse": "M7.0602 12.3061v1.8455h14.175v6.7773c.0296 1.6615-1.4064 3.1066-3.0705 3.0705H5.8352c-1.6582.0306-3.1011-1.4121-3.0705-3.0705v-1.225H16.908v-1.8455H2.7648v-6.7773c-.0307-1.6579 1.4123-3.1012 3.0704-3.0704h12.3295c1.6641-.0363 3.1 1.4095 3.0705 3.0705v1.225H7.0602zm4.9241-6.1486c1.7003 0 3.0787-1.3784 3.0787-3.0787S13.6847 0 11.9843 0 8.9055 1.3784 8.9055 3.0788s1.3785 3.0787 3.0788 3.0787z", "visa": "M9.112 8.262L5.97 15.758H3.92L2.374 9.775c-.094-.368-.175-.503-.461-.658C1.447 8.864.677 8.627 0 8.479l.046-.217h3.3a.904.904 0 01.894.764l.817 4.338 2.018-5.102zm8.033 5.049c.008-1.979-2.736-2.088-2.717-2.972.006-.269.262-.555.822-.628a3.66 3.66 0 011.913.336l.34-1.59a5.207 5.207 0 00-1.814-.333c-1.917 0-3.266 1.02-3.278 2.479-.012 1.079.963 1.68 1.698 2.04.756.367 1.01.603 1.006.931-.005.504-.602.725-1.16.734-.975.015-1.54-.263-1.992-.473l-.351 1.642c.453.208 1.289.39 2.156.398 2.037 0 3.37-1.006 3.377-2.564m5.061 2.447H24l-1.565-7.496h-1.656a.883.883 0 00-.826.55l-2.909 6.946h2.036l.405-1.12h2.488zm-2.163-2.656l1.02-2.815.588 2.815zm-8.16-4.84l-1.603 7.496H8.34l1.605-7.496z", "spotify": "M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z", "lidl": "M0 0v24h24V0zm.209.209h23.582v23.582H.209zm11.789.625C5.83.834.83 5.834.83 12.002c0 6.168 5 11.168 11.168 11.168 6.167 0 11.167-5 11.168-11.166C23.165 5.837 18.166.837 12 .834zm.002.709c5.777 0 10.46 4.682 10.46 10.459v.004c-.004 5.773-4.686 10.452-10.46 10.453-5.777 0-10.46-4.68-10.46-10.457C1.54 6.225 6.222 1.543 12 1.543zM9.229 7.85c-.645 0-1.166.521-1.166 1.166v.004c0 1.044 1.261 1.567 1.999.829.738-.738.215-2-.829-1.999zM2.73 10.059v.71h.551v2.465h-.55v.713h4.644v-.65l.537-.54 1.486 1.491-.55.547.357.36 2.973-2.977v-.713l-.826.83-1.848-1.848-2.129 2.133v-.576l-1.904 1.06V10.77h.549v-.711zm8.905 0v.71h.549v2.465h-.555v.713h3.129c2.325 0 2.355-3.888.008-3.888zm4.963 0v.71h.55v2.465h-.55v.713h4.648v-1.943l-1.906 1.06V10.77h.55v-.711zm-2.43 1.21h.133c.687 0 .685 1.461.023 1.461h-.156v-1.46z", "shell": "M12 .863C5.34.863 0 6.251 0 12.98c0 .996.038 1.374.246 2.33l3.662 2.71.57 4.515h6.102l.326.227c.377.262.705.375 1.082.375.352 0 .732-.101 1.024-.313l.39-.289h6.094l.563-4.515 3.695-2.71c.208-.956.246-1.334.246-2.33C24 6.252 18.661.863 12 .863zm.996 2.258c.9 0 1.778.224 2.512.649l-2.465 12.548 3.42-12.062c1.059.36 1.863.941 2.508 1.814l.025.034-4.902 10.615 5.572-9.713.033.03c.758.708 1.247 1.567 1.492 2.648l-6.195 7.666 6.436-6.5.01.021c.253.563.417 1.36.417 1.996 0 .509-.024.712-.164 1.25l-3.554 2.602-.467 3.71h-4.475l-.517.395c-.199.158-.482.266-.682.266-.199 0-.483-.108-.682-.266l-.517-.394H6.322l-.445-3.61-3.627-2.666c-.11-.436-.16-.83-.16-1.261 0-.72.159-1.49.426-2.053l.013-.024 6.45 6.551L2.75 9.621c.25-1.063.874-2.09 1.64-2.713l5.542 9.776L4.979 6.1c.555-.814 1.45-1.455 2.546-1.827l3.424 12.069L8.355 3.816l.055-.03c.814-.45 1.598-.657 2.457-.657.195 0 .286.004.528.03l.587 13.05.46-13.059c.224-.025.309-.029.554-.029z"};
+
+// Logo tiles: brand marks from Simple Icons, symbols from Lucide, Mastercard drawn in its colours
+function glyph(spec, px) {
+  if (spec.icon) return `<svg width="${px}" height="${px}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${LUCIDE[spec.icon]}</svg>`;
+  if (spec.mc) return `<svg width="${Math.round(px * 1.35)}" height="${px}" viewBox="0 0 32 20" aria-hidden="true"><circle cx="11" cy="10" r="8" fill="#EB001B"/><circle cx="21" cy="10" r="8" fill="#F79E1B"/><path d="M16 3.76A8 8 0 0 1 16 16.24A8 8 0 0 1 16 3.76Z" fill="#FF5F00"/></svg>`;
+  return `<svg width="${px}" height="${px}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="${BRAND_PATHS[spec.brand]}"/></svg>`;
+}
+const tile = (spec, size = 36) => `<span class="logo-tile" style="width:${size}px;height:${size}px;border-radius:${Math.round(size * .27)}px;background:${spec.bg};color:${spec.fg || '#FFFFFF'}" aria-hidden="true">${glyph(spec, Math.round(size * (spec.mc ? .5 : .56)))}</span>`;
+const icon = (name, px = 22) => glyph({ icon: name }, px);
+
 /* ---------------- Helpers ---------------- */
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -703,11 +718,11 @@ const S = {
   actions: ['save', 'spotify'],
   spotifyCancelled: false,
   accounts: [
-    { id: 'chk', name: 'Current account', sub: 'ING', mask: '4659', kind: 'cash', bal: 6200, color: '#FF6200', mono: '🏦' },
-    { id: 'stash', name: "Lena's Stash", sub: 'Savings · 3.1%', mask: '6839', kind: 'saved', bal: 9140, color: '#C2381B', mono: '💶' },
-    { id: 'brk', name: 'ETF portfolio', sub: 'Trade Republic', mask: '1120', kind: 'saved', bal: 4395, color: '#6E7F3A', mono: '📈' },
-    { id: 'amex', name: 'Mastercard Gold', sub: 'Credit card', mask: '9002', kind: 'owed', bal: -612, color: '#B08D3C', mono: '💳' },
-    { id: 'visa', name: 'Visa Card', sub: 'Credit card', mask: '4088', kind: 'owed', bal: -698, color: '#5856D6', mono: '💳' },
+    { id: 'chk', name: 'Current account', sub: 'Sparkasse', mask: '4659', kind: 'cash', bal: 6200, logo: { brand: 'sparkasse', bg: '#FF0000' } },
+    { id: 'stash', name: "Lena's Stash", sub: 'Savings · 3.1%', mask: '6839', kind: 'saved', bal: 9140, logo: { icon: 'piggy-bank', bg: '#2E9E55' } },
+    { id: 'brk', name: 'ETF portfolio', sub: 'Trade Republic', mask: '1120', kind: 'saved', bal: 4395, logo: { icon: 'trending-up', bg: '#4B4BC8' } },
+    { id: 'amex', name: 'Mastercard Gold', sub: 'Credit card', mask: '9002', kind: 'owed', bal: -612, logo: { mc: true, bg: '#1C1C1E' } },
+    { id: 'visa', name: 'Visa Card', sub: 'Credit card', mask: '4088', kind: 'owed', bal: -698, logo: { brand: 'visa', bg: '#1A1F71' } },
   ],
   linked: [],
   iceland: { saved: 1400, goal: 2400, monthly: 140, paused: false },
@@ -723,18 +738,18 @@ const FLEX_DAILY = 88.05;  // flexible budget per day this pay period
 const SPOTIFY_MONTHLY = 10.99; // back in the budget once the second plan is cancelled
 const COMFORT = 1000;      // the balance Lena never wants her current account to drop below
 const BANKS = [
-  { id: 'n26', name: 'N26', sub: 'Current account', mask: '9331', bal: 850, kind: 'cash', color: '#2E8B7A', mono: 'N', found: true },
-  { id: 'revolut', name: 'Revolut', sub: 'Savings vault', mask: '4862', bal: 1240, kind: 'saved', color: '#191C1F', mono: 'R', found: true },
-  { id: 'db', name: 'Deutsche Bank', sub: 'Current account', mask: '2210', bal: 420, kind: 'cash', color: '#0018A8', mono: 'D' },
-  { id: 'bnp', name: 'BNP Paribas', sub: 'Savings account', mask: '7713', bal: 2050, kind: 'saved', color: '#00915A', mono: 'B' },
-  { id: 'santander', name: 'Santander', sub: 'Current account', mask: '5580', bal: 990, kind: 'cash', color: '#EC0000', mono: 'S' },
-  { id: 'rabo', name: 'Rabobank', sub: 'Savings account', mask: '0402', bal: 3100, kind: 'saved', color: '#FD6400', mono: 'R' },
+  { id: 'n26', name: 'N26', sub: 'Current account', mask: '9331', bal: 850, kind: 'cash', logo: { brand: 'n26', bg: '#36A18B' }, found: true },
+  { id: 'revolut', name: 'Revolut', sub: 'Savings vault', mask: '4862', bal: 1240, kind: 'saved', logo: { brand: 'revolut', bg: '#191C1F' }, found: true },
+  { id: 'db', name: 'Deutsche Bank', sub: 'Germany · Current account', mask: '2210', bal: 420, kind: 'cash', logo: { brand: 'deutschebank', bg: '#0018A8' } },
+  { id: 'cbk', name: 'Commerzbank', sub: 'Germany · Current account', mask: '7713', bal: 990, kind: 'cash', logo: { brand: 'commerzbank', bg: '#FFCC00', fg: '#002E3C' } },
+  { id: 'caixa', name: 'CaixaBank', sub: 'Spain · Savings account', mask: '5580', bal: 2050, kind: 'saved', logo: { brand: 'caixabank', bg: '#007EAE' } },
+  { id: 'bunq', name: 'bunq', sub: 'Netherlands · Savings account', mask: '0402', bal: 3100, kind: 'saved', logo: { brand: 'bunq', bg: '#3394D7' } },
 ];
 const TX = [
-  { id: 'bb', emoji: '☕️', name: 'Bonanza Coffee', note: '14th visit this month · €94 so far', amt: -4.06, cat: 'Eating out', when: 'Today, 08:12', insight: 'Coffee is most of why eating out is €130 over this month. Ten fewer visits would close the gap.' },
-  { id: 'wf', emoji: '🥬', name: 'Lidl', note: 'Normal for a Saturday', amt: -86.40, cat: 'Groceries', when: 'Saturday, 17:40', insight: 'Right in line with your usual Saturday shop. Groceries are as expected for August.' },
-  { id: 'sp', emoji: '🎧', name: 'Spotify', note: 'Second Individual plan', amt: -10.99, cat: 'Subscriptions', when: '21 Aug', insight: 'You also pay for Spotify Family on this card. This one looks like a leftover from March.' },
-  { id: 'sh', emoji: '⛽️', name: 'Shell', note: 'Transport · as expected', amt: -52.10, cat: 'Transport', when: '20 Aug', insight: 'Fuel is steady. Transport is right where it usually sits.' },
+  { id: 'bb', logo: { icon: 'coffee', bg: '#8B5A2B' }, name: 'Bonanza Coffee', note: '14th visit this month · €94 so far', amt: -4.06, cat: 'Eating out', when: 'Today, 08:12', insight: 'Coffee is €94 of your eating out this month, the biggest single part of the €130 overspend. Ten fewer visits would save about €40.' },
+  { id: 'wf', logo: { brand: 'lidl', bg: '#0050AA' }, name: 'Lidl', note: 'Normal for a Saturday', amt: -86.40, cat: 'Groceries', when: 'Saturday, 17:40', insight: 'Right in line with your usual Saturday shop. Groceries are as expected for August.' },
+  { id: 'sp', logo: { brand: 'spotify', bg: '#191414', fg: '#1ED760' }, name: 'Spotify', note: 'Second Individual plan', amt: -10.99, cat: 'Subscriptions', when: '21 Aug', insight: 'You also pay for Spotify Family on this card. This one looks like a leftover from March.' },
+  { id: 'sh', logo: { brand: 'shell', bg: '#FBCE07', fg: '#DD1D21' }, name: 'Shell', note: 'Transport · as expected', amt: -52.10, cat: 'Transport', when: '20 Aug', insight: 'Fuel is steady. Transport is right where it usually sits.' },
 ];
 const SPEND = [
   { name: 'Rent', tag: 'As expected', amt: 1850, color: 'var(--olive)' },
@@ -831,13 +846,13 @@ function renderToday() {
   const saveLine = saveAfter >= sf.safe ? "today's safe-to-spend stays the same" : `today's safe-to-spend drops to ${eur(saveAfter, 2)}`;
   const cards = S.actions.map(id => id === 'save' ? `
       <article class="action glass" data-card="save">
-        <div class="emoji" aria-hidden="true">🐣</div>
+        ${tile({ icon: 'piggy-bank', bg: '#2E9E55' }, 44)}
         <h3>Move €1,200 into savings</h3>
-        <p>It has sat in your ING current account for 41 days. You'd earn about €37 a year, and ${saveLine}.</p>
+        <p>It has sat in your Sparkasse current account for 41 days. You'd earn about €37 a year, and ${saveLine}.</p>
         <div class="btns"><button class="ok" data-act="approve-save" aria-label="Approve move to savings">${I.check}</button><button class="no" data-act="dismiss" data-id="save" aria-label="Dismiss move to savings">${I.x}</button></div>
       </article>` : `
       <article class="action glass" data-card="spotify">
-        <div class="emoji" aria-hidden="true">👹</div>
+        ${tile({ brand: 'spotify', bg: '#191414', fg: '#1ED760' }, 44)}
         <h3>Cancel the second Spotify</h3>
         <p>Two accounts bill the same card. I have drafted the cancellation and just need your go-ahead.</p>
         <div class="btns"><button class="ok" data-act="open-spotify" aria-label="Review the Spotify cancellation">${I.check}</button><button class="no" data-act="dismiss" data-id="spotify" aria-label="Dismiss Spotify suggestion">${I.x}</button></div>
@@ -857,7 +872,7 @@ function renderToday() {
         <h2 class="section-h" style="margin:0">Recent transactions</h2>
         <div class="list">${TX.map(t => `
           <button class="row" data-act="tx" data-id="${t.id}" style="--inset:64px">
-            <span class="merchant" aria-hidden="true">${t.emoji}</span>
+            ${tile(t.logo, 36)}
             <span class="grow"><div class="t">${t.name}</div><div class="s">${t.id === 'sp' && S.spotifyCancelled ? 'Cancelled · last charge' : t.note}</div></span>
             <span class="v">${eur(t.amt, 2)}</span>
           </button>`).join('')}
@@ -874,10 +889,10 @@ function renderMoney() {
   const avail = fixesAvailable();
   const linkedTotal = S.linked.reduce((a, b) => a + b.bal, 0);
   $('#tab-money').innerHTML = `
-    <div class="nav"><span class="inline" aria-hidden="true">Money</span><button class="pill glass" data-act="fixes">Fixes${avail > 0 ? ` <span style="color:var(--green);font-weight:600">${eur(avail, 2)}</span>` : ''}</button></div>
+    <div class="nav"><span class="inline" aria-hidden="true">Money</span><button class="pill glass" data-act="fixes">Fixes${avail > 0 ? ` <span style="color:var(--green-text);font-weight:600">${eur(avail, 2)}</span>` : ''}</button></div>
     <div class="content" style="padding-top:0">
       <div>
-        <h1 class="large-title">Money <span aria-hidden="true">👾</span></h1>
+        <h1 class="large-title">Money</h1>
         <p class="lede">What you have, what's coming and what I think is worth fixing.</p>
       </div>
       <div>
@@ -919,7 +934,7 @@ function renderMoney() {
         <h2 class="section-h" style="margin:0">Savings</h2>
         <button class="card-media g-iceland" data-act="open-iceland">
           <span class="pct">${pct}%${ic.paused ? ' · Paused' : ''}</span>
-          <span style="font-size:28px" aria-hidden="true">🦋</span>
+          <span aria-hidden="true">${icon('mountain-snow', 28)}</span>
           <span class="ttl">Iceland · February trip</span>
           <span style="font-size:13px;opacity:.9">${eur(ic.saved)} of ${eur(ic.goal)}</span>
           <span class="meter"><i style="width:${pct}%"></i></span>
@@ -933,7 +948,7 @@ const SUGGEST = ['Can I afford a €600 flight in March?', 'Why is eating out up
 function renderChat() {
   const c = S.chat;
   const head = c.title
-    ? `<div class="chat-title pinned"><h1><span aria-hidden="true">${c.emoji}</span>${esc(c.title)}</h1><button class="circle-btn glass on-media" data-act="clear-chat" aria-label="Close conversation" ${c.busy ? 'disabled' : ''}>${I.x}</button></div>`
+    ? `<div class="chat-title pinned"><h1><span aria-hidden="true" style="display:inline-flex">${icon(c.emoji, 22)}</span>${esc(c.title)}</h1><button class="circle-btn glass on-media" data-act="clear-chat" aria-label="Close conversation" ${c.busy ? 'disabled' : ''}>${I.x}</button></div>`
     : `<div class="chat-title"><h1 class="large-title">Chat</h1></div><p class="lede" style="margin:-10px 0 0;max-width:30ch">Ask about a purchase, a bill or a goal. I answer from your sample accounts.</p>`;
   const body = c.msgs.map((m, i) => m.role === 'user'
     ? `<div class="bubble-user">${esc(m.text)}</div>`
@@ -952,7 +967,7 @@ function spotifyPage() {
   if (S.spotifyCancelled) return `
     <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
     <div class="detail">
-      <h1>Cancel the second Spotify <span aria-hidden="true">👹</span></h1>
+      <h1>Cancel the second Spotify</h1>
       <p class="body">I cancelled the account opened in March and kept the family plan. The last play on it was 7 June.</p>
       <div class="kv"><div><span>Keeping</span><span>Family · €17.99</span></div><div><span>Cancelled</span><span>Individual · €10.99</span></div></div>
       <div class="callout glass">${I.check}<span><b>The second Spotify has been cancelled.</b><br>${S.spotifyDelta > 0 ? `Your safe-to-spend went up by ${eur(S.spotifyDelta, 2)} a day.` : `Your safe-to-spend stays at ${eur(sf.safe, 2)} for now, because ${cashWord()} ${cashWord() === 'your current account' ? 'is' : 'are'} what limits it until pay day.`} You'll save €10.99 a month from 21 September.</span></div>
@@ -964,7 +979,7 @@ function spotifyPage() {
   return `
     <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
     <div class="detail">
-      <h1>Cancel the second Spotify <span aria-hidden="true">👹</span></h1>
+      <h1>Cancel the second Spotify</h1>
       <p class="body">I'll cancel the account opened in March and keep the family plan. The last play on it was 7 June.</p>
       <div class="kv">
         <div><span>Keeping</span><span>Family · €17.99</span></div>
@@ -998,7 +1013,7 @@ function icelandPage() {
     </div>
     <div class="detail">
       <div>
-        <h1>Iceland · February trip <span aria-hidden="true">🦋</span></h1>
+        <h1>Iceland · February trip</h1>
         <p class="body" style="margin-top:6px">Flights, a week of car hire and the northern-lights tour in February.</p>
       </div>
       <div>
@@ -1119,7 +1134,7 @@ function accountsPage() {
       <h1 class="page-title">Accounts</h1>
       <div class="list" style="border-radius:28px">${S.accounts.map(a => `
         <div class="row" data-acct="${a.id}" tabindex="-1" style="--inset:64px;min-height:64px">
-          <span class="bank-logo" style="background:${a.color}">${a.mono}</span>
+          ${tile(a.logo, 36)}
           <span class="grow"><div class="t" style="font-size:16px">${esc(a.name)}</div><div class="s">${esc(a.sub)} ···· ${a.mask}</div></span>
           <span class="v">${eur(a.bal)}</span>
         </div>`).join('')}
@@ -1136,8 +1151,8 @@ function addAccountPage(q = '') {
   const m = b => b.name.toLowerCase().includes(q.trim().toLowerCase());
   const row = b => `
     <button class="row" data-act="pick-bank" data-id="${b.id}" style="--inset:64px" ${linked.has(b.id) ? 'disabled' : ''}>
-      <span class="bank-logo" style="background:${b.color}">${b.mono}</span>
-      <span class="grow"><div class="t" style="font-size:16px">${b.name}${b.found ? ` · ${b.mask}` : ''}</div><div class="s">${b.found ? b.sub : 'Sign in with your bank'}</div></span>
+      ${tile(b.logo, 36)}
+      <span class="grow"><div class="t" style="font-size:16px">${b.name}${b.found ? ` · ${b.mask}` : ''}</div><div class="s">${b.sub}</div></span>
       ${linked.has(b.id) ? '<span class="tag">Added</span>' : `<span class="chev">${I.chev}</span>`}
     </button>`;
   const found = BANKS.filter(b => b.found && m(b)), pop = BANKS.filter(b => !b.found && m(b));
@@ -1151,7 +1166,7 @@ function addAccountShell() {
     <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
     <div class="content">
       <div>
-        <h1 class="large-title" style="font-size:28px">Add an account <span aria-hidden="true">🐷</span></h1>
+        <h1 class="large-title" style="font-size:28px">Add an account</h1>
         <p class="lede" style="max-width:none">The more Cushion can see, the better it knows what's actually safe to spend. Start with the account your pay lands in.</p>
       </div>
       <label style="position:relative;display:block">
@@ -1357,42 +1372,42 @@ function reply(q) {
   const preBal = Math.round(fc.pre.bal);
   const room = preBal - COMFORT - spendToLow; // what can go out now and still keep the comfort line
   if (/dental|1,?430|dentist/.test(s)) {
-    if (room >= 1430) return { title: 'The dental bill', emoji: '🦷', paras: [`Yes. Paying €1,430 now and spending your safe-to-spend each day still leaves ${eur(preBal - spendToLow - 1430)} ${onThin}, ${room === 1430 ? 'right at' : 'above'} your comfort line.`] };
+    if (room >= 1430) return { title: 'The dental bill', emoji: 'stethoscope', paras: [`Yes. Paying €1,430 now and spending your safe-to-spend each day still leaves ${eur(preBal - spendToLow - 1430)} ${onThin}, ${room === 1430 ? 'right at' : 'above'} your comfort line.`] };
     const now = Math.max(0, Math.floor(room / 10) * 10);
     const short = 1430 - room;
-    if (short > 0 && short < 50) return { title: 'The dental bill', emoji: '🦷', paras: [`Just about. Paying €1,430 now and spending your safe-to-spend each day leaves ${eur(preBal - spendToLow - 1430)} ${onThin}, only ${eur(short)} under your comfort line. A couple of quieter days and you're there.`] };
-    return { title: 'The dental bill', emoji: '🦷', paras: [
+    if (short > 0 && short < 50) return { title: 'The dental bill', emoji: 'stethoscope', paras: [`Just about. Paying €1,430 now and spending your safe-to-spend each day leaves ${eur(preBal - spendToLow - 1430)} ${onThin}, only ${eur(short)} under your comfort line. A couple of quieter days and you're there.`] };
+    return { title: 'The dental bill', emoji: 'stethoscope', paras: [
       `Not all at once. The month ahead shows ${eur(fc.pre.bal)} ${onThin} before everyday spending. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €1,430 for the bill, and ${preBal - spendToLow - 1430 < 0 ? `you'd be overdrawn by ${eur(-(preBal - spendToLow - 1430))}` : `you'd be at ${eur(preBal - spendToLow - 1430)}, under your €1,000 comfort line`}.`,
       now > 0 ? `Pay ${eur(now)} now and the other ${eur(1430 - now)} after pay day on the ${pay}. Or take it from Lena's Stash, which has ${eur(acct('stash').bal - S.iceland.saved)} outside the Iceland goal.` : `Ask the office to bill you after pay day on the ${pay}, or take it from Lena's Stash, which has ${eur(acct('stash').bal - S.iceland.saved)} outside the Iceland goal.`] };
   }
   if (/flight|[$€]?600|march|book/.test(s) && !/iceland/.test(s)) {
     const after = preBal - spendToLow - 600;
-    if (room >= 600) return { title: 'The March flight', emoji: '🎟️', paras: [`Yes. Even if you pay the €600 now, with your usual daily spending you'd keep ${eur(after)} ${onThin}, ${room === 600 ? 'right at' : 'still above'} your comfort line.`] };
+    if (room >= 600) return { title: 'The March flight', emoji: 'plane', paras: [`Yes. Even if you pay the €600 now, with your usual daily spending you'd keep ${eur(after)} ${onThin}, ${room === 600 ? 'right at' : 'still above'} your comfort line.`] };
     const hits = fc.ev.filter(e => e.day <= fc.pre.day && e.day > fc.pre.day - 6 && e.amt < 0).map(e => e.phrase);
     const list = hits.length > 1 ? `${hits.slice(0, -1).join(', ')} and ${hits[hits.length - 1]}` : hits[0];
     const why = hits.length ? `${list.replace(/^./, c => c.toUpperCase())} ${hits.length === 1 ? 'lands' : hits.length === 2 ? 'both land' : 'all land'} by ${thin}.` : `Your money is lowest ${onThin}.`;
-    return { title: 'The March flight', emoji: '🎟️', paras: [
-      `Yes, but not before pay day. ${why} The month ahead shows ${eur(fc.pre.bal)} ${onThin}, but that's before everyday spending. Add ${eur(spendToLow)} of that at your safe-to-spend pace and €600 for the flight, and ${after < 0 ? `you'd be overdrawn by ${eur(-after)}` : `you'd be at ${eur(after)}, under your comfort line`}.`,
+    return { title: 'The March flight', emoji: 'plane', paras: [
+      `Yes, but not before pay day. ${why} The month ahead shows ${eur(fc.pre.bal)} ${onThin}, but that's before everyday spending. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €600 for the flight, and ${after < 0 ? `you'd be overdrawn by ${eur(-after)}` : `you'd be at ${eur(after)}, under your comfort line`}.`,
       sf.limitedByCash ? `Book after pay day on the ${pay}, when the flight no longer competes with this stretch.` : `Book after pay day on the ${pay} and you keep your full ${eur(sf.safe, 2)} a day.`] };
   }
   if (/eat|coffee|bonanza|café|cafe|restaurant/.test(s)) {
-    return { title: 'Eating out', emoji: '☕️', paras: [
+    return { title: 'Eating out', emoji: 'coffee', paras: [
       'Eating out is at €620 for August, €130 more than a normal month for you.',
       'Most of the gap is Bonanza Coffee: 14 visits and €94 so far. Everything else in the category looks usual.'] };
   }
   if (/iceland|goal|saving/.test(s)) {
     const ic = S.iceland, rem = r2(ic.goal - ic.saved), m = Math.ceil(rem / ic.monthly);
-    return { title: 'Iceland goal', emoji: '🦋', paras: ic.paused
+    return { title: 'Iceland goal', emoji: 'mountain-snow', paras: ic.paused
       ? [`Transfers are paused, so the goal is waiting at ${eur(ic.saved)} of ${eur(ic.goal)}.`]
       : [`At ${eur(ic.monthly)} a month you'll have the remaining ${eur(rem)} in about ${m} month${m === 1 ? '' : 's'}.`,
          m > 6 ? `That's after February. ${eur(Math.ceil(rem / 6 / 10) * 10)} a month gets you there in time.` : 'That gets you there before the February trip.'] };
   }
   if (/safe|spend|today/.test(s)) {
-    return { title: 'Safe to spend', emoji: '💧', paras: [sf.limitedByCash
+    return { title: 'Safe to spend', emoji: 'wallet', paras: [sf.limitedByCash
       ? `You can spend ${eur(sf.safe, 2)} today. Your budget allows ${eur(sf.budget, 2)}, but I held it back so ${cashWord()} ${cashStay()} above €1,000 ${onThin}.`
       : `You can spend ${eur(sf.safe, 2)} today. That's your flexible budget for the day, and ${cashWord()} ${cashStay()} above €1,000 ${onThin}.`] };
   }
-  return { title: 'Your question', emoji: '💬', paras: ['In this demo I can only see the sample accounts. Try asking about a €600 flight, the dental bill, eating out or the Iceland goal.'] };
+  return { title: 'Your question', emoji: 'message-circle', paras: ['In this demo I can only see the sample accounts. Try asking about a €600 flight, the dental bill, eating out or the Iceland goal.'] };
 }
 async function send(text) {
   text = (text || '').trim();
@@ -1442,7 +1457,7 @@ async function removeAction(id) {
 }
 function txSheet(t) {
   openSheet(`
-    <div class="sheet-head"><span class="merchant" style="width:48px;height:48px;font-size:26px;border-radius:14px" aria-hidden="true">${t.emoji}</span><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
+    <div class="sheet-head">${tile(t.logo, 48)}<button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
     <div class="body">
       <div><h2 data-title>${t.name}</h2><p class="sub">${t.when} · ${t.cat}</p></div>
       <div class="num" style="font-size:44px;letter-spacing:-.02em">${eur(t.amt, 2)}</div>
@@ -1482,7 +1497,7 @@ function monthlySheet() {
   };
   openSheet(`
     <div class="sheet-head"><h2 data-title>Monthly amount</h2><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
-    <p class="sub">${ic.paused ? 'Transfers are paused. Saving a new amount resumes them on 23 Sep.' : 'Moves from your ING current account to Lena\'s Stash on the 23rd.'}</p>
+    <p class="sub">${ic.paused ? 'Transfers are paused. Saving a new amount resumes them on 23 Sep.' : 'Moves from your Sparkasse current account to Lena\'s Stash on the 23rd.'}</p>
     <div class="body">
       <div class="num" style="font-size:52px;text-align:center"><span class="cur">€</span><span id="m-val">${ic.monthly}</span></div>
       <input id="m-slider" class="slider" type="range" min="50" max="400" step="10" value="${ic.monthly}" aria-label="Monthly amount" autofocus>
@@ -1496,7 +1511,7 @@ function monthlySheet() {
 }
 function bankSheet(b) {
   openSheet(`
-    <div class="sheet-head"><span style="display:flex;gap:12px;align-items:center"><span class="bank-logo" style="background:${b.color}">${b.mono}</span><h2 data-title>${b.name}</h2></span><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
+    <div class="sheet-head"><span style="display:flex;gap:12px;align-items:center">${tile(b.logo, 36)}<h2 data-title>${b.name}</h2></span><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
     <p class="sub">Here's exactly what a connected Cushion account would see.</p>
     <div class="body">
       <div class="perm"><span class="ic" style="background:var(--green)">${I.check}</span><b>Balances and transactions</b><p>Sample balances and history help build a picture of your money.</p></div>
@@ -1529,7 +1544,7 @@ const H = {
   'approve-save': once(async () => {
     if (!S.actions.includes('save')) return;
     const before = safeNow(), after = forecast({ extra: 1200 }), afterSafe = safety(after).safe;
-    const ok = await alertBox({ title: 'Move €1,200 into savings?', msg: `Moves sample money from your ING current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: 'Move €1,200 · demo', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
+    const ok = await alertBox({ title: 'Move €1,200 into savings?', msg: `Moves sample money from your Sparkasse current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: 'Move €1,200 · demo', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
     if (!ok || !S.actions.includes('save')) return;
     await removeAction('save');
     acct('chk').bal -= 1200; acct('stash').bal += 1200;
@@ -1577,7 +1592,7 @@ const H = {
   'send-fixes': once(async () => {
     const amt = fixesAvailable(); if (amt <= 0) return;
     const before = safeNow(), afterSafe = safety(forecast({ extra: amt })).safe;
-    const ok = await alertBox({ title: `Add ${eur(amt, 2)} to Iceland?`, msg: `Moves sample money from your ING current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: `Add ${eur(amt, 2)} in demo`, style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
+    const ok = await alertBox({ title: `Add ${eur(amt, 2)} to Iceland?`, msg: `Moves sample money from your Sparkasse current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: `Add ${eur(amt, 2)} in demo`, style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
     const amt2 = fixesAvailable();
     if (!ok || amt2 <= 0) return;
     const from = S.iceland.saved;
@@ -1627,7 +1642,7 @@ const H = {
     await wait(reduced ? 0 : 1000);
     if (!sheetEl || sheetEl.sh !== mySheet) return; // the sheet was closed while connecting
     closeSheet();
-    S.accounts.push({ id: b.id, name: b.name, sub: b.sub.split(' · ')[0], mask: b.mask, kind: b.kind, bal: b.bal, color: b.color, mono: b.mono });
+    S.accounts.push({ id: b.id, name: b.name, sub: b.sub.split(' · ').pop(), mask: b.mask, kind: b.kind, bal: b.bal, logo: b.logo });
     S.linked.push({ name: b.name, bal: b.bal });
     if (stack.length && stack[stack.length - 1].kind === 'add') pop(true);
     refresh();
