@@ -32,7 +32,7 @@
   --blue: #007AFF;
   --green: #34C759;
   --red: #FF3B30;
-  --orange: #C76A00;
+  --orange: #B35C00;
   --indigo: #5856D6;
   --olive: #6E7F3A;
   --glass: rgba(255, 255, 255, .6);
@@ -238,6 +238,7 @@ button.row[disabled] { cursor: default; }
 .page.under { transform: translateX(-28%); filter: brightness(.9); }
 .wrap { min-height: 100%; display: flex; flex-direction: column; padding-bottom: 40px; }
 .wrap:has(.dock) { padding-bottom: 0; }
+.wrap:has(.dock) .detail { padding-bottom: 28px; }
 .media { color: var(--on-media); --edge: rgba(0, 0, 0, .22); }
 .media .edge-top { -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
 
@@ -413,6 +414,7 @@ button.row[disabled] { cursor: default; }
 .suggest button { padding: 10px 14px; border-radius: 18px; font-size: 15px; text-align: left; }
 .composer { position: absolute; z-index: 16; left: 16px; right: 16px; bottom: 96px; height: 52px; border-radius: 99px; display: flex; align-items: center; gap: 6px; padding: 0 6px; transition: bottom .45s cubic-bezier(.32, .72, 0, 1); }
 .composer.solo { bottom: 30px; }
+.composer:focus-within { outline: 2.5px solid #FFFFFF; outline-offset: 2px; }
 .composer input { flex: 1; min-width: 0; height: 100%; background: none; border: 0; outline: none; font-size: 15px; color: var(--on-media); text-overflow: ellipsis; }
 .composer input::placeholder { color: rgba(255, 255, 255, .75); }
 .composer .mic { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: rgba(0, 0, 0, .5); color: #FFFFFF; flex: none; }
@@ -573,6 +575,8 @@ button.row[disabled] { cursor: default; }
 .media .foot { opacity: 1; color: #FFFFFF; font-size: 12.5px; }
 .sheet .foot, .page:not(.media) .foot { opacity: 1; color: var(--label2); }
 .detail h1 { font-size: 26px; }
+.chat-title h1.large-title { font-size: 34px; font-weight: 700; }
+.accounts-total { margin-top: -10px; }
 .bank-logo { box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .28); }
 .statusbar { transition: color .3s, opacity .2s; }
 .app.toasting .statusbar { opacity: 0; }
@@ -593,7 +597,7 @@ button.row[disabled] { cursor: default; }
         <li>Approve “Move €1,200 into savings”, then check The month ahead</li>
         <li>Open “Cancel the second Spotify” and let Cushion handle it</li>
         <li>Send the fixes money to the Iceland trip, then change the monthly amount</li>
-        <li>Move the car payment to the 6th in The month ahead</li>
+        <li>Move car insurance to the 6th in The month ahead</li>
         <li>Ask Chat “Can I afford a €600 flight in March?” or try the voice demo</li>
         <li>Tap the gear to add a sample N26 account</li>
       </ul>
@@ -1060,7 +1064,7 @@ function monthPage() {
   const lowIsRentCar = !S.carLate && (fc.pre.day === sep(1) || fc.pre.day === sep(2)) && fc.payIdx > sep(2);
   let explain;
   if (lowIsRentCar) explain = tight ? `Rent and car insurance land a day apart. It clears, but there's little room if something unexpected turns up that week.` : `Rent and car insurance land a day apart. It clears with ${eur(spare)} to spare above your comfort line.`;
-  else if (fc.pre.day === 0) explain = `Pay lands ${onDay(fc.payIdx)} before any bill, so your money never dips below where it is today.`;
+  else if (fc.pre.day === 0) { const same = fc.ev.filter(e => e.day === fc.payIdx && e.amt < 0).map(e => e.phrase); explain = same.length ? `Pay lands ${onDay(fc.payIdx)}, the same day as ${joinList(same)}, so your money never dips below where it is today.` : `Pay lands ${onDay(fc.payIdx)} before any bill, so your money never dips below where it is today.`; }
   else if (lowNames.length) explain = `Your thinnest moment comes after ${joinList(lowNames)} on ${dayLabel(fc.pre.day)}.`;
   else explain = `Your bills are spread out enough that no single week gets tight.`;
   if (sfNow.limitedByCash) explain += ` Today's safe-to-spend is held to ${eur(sfNow.safe, 2)} so ${cashWord()} ${cashStay()} above €1,000 then.`;
@@ -1120,10 +1124,10 @@ function accountsPage() {
           <span class="v">${eur(a.bal)}</span>
         </div>`).join('')}
       </div>
-      <div class="kv"><div><span>Total</span><span>${eur(net())}</span></div></div>
+      <div class="list accounts-total" style="border-radius:22px"><div class="row"><span class="grow t" style="font-size:16px">Total</span><span class="v" style="font-weight:600">${eur(net())}</span></div></div>
       <button class="btn glass" data-act="add-account">${I.plus} Add new</button>
       <p class="foot">Sample accounts · All balances are fictional</p>
-      <button class="btn plain" data-act="about">About this prototype</button>
+      <button class="pill glass" data-act="about" style="justify-self:center">About this prototype</button>
     </div>`;
 }
 
@@ -1202,6 +1206,7 @@ function push(render, { modal = false, media = '', onMount, opener, kind } = {})
 }
 function pop(force) {
   if (navBusy && !force) return;
+  if (!force && (alertOpen || sheetEl)) return; // never pull a page out from under a sheet or alert
   const el = stack.pop();
   if (!el) return;
   lockNav();
@@ -1358,7 +1363,7 @@ function reply(q) {
     if (short > 0 && short < 50) return { title: 'The dental bill', emoji: '🦷', paras: [`Just about. Paying €1,430 now and spending your safe-to-spend each day leaves ${eur(preBal - spendToLow - 1430)} ${onThin}, only ${eur(short)} under your comfort line. A couple of quieter days and you're there.`] };
     return { title: 'The dental bill', emoji: '🦷', paras: [
       `Not all at once. The month ahead shows ${eur(fc.pre.bal)} ${onThin} before everyday spending. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €1,430 for the bill, and ${preBal - spendToLow - 1430 < 0 ? `you'd be overdrawn by ${eur(-(preBal - spendToLow - 1430))}` : `you'd be at ${eur(preBal - spendToLow - 1430)}, under your €1,000 comfort line`}.`,
-      now > 0 ? `Pay ${eur(now)} now and the other ${eur(1430 - now)} after pay day on the ${pay}. Or take it from Lena's Stash, which has ${eur(acct('stash').bal)}.` : `Ask the office to bill you after pay day on the ${pay}, or take it from Lena's Stash, which has ${eur(acct('stash').bal)}.`] };
+      now > 0 ? `Pay ${eur(now)} now and the other ${eur(1430 - now)} after pay day on the ${pay}. Or take it from Lena's Stash, which has ${eur(acct('stash').bal - S.iceland.saved)} outside the Iceland goal.` : `Ask the office to bill you after pay day on the ${pay}, or take it from Lena's Stash, which has ${eur(acct('stash').bal - S.iceland.saved)} outside the Iceland goal.`] };
   }
   if (/flight|[$€]?600|march|book/.test(s) && !/iceland/.test(s)) {
     const after = preBal - spendToLow - 600;
@@ -1539,7 +1544,7 @@ const H = {
     S.dismissed.push(id);
     refresh();
     restoreFocus(null, null, ['.action button.ok', '#all-done']);
-    toast('Dismissed. I won\'t suggest it again');
+    toast('Dismissed from Today');
   }),
   'open-spotify'() { push(spotifyPage, { media: 'g-teal', kind: 'spotify' }); },
   'confirm-spotify': once(async el => {
@@ -1565,7 +1570,7 @@ const H = {
   'fix-to-iceland'() {
     if (fixesAvailable() <= 0) return;
     closeSheet();
-    setTimeout(() => { if (push(icelandPage, { media: 'g-iceland' })) setTimeout(() => H['send-fixes'](), T + 20); }, 260);
+    setTimeout(() => { const pg = push(icelandPage, { media: 'g-iceland' }); if (pg) setTimeout(() => { if (stack[stack.length - 1] === pg) H['send-fixes'](); }, T + 20); }, 260);
   },
   'open-iceland'() { push(icelandPage, { media: 'g-iceland' }); },
   'open-month'() { S.payDraft = null; push(monthPage, { media: 'g-month' }); },
@@ -1661,6 +1666,10 @@ app.addEventListener('input', e => { if (e.target.id === 'payday') S.payDraft = 
 app.addEventListener('change', e => {
   if (e.target.id === 'car-late') H['toggle-car'](e.target);
 });
+document.addEventListener('focusin', e => {
+  const box = alertOpen ? $('#layer .alert') : sheetEl ? sheetEl.sh : null;
+  if (box && !box.contains(e.target)) { const f = box.querySelector('button, input, textarea'); f && f.focus({ preventScroll: true }); }
+});
 document.addEventListener('keydown', e => {
   if (e.key === 'Tab') {
     const box = alertOpen ? $('#layer .alert') : sheetEl ? sheetEl.sh : null;
@@ -1678,7 +1687,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (alertOpen) alertOpen.cancel();
     else if (sheetEl) closeSheet();
-    else if (stack.length) { if (navBusy) setTimeout(() => pop(), T); else pop(); }
+    else if (stack.length) { if (navBusy) setTimeout(() => { if (!alertOpen && !sheetEl) pop(); }, T); else pop(); }
     else if (S.tab === 'chat' && S.chat.msgs.length) H['clear-chat']();
   }
   // Arrow keys move between tabs, like a native tab bar
