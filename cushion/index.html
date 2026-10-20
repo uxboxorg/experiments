@@ -790,6 +790,11 @@ button.row[disabled] { cursor: default; }
 .sheet-head.centered h2 { flex: 1; text-align: center; }
 .sheet-head.centered .save { margin-left: 0; }
 .page.swiping { transition: none !important; }
+.page:not(.modal):not(.in-modal) { scroll-padding-bottom: 140px; scroll-padding-top: 100px; }
+.page { touch-action: pan-y; }
+.bubble-user, .ai p { overflow-wrap: anywhere; }
+.chat-wrap { grid-template-columns: minmax(0, 1fr); }
+
 #tab-today .undo-row { margin: 0; border-radius: 22px; background: var(--card); }
 </style>
 </head>
@@ -1165,7 +1170,7 @@ function renderChat() {
   keepFocus(() => {
     $('#tab-chat').innerHTML = `${c.title ? '' : edge}<div class="chat-wrap" style="${c.title ? 'padding-top:0' : ''}">${head}${body}${sug}</div>`;
   });
-  $('#composer').querySelectorAll('button').forEach(b => { b.disabled = c.busy; });
+  $('#composer').querySelectorAll('button').forEach(b => { b.disabled = c.busy || (b.classList.contains('send') && !$('#chat-input').value.trim()); });
   updateChrome();
 }
 
@@ -1185,7 +1190,7 @@ function spotifyPage() {
       <h1 data-short="Spotify Plan">Cancel the second Spotify</h1>
       <p class="body">I cancelled the account opened in March and kept the family plan. The last play on it was 7 June.</p>
       <div class="kv"><div><span>Keeping</span><span>Family · €17.99</span></div><div><span>Cancelled</span><span>Individual · €10.99</span></div></div>
-      <div class="callout glass">${I.check}<span><b>The second Spotify has been cancelled.</b><br>${spDelta > 0 ? `Your safe-to-spend went up by ${eur(spDelta, 2)} a day.` : sf.limitedByCash ? `Your safe-to-spend stays at ${eur(sf.safe, 2)} for now, because ${cashWord()} ${cashWord() === 'your current account' ? 'is' : 'are'} what limits it until pay day.` : `Your next charge would have come after pay day, so the saving shows up in your next pay period.`} You'll save €10.99 a month from 21 September.</span></div>
+      <div class="callout glass">${I.check}<span><b>The second Spotify has been cancelled.</b><br>${spDelta > 0 ? `Your safe-to-spend went up by ${eur(spDelta, 2)} a day.` : sf.limitedByCash ? `Your safe-to-spend stays at ${eur(sf.safe, 2)} for now, because ${cashWord()} ${cashWord() === 'your current account' ? 'is' : 'are'} what limits it until pay day.` : `Your next charge would have ${sep(21) === sf.daysToPay ? 'landed on' : 'come after'} pay day, so the saving shows up in your next pay period.`} You'll save €10.99 a month from 21 September.</span></div>
     </div>
     <div class="dock">
       <p class="foot">Completed in the local demo</p>
@@ -1410,7 +1415,7 @@ function drainPops() {
   if (queuedPops) setTimeout(drainPops, T);
 }
 let navBusy = false;
-const lockNav = () => { navBusy = true; setTimeout(() => { navBusy = false; }, Math.max(T, 350)); }; // long enough to swallow a double tap
+const lockNav = () => { navBusy = true; setTimeout(() => { navBusy = false; }, 350); }; // long enough to swallow a double tap
 function push(render, { modal = false, media = '', onMount, opener, kind } = {}) {
   if (navBusy) return null;
   lockNav();
@@ -1426,7 +1431,7 @@ function push(render, { modal = false, media = '', onMount, opener, kind } = {})
   el.render = () => keepFocus(() => {
     const st = el.scrollTop;
     const html = render();
-    el.innerHTML = `<div class="wrap">${html}</div>${html.includes('class="dock"') ? '' : '<div class="edge-btm" aria-hidden="true"></div>'}`;
+    el.innerHTML = `<div class="wrap">${html}</div>${/class="dock[\s"]/.test(html) ? '' : '<div class="edge-btm" aria-hidden="true"></div>'}`;
     el.scrollTop = st;
     const h = el.querySelector('h1');
     if (h) {
@@ -1535,6 +1540,7 @@ function openSheet(html, { dark = false, onMount } = {}) {
   let y0 = null;
   const down = e => {
     if (e.target.closest('input, textarea, select, a, button') || sh.scrollTop > 0) return;
+    e.preventDefault();
     grab.dragged = false; y0 = e.clientY; sh.style.transition = 'none';
     sh.setPointerCapture && sh.setPointerCapture(e.pointerId);
   };
@@ -1559,8 +1565,10 @@ async function requestCloseSheet() {
   }
   closeSheet();
 }
+let shieldUntil = 0;
 function closeSheet(instant) {
   if (!sheetEl) return;
+  shieldUntil = performance.now() + 350;
   const { scrim, sh, opener, key } = sheetEl; sheetEl = null;
   sh.closing = true;
   sh.inert = true;
@@ -1588,12 +1596,13 @@ function alertBox({ title, msg, actions, sheet = false }) {
     const finish = value => {
       if (!alertOpen) return;
       alertOpen = null;
+      shieldUntil = performance.now() + 350;
       al.style.pointerEvents = 'none';
       al.closing = true;
       scrim.classList.remove('show'); al.classList.remove('show');
       syncInert();
       // Only put focus back if the action that ran didn't already move it somewhere useful
-      setTimeout(() => { const a = document.activeElement; if (!a || a === document.body || al.contains(a) || a.closest('[inert]')) restoreFocus(opener, key, FALLBACK); }, 20);
+      setTimeout(() => { const a = document.activeElement; if (!a || a === document.body || al.contains(a) || a.closest('[inert]')) { if (sheetEl && !sheetEl.sh.contains(opener)) { const c = sheetEl.sh.querySelector('.close'); c && c.focus(); } else restoreFocus(opener, key, FALLBACK); } }, 20);
       setTimeout(() => { scrim.remove(); al.remove(); syncInert(); }, 250);
       resolve(value);
     };
@@ -1753,7 +1762,7 @@ function fixesSheet() {
         <div class="row"><span class="grow t" style="font-size:16px">Ready to move</span><span class="v" style="font-weight:600">${eur(avail, 2)}</span></div>
         ${S.fixesSent ? `<div class="row"><span class="grow t" style="font-size:16px">Already sent to Iceland</span><span class="v">${eur(S.fixesSent, 2)}</span></div>` : ''}
       </div>
-      <button class="btn prominent" data-act="fix-to-iceland" ${avail > 0 ? '' : 'disabled'}>Send to Iceland goal</button>
+      <button class="btn prominent" data-act="fix-to-iceland" ${avail > 0 ? '' : 'disabled'}>Send to Iceland Goal</button>
     </div>`);
 }
 function monthlySheet() {
@@ -1847,6 +1856,7 @@ const H = {
     await wait(reduced ? 0 : 1100);
     const from = safeNow();
     S.spotifyCancelled = true;
+    if (S.lastDismissed === 'spotify') S.lastDismissed = null;
     S.actions = S.actions.filter(a => a !== 'spotify');
     S.spotifyDelta = spotifyDeltaNow();
     refresh();
@@ -1962,9 +1972,14 @@ const H = {
   }),
 };
 
+// A second tap that lands just after a sheet or alert closes must not hit what was underneath
+['pointerdown', 'mousedown', 'click'].forEach(t => app.addEventListener(t, e => {
+  if (performance.now() < shieldUntil && !e.target.closest('#layer .sheet:not([inert]), #layer .alert:not(.closing)')) { e.preventDefault(); e.stopPropagation(); }
+}, true));
 app.addEventListener('click', e => {
   const tab = e.target.closest('.tab');
   if (tab) {
+    if (pendingFix.length) return;
     if (stack.some(p => p.modal)) return;
     // Tapping the current tab again goes back to its first screen
     if (tab.dataset.tab === S.tab && stack.length) { while (stack.length > 1) { const x = stack.pop(); x.remove(); } pop(true); return; }
