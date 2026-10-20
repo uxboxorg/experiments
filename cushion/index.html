@@ -39,7 +39,7 @@
   --glass-strong: rgba(255, 255, 255, .8);
   --glass-edge: rgba(255, 255, 255, .8);
   --glass-shade: 0 10px 30px rgba(20, 30, 60, .10), 0 1px 2px rgba(20, 30, 60, .06);
-  --sheet: rgba(250, 250, 252, .95);
+  --sheet: rgba(250, 250, 252, .985);
   --scrim: rgba(0, 0, 0, .22);
   --hero-top: #1688FF;
   --hero-mid: #3F95F0;
@@ -58,7 +58,7 @@
     --blue: #0A84FF; --green: #30D158; --red: #FF453A; --orange: #FF9F0A; --indigo: #5E5CE6; --olive: #A3B65A;
     --glass: rgba(44, 44, 48, .58); --glass-strong: rgba(48, 48, 52, .82); --glass-edge: rgba(255, 255, 255, .14);
     --glass-shade: 0 10px 30px rgba(0, 0, 0, .4), 0 1px 2px rgba(0, 0, 0, .3);
-    --sheet: rgba(30, 30, 32, .95); --scrim: rgba(0, 0, 0, .5);
+    --sheet: rgba(30, 30, 32, .985); --scrim: rgba(0, 0, 0, .5);
     --hero-top: #0B4C9C; --hero-mid: #123A66; --hero-low: #0B1626; --bar-ink: #FFFFFF;
     color-scheme: dark;
   }
@@ -70,7 +70,7 @@
   --blue: #0A84FF; --green: #30D158; --red: #FF453A; --orange: #FF9F0A; --indigo: #5E5CE6; --olive: #A3B65A;
   --glass: rgba(44, 44, 48, .58); --glass-strong: rgba(48, 48, 52, .82); --glass-edge: rgba(255, 255, 255, .14);
   --glass-shade: 0 10px 30px rgba(0, 0, 0, .4), 0 1px 2px rgba(0, 0, 0, .3);
-  --sheet: rgba(30, 30, 32, .95); --scrim: rgba(0, 0, 0, .5);
+  --sheet: rgba(30, 30, 32, .985); --scrim: rgba(0, 0, 0, .5);
   --hero-top: #0B4C9C; --hero-mid: #123A66; --hero-low: #0B1626; --bar-ink: #FFFFFF;
   color-scheme: dark;
 }
@@ -236,7 +236,7 @@ button.row[disabled] { cursor: default; }
 .page.from-right { transform: translateX(100%); }
 .page.from-bottom { transform: translateY(100%); }
 .page.under { transform: translateX(-28%); filter: brightness(.9); }
-.wrap { min-height: calc(100% - var(--top)); display: flex; flex-direction: column; padding-bottom: 40px; }
+.wrap { min-height: 100%; display: flex; flex-direction: column; padding-bottom: 40px; }
 .wrap:has(.dock) { padding-bottom: 0; }
 .media { color: var(--on-media); --edge: rgba(0, 0, 0, .22); }
 .media .edge-top { -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
@@ -363,7 +363,7 @@ button.row[disabled] { cursor: default; }
 .g-iceland { background: radial-gradient(120% 90% at 10% 0%, #74845A 0%, transparent 60%), radial-gradient(90% 80% at 90% 100%, #C2381B 0%, transparent 70%), linear-gradient(170deg, #6F7A55, #9A4A2B 60%, #B5381D); }
 .g-month { background: radial-gradient(120% 80% at 80% 0%, #2A64B8 0%, transparent 60%), linear-gradient(175deg, #0F3E86 0%, #3A5A84 45%, #6E7782 100%); }
 .g-teal { background: radial-gradient(120% 70% at 0% 0%, #8FA3A0 0%, transparent 55%), linear-gradient(180deg, #6C8A89 0%, #36727A 45%, #1B5E69 100%); }
-.g-accounts { background: radial-gradient(120% 60% at 50% 0%, #1E6FD9 0%, transparent 65%), linear-gradient(180deg, #1660C7 0%, #4D6F99 45%, #8C929B 100%); }
+.g-accounts { background: radial-gradient(120% 60% at 50% 0%, #1E6FD9 0%, transparent 65%), linear-gradient(180deg, #1660C7 0%, #3F628E 45%, #5E6773 100%); }
 .g-chat { background: radial-gradient(70% 45% at 8% 92%, #1E9E8C 0%, transparent 70%), radial-gradient(80% 50% at 90% 55%, #D8361B 0%, transparent 70%), radial-gradient(90% 50% at 20% 5%, #6E7B3E 0%, transparent 70%), linear-gradient(180deg, #7C6A3D, #C0432A 55%, #6F8C86); }
 .page.g-iceland, .page.g-month, .page.g-teal, .page.g-accounts { background-attachment: local; }
 
@@ -566,6 +566,16 @@ button.row[disabled] { cursor: default; }
 .gs-fallback > *, .gs-svg > * { position: relative; z-index: 1; }
 .tabbar .tabs.gs > .lens { position: absolute; z-index: 0; }
 
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.app { -webkit-user-select: none; user-select: none; }
+.app input, .app textarea { -webkit-user-select: text; user-select: text; }
+#tab-chat .suggest button { background: rgba(0, 0, 0, .2); }
+.media .foot { opacity: 1; color: #FFFFFF; font-size: 12.5px; }
+.sheet .foot, .page:not(.media) .foot { opacity: 1; color: var(--label2); }
+.detail h1 { font-size: 26px; }
+.bank-logo { box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .28); }
+.statusbar { transition: color .3s, opacity .2s; }
+.app.toasting .statusbar { opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
@@ -601,7 +611,7 @@ button.row[disabled] { cursor: default; }
     <div class="app" id="app" data-bar="light" data-tab="today">
       <div class="island"></div>
       <div class="statusbar" aria-hidden="true">
-        <span>9:41</span>
+        <span>09:41</span>
         <span class="icons">
           <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
           <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.3c2.3 0 4.4.9 6 2.4l1.1-1.1A10 10 0 0 0 8 .7 10 10 0 0 0 .9 3.6L2 4.7a8.6 8.6 0 0 1 6-2.4zm0 3.2c1.4 0 2.7.5 3.7 1.4l1.1-1.1A7 7 0 0 0 8 3.9a7 7 0 0 0-4.8 1.9l1.1 1.1c1-.9 2.3-1.4 3.7-1.4zm0 3.2c.6 0 1.1.2 1.5.6L8 10.8 6.5 9.3c.4-.4.9-.6 1.5-.6z"/></svg>
@@ -690,7 +700,7 @@ const S = {
   spotifyCancelled: false,
   accounts: [
     { id: 'chk', name: 'Current account', sub: 'ING', mask: '4659', kind: 'cash', bal: 6200, color: '#FF6200', mono: '🏦' },
-    { id: 'stash', name: "Lena's Stash", sub: 'Savings · 3.1%', mask: '6839', kind: 'saved', bal: 9140, color: '#C2381B', mono: '🦋' },
+    { id: 'stash', name: "Lena's Stash", sub: 'Savings · 3.1%', mask: '6839', kind: 'saved', bal: 9140, color: '#C2381B', mono: '💶' },
     { id: 'brk', name: 'ETF portfolio', sub: 'Trade Republic', mask: '1120', kind: 'saved', bal: 4395, color: '#6E7F3A', mono: '📈' },
     { id: 'amex', name: 'Mastercard Gold', sub: 'Credit card', mask: '9002', kind: 'owed', bal: -612, color: '#B08D3C', mono: '💳' },
     { id: 'visa', name: 'Visa Card', sub: 'Credit card', mask: '4088', kind: 'owed', bal: -698, color: '#5856D6', mono: '💳' },
@@ -709,12 +719,12 @@ const FLEX_DAILY = 88.05;  // flexible budget per day this pay period
 const SPOTIFY_MONTHLY = 10.99; // back in the budget once the second plan is cancelled
 const COMFORT = 1000;      // the balance Lena never wants her current account to drop below
 const BANKS = [
-  { id: 'n26', name: 'N26', sub: 'Current account · EUR', mask: '9331', bal: 850, kind: 'cash', color: '#2E8B7A', mono: 'N', found: true },
-  { id: 'revolut', name: 'Revolut', sub: 'Savings vault · EUR', mask: '4862', bal: 1240, kind: 'saved', color: '#191C1F', mono: 'R', found: true },
-  { id: 'db', name: 'Deutsche Bank', sub: 'Current account · EUR', mask: '2210', bal: 420, kind: 'cash', color: '#0018A8', mono: 'D' },
-  { id: 'bnp', name: 'BNP Paribas', sub: 'Savings account · EUR', mask: '7713', bal: 2050, kind: 'saved', color: '#00915A', mono: 'B' },
-  { id: 'santander', name: 'Santander', sub: 'Current account · EUR', mask: '5580', bal: 990, kind: 'cash', color: '#EC0000', mono: 'S' },
-  { id: 'rabo', name: 'Rabobank', sub: 'Savings account · EUR', mask: '0402', bal: 3100, kind: 'saved', color: '#FD6400', mono: 'R' },
+  { id: 'n26', name: 'N26', sub: 'Current account', mask: '9331', bal: 850, kind: 'cash', color: '#2E8B7A', mono: 'N', found: true },
+  { id: 'revolut', name: 'Revolut', sub: 'Savings vault', mask: '4862', bal: 1240, kind: 'saved', color: '#191C1F', mono: 'R', found: true },
+  { id: 'db', name: 'Deutsche Bank', sub: 'Current account', mask: '2210', bal: 420, kind: 'cash', color: '#0018A8', mono: 'D' },
+  { id: 'bnp', name: 'BNP Paribas', sub: 'Savings account', mask: '7713', bal: 2050, kind: 'saved', color: '#00915A', mono: 'B' },
+  { id: 'santander', name: 'Santander', sub: 'Current account', mask: '5580', bal: 990, kind: 'cash', color: '#EC0000', mono: 'S' },
+  { id: 'rabo', name: 'Rabobank', sub: 'Savings account', mask: '0402', bal: 3100, kind: 'saved', color: '#FD6400', mono: 'R' },
 ];
 const TX = [
   { id: 'bb', emoji: '☕️', name: 'Bonanza Coffee', note: '14th visit this month · €94 so far', amt: -4.06, cat: 'Eating out', when: 'Today, 08:12', insight: 'Coffee is most of why eating out is €130 over this month. Ten fewer visits would close the gap.' },
@@ -769,7 +779,7 @@ function forecast(over = {}) {
   // The low point that matters for today is the one before the next pay day
   const payIdx = payIndex(st.payDay);
   let pre = { bal: start, day: 0 };
-  for (let i = 0; i < payIdx; i++) if (days[i] < pre.bal) pre = { bal: days[i], day: i };
+  for (let i = 0; i < payIdx; i++) if (days[i] < pre.bal || (days[i] === pre.bal && ev.some(e => e.day === i && e.amt < 0))) pre = { bal: days[i], day: i };
   return { ev, days, low, pre, start, payIdx, st };
 }
 // Safe to spend: the flexible budget per day until pay day, capped by what the current account can cover
@@ -819,7 +829,7 @@ function renderToday() {
       <article class="action glass" data-card="save">
         <div class="emoji" aria-hidden="true">🐣</div>
         <h3>Move €1,200 into savings</h3>
-        <p>It has sat in your current account for 41 days. You'd earn about €37 a year, and ${saveLine}.</p>
+        <p>It has sat in your ING current account for 41 days. You'd earn about €37 a year, and ${saveLine}.</p>
         <div class="btns"><button class="ok" data-act="approve-save" aria-label="Approve move to savings">${I.check}</button><button class="no" data-act="dismiss" data-id="save" aria-label="Dismiss move to savings">${I.x}</button></div>
       </article>` : `
       <article class="action glass" data-card="spotify">
@@ -994,13 +1004,13 @@ function icelandPage() {
       </div>
       <p class="body">${plan}</p>
       ${late ? `<div class="callout glass">${I.info}<span>That lands after the trip. ${eur(needed)} a month gets you there by February.</span></div>` : ''}
+      <p class="foot" style="text-align:left">Held in Lena's Stash at 3.1%, so it earns while it fills. Nothing here is locked. You can take it back any time.</p>
       <div class="kv">
         <div><span>Monthly transfer</span><span>${ic.paused ? 'Paused' : `${eur(ic.monthly)} · 23 Sep`}</span></div>
         <div><span>Round-ups swept in</span><span>€680 since March</span></div>
         <div><span>Deposit due</span><span>€800 · 12 January</span></div>
         ${S.fixesSent ? `<div><span>Fixes money added</span><span>${eur(S.fixesSent, 2)}</span></div>` : ''}
       </div>
-      <p class="foot">Held in Lena's Stash at 3.1%, so it earns while it fills.<br>Nothing here is locked. You can take it back any time.</p>
     </div>
     <div class="dock">
       <button class="btn glass" data-act="send-fixes" ${avail > 0 ? '' : 'disabled'}>${avail > 0 ? `Send the fixes money here · ${eur(avail, 2)}` : S.fixesSent ? '✓ Fixes money sent' : 'No fixes money yet'}</button>
@@ -1314,9 +1324,10 @@ function toast(text, opts = {}) {
   $('#toast').classList.toggle('error', !!opts.error);
   $('#toast').classList.add('show');
   clearTimeout(toastT);
+  app.classList.add('toasting');
   toastT = setTimeout(hideToast, 2400);
 }
-function hideToast() { clearTimeout(toastT); $('#toast').classList.remove('show'); }
+function hideToast() { clearTimeout(toastT); $('#toast').classList.remove('show'); app.classList.remove('toasting'); }
 function tween(el, from, to, dur = 900, dec = 0) {
   if (!el) return;
   if (reduced) { el.textContent = fmt(to, dec); return; }
@@ -1336,13 +1347,15 @@ function reply(q) {
   const fc = sf.fc;
   const pay = ord(S.payDay);
   const thin = fc.pre.day ? dayLabel(fc.pre.day) : 'today';
-  const onThin = fc.pre.day ? `on ${thin}` : 'today';
+  const onThin = fc.pre.day ? `on ${thin}` : `until pay day on the ${ord(S.payDay)}`;
   const spendToLow = Math.round(sf.safe * (fc.pre.day + 1));
   const preBal = Math.round(fc.pre.bal);
   const room = preBal - COMFORT - spendToLow; // what can go out now and still keep the comfort line
   if (/dental|1,?430|dentist/.test(s)) {
     if (room >= 1430) return { title: 'The dental bill', emoji: '🦷', paras: [`Yes. Paying €1,430 now and spending your safe-to-spend each day still leaves ${eur(preBal - spendToLow - 1430)} ${onThin}, ${room === 1430 ? 'right at' : 'above'} your comfort line.`] };
     const now = Math.max(0, Math.floor(room / 10) * 10);
+    const short = 1430 - room;
+    if (short > 0 && short < 50) return { title: 'The dental bill', emoji: '🦷', paras: [`Just about. Paying €1,430 now and spending your safe-to-spend each day leaves ${eur(preBal - spendToLow - 1430)} ${onThin}, only ${eur(short)} under your comfort line. A couple of quieter days and you're there.`] };
     return { title: 'The dental bill', emoji: '🦷', paras: [
       `Not all at once. The month ahead shows ${eur(fc.pre.bal)} ${onThin} before everyday spending. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €1,430 for the bill, and ${preBal - spendToLow - 1430 < 0 ? `you'd be overdrawn by ${eur(-(preBal - spendToLow - 1430))}` : `you'd be at ${eur(preBal - spendToLow - 1430)}, under your €1,000 comfort line`}.`,
       now > 0 ? `Pay ${eur(now)} now and the other ${eur(1430 - now)} after pay day on the ${pay}. Or take it from Lena's Stash, which has ${eur(acct('stash').bal)}.` : `Ask the office to bill you after pay day on the ${pay}, or take it from Lena's Stash, which has ${eur(acct('stash').bal)}.`] };
@@ -1464,7 +1477,7 @@ function monthlySheet() {
   };
   openSheet(`
     <div class="sheet-head"><h2 data-title>Monthly amount</h2><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
-    <p class="sub">${ic.paused ? 'Transfers are paused. Saving a new amount resumes them on 23 Sep.' : 'Moves from your current account to Lena\'s Stash on the 23rd.'}</p>
+    <p class="sub">${ic.paused ? 'Transfers are paused. Saving a new amount resumes them on 23 Sep.' : 'Moves from your ING current account to Lena\'s Stash on the 23rd.'}</p>
     <div class="body">
       <div class="num" style="font-size:52px;text-align:center"><span class="cur">€</span><span id="m-val">${ic.monthly}</span></div>
       <input id="m-slider" class="slider" type="range" min="50" max="400" step="10" value="${ic.monthly}" aria-label="Monthly amount" autofocus>
@@ -1511,7 +1524,7 @@ const H = {
   'approve-save': once(async () => {
     if (!S.actions.includes('save')) return;
     const before = safeNow(), after = forecast({ extra: 1200 }), afterSafe = safety(after).safe;
-    const ok = await alertBox({ title: 'Move €1,200 into savings?', msg: `Moves sample money from your current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: 'Move €1,200 · demo', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
+    const ok = await alertBox({ title: 'Move €1,200 into savings?', msg: `Moves sample money from your ING current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: 'Move €1,200 · demo', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
     if (!ok || !S.actions.includes('save')) return;
     await removeAction('save');
     acct('chk').bal -= 1200; acct('stash').bal += 1200;
@@ -1555,11 +1568,11 @@ const H = {
     setTimeout(() => { if (push(icelandPage, { media: 'g-iceland' })) setTimeout(() => H['send-fixes'](), T + 20); }, 260);
   },
   'open-iceland'() { push(icelandPage, { media: 'g-iceland' }); },
-  'open-month'() { push(monthPage, { media: 'g-month' }); },
+  'open-month'() { S.payDraft = null; push(monthPage, { media: 'g-month' }); },
   'send-fixes': once(async () => {
     const amt = fixesAvailable(); if (amt <= 0) return;
     const before = safeNow(), afterSafe = safety(forecast({ extra: amt })).safe;
-    const ok = await alertBox({ title: `Add ${eur(amt, 2)} to Iceland?`, msg: `Moves sample money from your current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: `Add ${eur(amt, 2)} in demo`, style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
+    const ok = await alertBox({ title: `Add ${eur(amt, 2)} to Iceland?`, msg: `Moves sample money from your ING current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: `Add ${eur(amt, 2)} in demo`, style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
     const amt2 = fixesAvailable();
     if (!ok || amt2 <= 0) return;
     const from = S.iceland.saved;
@@ -1617,7 +1630,7 @@ const H = {
     toast(`${b.name} added · ${eur(b.bal)}`);
   },
   back(el) { if (el.closest('.page') !== stack[stack.length - 1]) return; pop(); },
-  'close-sheet'() { if (sheetEl && performance.now() - sheetEl.at < 400) return; closeSheet(); },
+  'close-sheet'() { if (sheetEl && performance.now() - sheetEl.at < 250) return; closeSheet(); },
   ask(el) { send(el.dataset.q); },
   send() { send($('#chat-input').value); },
   voice() { voiceSheet(); },
