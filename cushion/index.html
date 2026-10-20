@@ -241,9 +241,11 @@ button.row[disabled] { cursor: default; }
 .content { padding: 8px 16px 0; display: grid; gap: 28px; }
 .page { z-index: 20; background: var(--bg); --edge: var(--bg); transition: transform .5s cubic-bezier(.32, .72, 0, 1), filter .5s; will-change: transform; }
 .page.modal { z-index: 40; }
-.page:not(.modal) .wrap { padding-bottom: 124px; }
-.page:not(.modal) .wrap:has(.dock) { padding-bottom: 0; }
-.page:not(.modal) .dock { padding-bottom: 108px; }
+.page.in-modal { z-index: 41; }
+.page.in-modal .wrap { padding-bottom: 40px; }
+.page:not(.modal):not(.in-modal) .wrap { padding-bottom: 124px; }
+.page:not(.modal):not(.in-modal) .wrap:has(.dock) { padding-bottom: 0; }
+.page:not(.modal):not(.in-modal) .dock { padding-bottom: 108px; }
 .page.from-right { transform: translateX(100%); }
 .page.from-bottom { transform: translateY(100%); }
 .page.under { transform: translateX(-28%); filter: brightness(.9); }
@@ -1219,8 +1221,12 @@ function push(render, { modal = false, media = '', onMount, opener, kind } = {})
   lockNav();
   hideToast();
   const el = document.createElement('div');
-  el.className = `page ${modal ? 'modal from-bottom' : 'from-right'} ${media ? 'media ' + media : ''}`;
+  // A page pushed from inside a full-screen modal stays inside it, above the tab bar
+  const parent = stack[stack.length - 1];
+  const inModal = !modal && !!(parent && (parent.modal || parent.inModal));
+  el.className = `page ${modal ? 'modal from-bottom' : 'from-right'}${inModal ? ' in-modal' : ''} ${media ? 'media ' + media : ''}`;
   el.dataset.tab = S.tab;
+  el.inModal = inModal;
   el.setAttribute('role', 'region');
   el.render = () => keepFocus(() => {
     const st = el.scrollTop;
@@ -1277,8 +1283,9 @@ function updateChrome() {
   const convo = inChat && S.chat.msgs.length > 0;
   app.dataset.tab = S.tab;
   app.dataset.bar = top ? (top.classList.contains('media') ? 'light' : 'dark') : (S.tab === 'today' || inChat ? 'light' : 'dark');
-  $('#tabbar').classList.toggle('away', !!(top && top.modal));
-  app.classList.toggle('media-top', !!(top && !top.modal && top.classList.contains('media')));
+  const covered = !!(top && (top.modal || top.inModal));
+  $('#tabbar').classList.toggle('away', covered);
+  app.classList.toggle('media-top', !!(top && !covered && top.classList.contains('media')));
   $('#composer').hidden = !!top || !inChat;
   $('#chat-bg').hidden = !inChat;
   syncInert();
@@ -1287,7 +1294,7 @@ function syncInert() {
   const overlay = $$('#layer .sheet, #layer .alert').some(x => !x.closing);
   const top = stack[stack.length - 1];
   ['#tab-today', '#tab-money', '#tab-chat', '#composer'].forEach(s => { $(s).inert = overlay || !!top; });
-  $('#tabbar').inert = overlay || !!(top && top.modal);
+  $('#tabbar').inert = overlay || !!(top && (top.modal || top.inModal));
   allPages().forEach(p => { p.inert = overlay || p !== top; });
   const al = $('#layer .alert');
   $$('#layer .sheet').forEach(s => { s.inert = !!al || s.closing; });
