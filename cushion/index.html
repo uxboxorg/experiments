@@ -42,7 +42,7 @@
   --sheet: rgba(250, 250, 252, .95);
   --scrim: rgba(0, 0, 0, .22);
   --hero-top: #1688FF;
-  --hero-mid: #66AEF6;
+  --hero-mid: #3F95F0;
   --hero-low: #D6E5F4;
   --on-media: #FFFFFF;
   --on-media-2: rgba(255, 255, 255, .78);
@@ -261,11 +261,15 @@ button.row[disabled] { cursor: default; }
   -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent); mask-image: linear-gradient(to bottom, #000 72%, transparent);
   opacity: 0; transition: opacity .25s;
 }
-.page.scrolled .nav::before, #tab-chat.scrolled .chat-title.pinned::before { opacity: 1; }
+.page.scrolled .nav::before, #tab-chat.scrolled .chat-title.pinned::before, .tab-panel.scrolled .nav::before { opacity: 1; }
+.tab-panel .nav { position: sticky; top: 0; z-index: 7; padding: calc(var(--top) + 2px) 16px 6px; min-height: 0; justify-content: flex-end; --bar-bg: var(--bg); margin-bottom: -6px; }
+.tab-panel .nav::before { content: ""; position: absolute; z-index: -1; inset: 0 0 -18px; pointer-events: none; background: var(--bar-bg); -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%); -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent); mask-image: linear-gradient(to bottom, #000 72%, transparent); opacity: 0; transition: opacity .25s; }
+.tab-panel.scrolled .nav .inline { opacity: 1; transform: none; }
 .nav .inline { position: absolute; left: 76px; right: 76px; bottom: 21px; text-align: center; font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0; transform: translateY(6px); transition: opacity .25s, transform .25s; pointer-events: none; }
 .page.scrolled .nav .inline { opacity: 1; transform: none; }
-.chat-title.pinned { position: sticky; top: 0; z-index: 7; margin: 0 -16px; padding: calc(var(--top) + 4px) 16px 12px; --bar-bg: rgba(122, 96, 58, .86); }
-#tab-chat .chat-title.pinned::before { inset: 0 0 -10px; -webkit-mask-image: linear-gradient(to bottom, #000 86%, transparent); mask-image: linear-gradient(to bottom, #000 86%, transparent); }
+.tab-panel .nav .inline { bottom: 13px; }
+.chat-title.pinned { position: sticky; top: 0; z-index: 7; margin: 0 -16px; padding: calc(var(--top) + 4px) 16px 12px; --bar-bg: rgba(122, 96, 58, .95); }
+#tab-chat .chat-title.pinned::before { inset: 0 0 -22px; -webkit-backdrop-filter: blur(30px) saturate(160%); backdrop-filter: blur(30px) saturate(160%); -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent); mask-image: linear-gradient(to bottom, #000 78%, transparent); }
 .edge-btm {
   position: sticky; bottom: 0; z-index: 6; height: 40px; margin-top: -40px; flex: none; pointer-events: none;
   background: linear-gradient(to top, var(--edge), transparent);
@@ -312,11 +316,11 @@ button.row[disabled] { cursor: default; }
 
 /* ---------- Today ---------- */
 #tab-today { --edge: var(--hero-top); }
-.today-hero { position: absolute; z-index: -1; inset: 0 0 auto; height: 640px; background: linear-gradient(180deg, var(--hero-top) 0%, var(--hero-mid) 34%, var(--hero-low) 62%, var(--bg) 92%); pointer-events: none; }
+.today-hero { position: absolute; z-index: -1; inset: 0 0 auto; height: 640px; background: linear-gradient(180deg, var(--hero-top) 0%, var(--hero-mid) 52%, var(--hero-low) 80%, var(--bg) 96%); pointer-events: none; }
 .greet { color: #FFFFFF; font-size: 24px; line-height: 1.22; letter-spacing: -.01em; font-weight: 500; text-wrap: balance; margin: 4px 0 0; }
 .greet .sub { color: rgba(255, 255, 255, .8); }
 .greet .avatar { display: inline-block; width: 26px; height: 26px; border-radius: 50%; vertical-align: -5px; margin: 0 2px; background: radial-gradient(circle at 50% 38%, #F6C8A8 0 30%, transparent 31%), radial-gradient(circle at 50% 110%, #E58A4E 0 46%, transparent 47%), linear-gradient(#5B3B2A, #3A2418); box-shadow: 0 0 0 2px rgba(255, 255, 255, .7); }
-.safe { position: relative; text-align: center; color: #FFFFFF; display: grid; gap: 12px; padding: 26px 16px 20px; border-radius: 32px; background: linear-gradient(180deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .08)); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+.safe { position: relative; text-align: center; color: #FFFFFF; display: grid; gap: 12px; padding: 26px 16px 20px; border-radius: 32px; background: linear-gradient(180deg, rgba(0, 50, 130, .10), rgba(0, 50, 130, .22)); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
 .safe .num { font-size: 88px; font-weight: 200; }
 .safe .num .cur { font-size: 14px; vertical-align: 52px; margin-right: 6px; opacity: .8; letter-spacing: .02em; }
 .safe .num .cents { font-size: 16px; vertical-align: 52px; margin-left: 4px; }
@@ -436,6 +440,13 @@ button.row[disabled] { cursor: default; }
 .sheet .body { display: grid; gap: 18px; margin-top: 16px; }
 .dark-sheet { background: rgba(28, 40, 40, .92); color: #FFFFFF; --label: #FFFFFF; --label2: rgba(255, 255, 255, .68); --fill: rgba(255, 255, 255, .14); --label3: rgba(255, 255, 255, .35); --sep: rgba(255, 255, 255, .15); }
 .dark-sheet :focus-visible { outline-color: #FFFFFF; }
+.about-sheet { font-size: 15px; line-height: 1.45; color: var(--label2); }
+.about-sheet p, .about-sheet h2, .about-sheet ul { margin: 0; }
+.about-sheet h2 { font-size: 15px; color: var(--label); margin-bottom: 6px; }
+.about-sheet ul { padding-left: 18px; display: grid; gap: 4px; }
+.about-sheet .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.about-sheet .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.about-sheet .chips span { font-size: 12px; padding: 4px 9px; border-radius: 99px; background: var(--fill); color: var(--label); }
 
 .alert {
   position: absolute; left: 50%; top: 50%; width: 300px; border-radius: 34px; padding: 22px 18px 16px;
@@ -490,7 +501,11 @@ button.row[disabled] { cursor: default; }
   .device { width: 100%; height: 100svh; padding: 0; border-radius: 0; box-shadow: none; background: var(--bg); }
   .app { width: 100%; height: 100%; border-radius: 0; --top: max(14px, env(safe-area-inset-top, 0px)); }
   .island, .statusbar, .home-ind { display: none; }
+  html, body { overflow: hidden; height: 100%; }
   body { background: var(--bg); }
+  .device { position: fixed; inset: 0; z-index: 1; height: 100%; }
+  .stage > .about { display: none; }
+  .app { --top: max(20px, env(safe-area-inset-top, 0px)); }
   .tabbar { bottom: max(14px, env(safe-area-inset-bottom, 0px)); }
   .composer { bottom: calc(max(14px, env(safe-area-inset-bottom, 0px)) + 74px); }
   .composer.solo { bottom: max(14px, env(safe-area-inset-bottom, 0px)); }
@@ -618,11 +633,11 @@ const S = {
   actions: ['save', 'spotify'],
   spotifyCancelled: false,
   accounts: [
-    { id: 'chk', name: 'Checking Account', sub: 'Chase', mask: '4659', kind: 'cash', bal: 6200, color: '#1C6DD0', mono: '◆' },
-    { id: 'stash', name: "Maya's Stash", sub: 'Savings · 4.3%', mask: '6839', kind: 'saved', bal: 9140, color: '#C2381B', mono: 'S' },
-    { id: 'brk', name: 'Index fund', sub: 'Brokerage', mask: '1120', kind: 'saved', bal: 4395, color: '#6E7F3A', mono: 'I' },
-    { id: 'amex', name: 'Amex Gold', sub: 'Credit card', mask: '9002', kind: 'owed', bal: -612, color: '#B08D3C', mono: 'A' },
-    { id: 'visa', name: 'Visa Card', sub: 'Credit card', mask: '4088', kind: 'owed', bal: -698, color: '#5856D6', mono: 'V' },
+    { id: 'chk', name: 'Checking Account', sub: 'Chase', mask: '4659', kind: 'cash', bal: 6200, color: '#1C6DD0', mono: '🏦' },
+    { id: 'stash', name: "Maya's Stash", sub: 'Savings · 4.3%', mask: '6839', kind: 'saved', bal: 9140, color: '#C2381B', mono: '🦋' },
+    { id: 'brk', name: 'Index fund', sub: 'Brokerage', mask: '1120', kind: 'saved', bal: 4395, color: '#6E7F3A', mono: '📈' },
+    { id: 'amex', name: 'Amex Gold', sub: 'Credit card', mask: '9002', kind: 'owed', bal: -612, color: '#B08D3C', mono: '💳' },
+    { id: 'visa', name: 'Visa Card', sub: 'Credit card', mask: '4088', kind: 'owed', bal: -698, color: '#5856D6', mono: '💳' },
   ],
   linked: [],
   iceland: { saved: 1400, goal: 2400, monthly: 140, paused: false },
@@ -665,6 +680,7 @@ const fixesAvailable = () => r2(fixesTotal() - S.fixesSent);
 const acct = id => S.accounts.find(a => a.id === id);
 const net = () => r2(S.accounts.reduce((a, b) => a + b.bal, 0));
 const sumKind = k => S.accounts.filter(a => a.kind === k).reduce((a, b) => a + b.bal, 0);
+const cashWord = () => S.accounts.filter(a => a.kind === 'cash').length > 1 ? 'your spending accounts' : 'checking';
 
 /* ---------------- Forecast: checking, 24 Aug to 30 Sep ---------------- */
 const DAYS = 38;
@@ -675,14 +691,14 @@ const onDay = i => i === 0 ? 'today' : `on ${dayLabel(i)}`;
 function forecast(over = {}) {
   const st = Object.assign({ carLate: S.carLate, payDay: S.payDay, start: sumKind('cash'), extra: 0 }, over);
   const ev = [
-    { day: 4, name: 'Energy bill', amt: -299 },
-    { day: sep(1), name: 'Rent', amt: -1850 },
-    { day: sep(st.carLate ? 6 : 2), name: 'Car insurance', amt: -740, car: true },
-    { day: sep(4), name: 'Freelance invoice', amt: 370 },
-    { day: sep(st.payDay), name: 'Salary', amt: 3482 },
+    { day: 4, name: 'Energy bill', phrase: 'the energy bill', amt: -299 },
+    { day: sep(1), name: 'Rent', phrase: 'rent', amt: -1850 },
+    { day: sep(st.carLate ? 6 : 2), name: 'Car insurance', phrase: 'car insurance', amt: -740, car: true },
+    { day: sep(4), name: 'Freelance invoice', phrase: 'your freelance invoice', amt: 370 },
+    { day: sep(st.payDay), name: 'Salary', phrase: 'your salary', amt: 3482 },
   ];
-  if (st.payDay >= 25) ev.push({ day: st.payDay - 24, name: 'Salary', amt: 3482 });
-  if (!S.iceland.paused) ev.push({ day: sep(23), name: 'Iceland transfer', amt: -S.iceland.monthly });
+  if (st.payDay >= 25) ev.push({ day: st.payDay - 24, name: 'Salary', phrase: 'your salary', amt: 3482 });
+  if (!S.iceland.paused) ev.push({ day: sep(23), name: 'Iceland transfer', phrase: 'the Iceland transfer', amt: -S.iceland.monthly });
   ev.sort((a, b) => a.day - b.day || b.amt - a.amt);
   const start = st.start - st.extra;
   let bal = start, low = { bal: start, day: 0 };
@@ -738,7 +754,7 @@ function renderToday() {
   const sf = safety();
   const n = S.actions.length;
   const lead = n === 2 ? 'Two things need your action' : n === 1 ? 'One thing needs your action' : 'Nothing needs you today.';
-  const tail = n ? ' to secure your spend.' : sf.limitedByCash ? ` Checking runs thin ${onDay(sf.fc.pre.day)}, so today's number is lower.` : ' Your spend is covered.';
+  const tail = n ? (sf.limitedByCash ? ' to secure your spend.' : '.') : sf.limitedByCash ? ` Money runs thin ${onDay(sf.fc.pre.day)}, so today's number is lower.` : ' Your spend is covered.';
   const [whole, cents] = sf.safe.toFixed(2).split('.');
   const saveAfter = safety(forecast({ extra: 1200 })).safe;
   const saveLine = saveAfter >= sf.safe ? "today's safe-to-spend stays the same" : `today's safe-to-spend drops to ${usd(saveAfter, 2)}`;
@@ -763,7 +779,7 @@ function renderToday() {
       <div class="safe">
         <div class="num" id="safe-num" aria-label="${usd(sf.safe, 2)} safe to spend today"><span class="cur">USD</span><span class="w">${whole}</span><span class="cents">.${cents}</span></div>
         <div class="cap">Safe to spend today</div>
-        <p class="why">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day · ${sf.limitedByCash ? `held back to keep $1,000 in checking ${onDay(sf.fc.pre.day)}` : `checking stays above $1,000 all month`}</p>
+        <p class="why">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day · ${sf.limitedByCash ? `held back to keep $1,000 in ${cashWord()} ${onDay(sf.fc.pre.day)}` : `${cashWord().replace(/^./, c => c.toUpperCase()) === 'Checking' ? 'checking stays' : 'your spending accounts stay'} above $1,000 until pay day`}</p>
       </div>
       <div class="actions" id="actions">${cards || done}</div>
       <div>
@@ -786,14 +802,12 @@ function renderMoney() {
   const fc = forecast();
   const avail = fixesAvailable();
   const linkedTotal = S.linked.reduce((a, b) => a + b.bal, 0);
-  $('#tab-money').innerHTML = `${edge}
-    <div class="content">
-      <div class="money-head">
-        <div>
-          <h1 class="large-title">Money <span aria-hidden="true">👾</span></h1>
-          <p class="lede">What you have, what's coming and what I think is worth fixing.</p>
-        </div>
-        <button class="pill glass" data-act="fixes" style="margin-top:4px;flex:none">Fixes${avail > 0 ? ` <span style="color:var(--green);font-weight:600">${usd(avail, 2)}</span>` : ''}</button>
+  $('#tab-money').innerHTML = `
+    <div class="nav"><span class="inline" aria-hidden="true">Money</span><button class="pill glass" data-act="fixes">Fixes${avail > 0 ? ` <span style="color:var(--green);font-weight:600">${usd(avail, 2)}</span>` : ''}</button></div>
+    <div class="content" style="padding-top:0">
+      <div>
+        <h1 class="large-title">Money <span aria-hidden="true">👾</span></h1>
+        <p class="lede">What you have, what's coming and what I think is worth fixing.</p>
       </div>
       <div>
         <div class="total"><span class="num" id="net-num"><span class="cur">$</span>${fmt(net())}</span><span class="delta">+$412 this month</span></div>
@@ -953,10 +967,10 @@ function chartSVG(fc) {
   const below = ly + 30 < H - padB;
   const pillY = below ? ly + 10 : ly - 30;
   const pillX = Math.min(W - lw - 2, Math.max(2, lx - lw / 2));
-  const ticks = [0, 8, 22, 37].map(i => `<text x="${x(i).toFixed(1)}" y="${H - 4}" font-size="10" fill="rgba(255,255,255,.75)" text-anchor="${i === 0 ? 'start' : i === 37 ? 'end' : 'middle'}">${dayLabel(i)}</text>`).join('');
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Projected checking balance from 24 August to 30 September. Thinnest moment before pay day: ${label} on ${dayLabel(fc.pre.day)}.">
+  const ticks = [0, 8, 22, 37].map(i => `<text x="${x(i).toFixed(1)}" y="${H - 4}" font-size="11" fill="rgba(255,255,255,.85)" text-anchor="${i === 0 ? 'start' : i === 37 ? 'end' : 'middle'}">${dayLabel(i)}</text>`).join('');
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Projected balance across spending accounts from 24 August to 30 September. Thinnest moment before pay day: ${label} on ${dayLabel(fc.pre.day)}.">
     <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
-    <text x="${padL}" y="12" font-size="10" fill="rgba(255,255,255,.8)">- - Comfort line $1,000</text>
+    <text x="${padL}" y="12" font-size="11" fill="rgba(255,255,255,.88)">- - Comfort line $1,000</text>
     <line x1="${padL}" x2="${W - padR}" y1="${cy.toFixed(1)}" y2="${cy.toFixed(1)}" stroke="rgba(255,255,255,.6)" stroke-dasharray="3 4" stroke-width="1"/>
     <path d="${area}" fill="url(#ga)"/>
     <path d="${d}" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
@@ -973,17 +987,20 @@ function monthPage() {
   const gain = r2(fc.pre.bal - other.pre.bal);
   const joinList = a => a.length > 1 ? `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}` : a[0];
   const sfNow = safety(fc), sfOther = safety(other);
-  const lowNames = fc.ev.filter(e => e.day === fc.pre.day && e.amt < 0).map(e => e.name.toLowerCase());
+  const lowNames = fc.ev.filter(e => e.day === fc.pre.day && e.amt < 0).map(e => e.phrase);
+  const spare = r2(fc.pre.bal - COMFORT);
+  const tight = spare < sfNow.budget * (fc.pre.day + 1);
   const lowIsRentCar = !S.carLate && (fc.pre.day === sep(1) || fc.pre.day === sep(2)) && fc.payIdx > sep(2);
   let explain;
-  if (lowIsRentCar) explain = `Rent and the car payment land a day apart. It clears, but there's little room if something unexpected turns up that week.`;
+  if (lowIsRentCar) explain = tight ? `Rent and car insurance land a day apart. It clears, but there's little room if something unexpected turns up that week.` : `Rent and car insurance land a day apart. It clears with ${usd(spare)} to spare above your comfort line.`;
   else if (fc.pre.day === 0) explain = `Pay lands ${onDay(fc.payIdx)} before any bill, so checking never dips below where it is today.`;
-  else if (lowNames.length) explain = `Your thinnest moment comes after the ${joinList(lowNames)} on ${dayLabel(fc.pre.day)}, the last ${lowNames.length > 1 ? 'payments' : 'payment'} before pay day.`;
+  else if (lowNames.length) explain = `Your thinnest moment comes after ${joinList(lowNames)} on ${dayLabel(fc.pre.day)}.`;
   else explain = `Your bills are spread out enough that no single week gets tight.`;
-  if (sfNow.limitedByCash) explain += ` Today's safe-to-spend is held to ${usd(sfNow.safe, 2)} so checking stays above $1,000 then.`;
+  if (sfNow.limitedByCash) explain += ` Today's safe-to-spend is held to ${usd(sfNow.safe, 2)} so ${cashWord()} ${cashWord() === 'checking' ? 'stays' : 'stay'} above $1,000 then.`;
   if (S.carLate) {
-    const where = sep(6) === fc.payIdx ? ' It now lands on pay day, after your salary.' : sep(6) > fc.payIdx ? ' It now lands after pay day.' : (gain > 0 && other.pre.day === sep(2)) ? ' Your freelance invoice lands first.' : '';
-    explain += gain > 0 ? ` Moving the car payment to the 6th raises your thinnest moment by ${usd(gain)}.${where}` : gain < 0 ? ` Moving the car payment to the 6th lowers your thinnest moment by ${usd(-gain)}.${where}` : ` Moving the car payment to the 6th doesn't change your thinnest moment.${where}`;
+    const moved = fc.pre.day !== other.pre.day;
+    const where = sep(6) === fc.payIdx ? ' It now lands on pay day, after your salary.' : sep(6) > fc.payIdx ? ' It now lands after pay day.' : (gain > 0 && other.pre.day === sep(2) && fc.pre.day === sep(6)) ? ' Your freelance invoice lands first.' : moved ? ` The low point moves from ${dayLabel(other.pre.day)} to ${dayLabel(fc.pre.day)}.` : '';
+    explain += gain > 0 ? ` Moving car insurance to the 6th raises your thinnest moment by ${usd(gain)}.${where}` : gain < 0 ? ` Moving car insurance to the 6th lowers your thinnest moment by ${usd(-gain)}.${where}` : ` Moving car insurance to the 6th doesn't change your thinnest moment.${where}`;
     if (sfNow.safe !== sfOther.safe) explain += ` Today's safe-to-spend ${sfNow.safe > sfOther.safe ? 'rises' : 'falls'} from ${usd(sfOther.safe, 2)} to ${usd(sfNow.safe, 2)}.`;
   }
   const bills = fc.ev.map(e => `
@@ -1001,7 +1018,7 @@ function monthPage() {
       </div>
       <div>
         <div class="section-h" style="padding:0 0 8px">Your thinnest moment before pay day</div>
-        <div class="big"><span class="num"><span class="cur">$</span>${fmt(fc.pre.bal)}</span><span class="of">${onDay(fc.pre.day)}${S.carLate && gain > 0 ? ' with a later payment' : ''}</span></div>
+        <div class="big"><span class="num"><span class="cur">$</span>${fmt(fc.pre.bal)}</span><span class="of">${onDay(fc.pre.day)}${S.carLate && gain > 0 && fc.pre.day === sep(6) ? ' with a later payment' : ''}</span></div>
         <p class="body" style="margin-top:12px;font-size:15px">${explain}</p>
       </div>
       ${chartSVG(fc)}
@@ -1012,7 +1029,7 @@ function monthPage() {
       </div>
       <div class="list" style="padding:4px 16px;border-radius:24px">
         <div class="row" style="padding-left:0;padding-right:0">
-          <label class="grow" for="car-late"><div class="t" style="font-size:16px">Try the car payment on the 6th</div><div class="s">Compare a later sample payment</div></label>
+          <label class="grow" for="car-late"><div class="t" style="font-size:16px">Try car insurance on the 6th</div><div class="s">Compare a later sample payment</div></label>
           <span class="switch"><input id="car-late" type="checkbox" role="switch" ${S.carLate ? 'checked' : ''}><span></span></span>
         </div>
       </div>
@@ -1039,6 +1056,7 @@ function accountsPage() {
       <div class="kv"><div><span>Total</span><span>${usd(net())}</span></div></div>
       <button class="btn glass" data-act="add-account">${I.plus} Add new</button>
       <p class="foot">Sample accounts · All balances are fictional</p>
+      <button class="btn plain" data-act="about">About this prototype</button>
     </div>`;
 }
 
@@ -1260,19 +1278,20 @@ function reply(q) {
   const pay = ord(S.payDay);
   const thin = fc.pre.day ? dayLabel(fc.pre.day) : 'today';
   const onThin = fc.pre.day ? `on ${thin}` : 'today';
-  const spendToLow = r2(sf.safe * (fc.pre.day + 1));
-  const room = r2(fc.pre.bal - COMFORT - spendToLow); // what can go out now and still keep the comfort line
+  const spendToLow = Math.round(sf.safe * (fc.pre.day + 1));
+  const preBal = Math.round(fc.pre.bal);
+  const room = preBal - COMFORT - spendToLow; // what can go out now and still keep the comfort line
   if (/dental|1,?430|dentist/.test(s)) {
-    if (room >= 1430) return { title: 'The dental bill', emoji: '🦷', paras: [`Yes. Paying $1,430 now and spending your safe-to-spend each day still leaves ${usd(fc.pre.bal - spendToLow - 1430)} ${onThin}, above your comfort line.`] };
+    if (room >= 1430) return { title: 'The dental bill', emoji: '🦷', paras: [`Yes. Paying $1,430 now and spending your safe-to-spend each day still leaves ${usd(preBal - spendToLow - 1430)} ${onThin}, above your comfort line.`] };
     const now = Math.max(0, Math.floor(room / 10) * 10);
     return { title: 'The dental bill', emoji: '🦷', paras: [
-      `Not all at once. The month ahead shows ${usd(fc.pre.bal)} ${onThin} before everyday spending. Take off ${usd(spendToLow)} of spending at your safe-to-spend pace and $1,430 for the bill, and you'd be at ${usd(fc.pre.bal - spendToLow - 1430)}, under your $1,000 comfort line.`,
+      `Not all at once. The month ahead shows ${usd(fc.pre.bal)} ${onThin} before everyday spending. Take off ${usd(spendToLow)} of spending at your safe-to-spend pace and $1,430 for the bill, and you'd be at ${usd(preBal - spendToLow - 1430)}, under your $1,000 comfort line.`,
       now > 0 ? `Pay ${usd(now)} now and the other ${usd(1430 - now)} after pay day on the ${pay}. Or take it from Maya's Stash, which has ${usd(acct('stash').bal)}.` : `Ask the office to bill you after pay day on the ${pay}, or take it from Maya's Stash, which has ${usd(acct('stash').bal)}.`] };
   }
   if (/flight|\$?600|march|book/.test(s) && !/iceland/.test(s)) {
-    const after = r2(fc.pre.bal - spendToLow - 600);
+    const after = preBal - spendToLow - 600;
     if (room >= 600) return { title: 'The March flight', emoji: '🎟️', paras: [`Yes. Even after $600 and your usual daily spending, you'd keep ${usd(after)} ${onThin}, still above your comfort line.`] };
-    const hits = fc.ev.filter(e => e.day <= fc.pre.day && e.day > fc.pre.day - 6 && e.amt < 0).map(e => e.name.toLowerCase());
+    const hits = fc.ev.filter(e => e.day <= fc.pre.day && e.day > fc.pre.day - 6 && e.amt < 0).map(e => e.phrase);
     const list = hits.length > 1 ? `${hits.slice(0, -1).join(', ')} and ${hits[hits.length - 1]}` : hits[0];
     const why = hits.length ? `${list.replace(/^./, c => c.toUpperCase())} ${hits.length === 1 ? 'lands' : hits.length === 2 ? 'both land' : 'all land'} by ${thin}.` : `Your checking is lowest ${onThin}.`;
     return { title: 'The March flight', emoji: '🎟️', paras: [
@@ -1293,8 +1312,8 @@ function reply(q) {
   }
   if (/safe|spend|today/.test(s)) {
     return { title: 'Safe to spend', emoji: '💧', paras: [sf.limitedByCash
-      ? `You can spend ${usd(sf.safe, 2)} today. Your budget allows ${usd(sf.budget, 2)}, but I held it back so checking stays above $1,000 ${onThin}.`
-      : `You can spend ${usd(sf.safe, 2)} today. That's your flexible budget for the day, and checking still stays above $1,000 ${onThin}.`] };
+      ? `You can spend ${usd(sf.safe, 2)} today. Your budget allows ${usd(sf.budget, 2)}, but I held it back so ${cashWord()} ${cashWord() === 'checking' ? 'stays' : 'stay'} above $1,000 ${onThin}.`
+      : `You can spend ${usd(sf.safe, 2)} today. That's your flexible budget for the day, and ${cashWord()} ${cashWord() === 'checking' ? 'stays' : 'stay'} above $1,000 ${onThin}.`] };
   }
   return { title: 'Your question', emoji: '💬', paras: ['In this demo I can only see the sample accounts. Try asking about a $600 flight, the dental bill, eating out or the Iceland goal.'] };
 }
@@ -1303,6 +1322,7 @@ async function send(text) {
   if (!text) return;
   if (S.chat.busy) { (S.chat.queue = S.chat.queue || []).push(text); $('#chat-input').value = ''; toast('Sending after this answer'); return; }
   S.chat.busy = true;
+  hideToast();
   const r = reply(text);
   if (!S.chat.title) { S.chat.title = r.title; S.chat.emoji = r.emoji; }
   S.chat.msgs.push({ role: 'user', text });
@@ -1310,6 +1330,7 @@ async function send(text) {
   S.chat.msgs.push(ai);
   $('#chat-input').value = '';
   renderChat();
+  if (!stack.length && (document.activeElement === document.body || !document.activeElement)) $('#chat-input').focus({ preventScroll: true });
   const panel = $('#tab-chat');
   panel.scrollTop = panel.scrollHeight;
   await wait(reduced ? 0 : 750);
@@ -1430,7 +1451,7 @@ const H = {
   'approve-save': once(async () => {
     if (!S.actions.includes('save')) return;
     const before = safeNow(), after = forecast({ extra: 1200 }), afterSafe = safety(after).safe;
-    const ok = await alertBox({ title: 'Move $1,200 into savings?', msg: `This moves sample money from checking to Maya's Stash. Your thinnest moment before pay day becomes ${usd(after.pre.bal)}, and today's safe-to-spend ${afterSafe >= before ? `stays at ${usd(before, 2)}` : `drops from ${usd(before, 2)} to ${usd(afterSafe, 2)}`}.`, actions: [{ label: 'Move $1,200 · demo', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
+    const ok = await alertBox({ title: 'Move $1,200 into savings?', msg: `Moves sample money from checking to Maya's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${usd(before, 2)}` : `drops to ${usd(afterSafe, 2)}`}.`, actions: [{ label: 'Move $1,200 · demo', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
     if (!ok || !S.actions.includes('save')) return;
     await removeAction('save');
     acct('chk').bal -= 1200; acct('stash').bal += 1200;
@@ -1477,8 +1498,8 @@ const H = {
   'open-month'() { push(monthPage, { media: 'g-month' }); },
   'send-fixes': once(async () => {
     const amt = fixesAvailable(); if (amt <= 0) return;
-    const after = forecast({ extra: amt });
-    const ok = await alertBox({ title: `Add ${usd(amt, 2)} to Iceland?`, msg: `This moves sample money from checking to Maya's Stash. Your thinnest moment before pay day becomes ${usd(after.pre.bal)}.`, actions: [{ label: `Add ${usd(amt, 2)} in demo`, style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
+    const before = safeNow(), afterSafe = safety(forecast({ extra: amt })).safe;
+    const ok = await alertBox({ title: `Add ${usd(amt, 2)} to Iceland?`, msg: `Moves sample money from checking to Maya's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${usd(before, 2)}` : `drops to ${usd(afterSafe, 2)}`}.`, actions: [{ label: `Add ${usd(amt, 2)} in demo`, style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
     const amt2 = fixesAvailable();
     if (!ok || amt2 <= 0) return;
     const from = S.iceland.saved;
@@ -1540,6 +1561,11 @@ const H = {
   ask(el) { send(el.dataset.q); },
   send() { send($('#chat-input').value); },
   voice() { voiceSheet(); },
+  about() {
+    const a = $('.about');
+    openSheet(`<div class="sheet-head"><h2 data-title>About this prototype</h2><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
+      <div class="body about-sheet">${a.innerHTML.replace(/<h1[^>]*>[\s\S]*?<\/h1>/, '').replace(/id="[^"]*"/g, '')}</div>`);
+  },
   'send-voice'() {
     if (S.chat.busy) return;
     const t = $('#voice-text').value.trim();
@@ -1562,6 +1588,17 @@ app.addEventListener('change', e => {
   if (e.target.id === 'car-late') H['toggle-car'](e.target);
 });
 document.addEventListener('keydown', e => {
+  if (e.key === 'Tab') {
+    const box = alertOpen ? $('#layer .alert') : sheetEl ? sheetEl.sh : null;
+    if (box) {
+      const f = $$('button:not([disabled]), input, textarea, [tabindex="0"]', box).filter(x => x.offsetParent !== null);
+      if (f.length) {
+        const i = f.indexOf(document.activeElement);
+        if (e.shiftKey && (i <= 0)) { e.preventDefault(); f[f.length - 1].focus(); }
+        else if (!e.shiftKey && (i === f.length - 1 || i === -1)) { e.preventDefault(); f[0].focus(); }
+      }
+    }
+  }
   if (e.key === 'Enter' && e.target.id === 'chat-input') { e.preventDefault(); send(e.target.value); }
   if (e.key === 'Enter' && e.target.id === 'payday') { e.preventDefault(); H['save-payday'](); }
   if (e.key === 'Escape') {
@@ -1579,7 +1616,7 @@ document.addEventListener('keydown', e => {
   }
 });
 
-$('#tab-chat').addEventListener('scroll', e => e.currentTarget.classList.toggle('scrolled', e.currentTarget.scrollTop > 4), { passive: true });
+['#tab-chat', '#tab-money', '#tab-today'].forEach(id => $(id).addEventListener('scroll', e => e.currentTarget.classList.toggle('scrolled', e.currentTarget.scrollTop > 4), { passive: true }));
 renderToday(); renderMoney(); renderChat();
 selectTab('today');
 })();
