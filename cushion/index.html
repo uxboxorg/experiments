@@ -513,31 +513,59 @@ button.row[disabled] { cursor: default; }
 }
 
 
-/* ---------- Liquid Glass: real refraction where the browser supports SVG backdrop filters ----------
-   A per-size displacement map bends the backdrop at the bezel like a lens, with a slight
-   colour split. Other browsers keep the frosted fallback above. */
-:root { --lg-tint: rgba(255, 255, 255, .22); --lg-tint-strong: rgba(255, 255, 255, .34); --lg-rim: rgba(255, 255, 255, .85); --lg-rim-low: rgba(255, 255, 255, .35); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --lg-tint: rgba(40, 40, 46, .32); --lg-tint-strong: rgba(40, 40, 46, .44); --lg-rim: rgba(255, 255, 255, .42); --lg-rim-low: rgba(255, 255, 255, .14); } }
-:root[data-theme="dark"] { --lg-tint: rgba(40, 40, 46, .32); --lg-tint-strong: rgba(40, 40, 46, .44); --lg-rim: rgba(255, 255, 255, .42); --lg-rim-low: rgba(255, 255, 255, .14); }
-.lg-on .lg {
-  background: var(--lg-tint) !important;
-  box-shadow:
-    inset 1.5px 1.5px 0 -.5px var(--lg-rim),
-    inset -1px -1px 0 -.5px var(--lg-rim-low),
-    inset 0 0 14px rgba(255, 255, 255, .10),
-    0 8px 24px rgba(0, 0, 0, .14), 0 1px 3px rgba(0, 0, 0, .10) !important;
+/* ---------- Liquid Glass, ported from React Bits' GlassSurface (SVG mode) ----------
+   Chromium: an SVG displacement map refracts the backdrop with a red/green/blue split at the rim.
+   Safari and Firefox can't run SVG backdrop filters, so they get GlassSurface's frosted fallback. */
+:root {
+  --gs-line: rgba(0, 0, 0, .15); --gs-glow: rgba(0, 0, 0, .10);
+  --gs-fb-bg: rgba(255, 255, 255, .12); --gs-fb-top: rgba(255, 255, 255, .85); --gs-fb-bottom: rgba(255, 255, 255, .35);
+  --gs-fb-line: rgba(0, 0, 0, .12); --gs-fb-glow: rgba(255, 255, 255, .28);
+  --gs-sheen-a: rgba(255, 255, 255, .42); --gs-sheen-b: rgba(255, 255, 255, .18);
+  --gs-rim-a: rgba(255, 255, 255, .7); --gs-rim-b: rgba(255, 255, 255, .1); --gs-rim-c: rgba(255, 255, 255, .08); --gs-rim-d: rgba(255, 255, 255, .42);
 }
-.lg-on .tabbar .lg { background: var(--lg-tint-strong) !important; }
-.lg-on .media .lg, .lg-on .lg.on-media, .lg-on .app[data-tab="chat"] .tabbar .lg { background: rgba(255, 255, 255, .12) !important; }
-.lg-on .dock .btn.lg { background: rgba(255, 255, 255, .16) !important; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --gs-line: rgba(255, 255, 255, .35); --gs-glow: rgba(255, 255, 255, .15);
+  --gs-fb-bg: rgba(255, 255, 255, .04); --gs-fb-top: rgba(255, 255, 255, .3); --gs-fb-bottom: rgba(255, 255, 255, .08);
+  --gs-fb-line: rgba(255, 255, 255, .28); --gs-fb-glow: rgba(255, 255, 255, .10);
+  --gs-sheen-a: rgba(255, 255, 255, .14); --gs-sheen-b: rgba(255, 255, 255, .05);
+  --gs-rim-a: rgba(255, 255, 255, .34); --gs-rim-b: rgba(255, 255, 255, .03); --gs-rim-c: rgba(255, 255, 255, .02); --gs-rim-d: rgba(255, 255, 255, .18);
+} }
+:root[data-theme="dark"] {
+  --gs-line: rgba(255, 255, 255, .35); --gs-glow: rgba(255, 255, 255, .15);
+  --gs-fb-bg: rgba(255, 255, 255, .04); --gs-fb-top: rgba(255, 255, 255, .3); --gs-fb-bottom: rgba(255, 255, 255, .08);
+  --gs-fb-line: rgba(255, 255, 255, .28); --gs-fb-glow: rgba(255, 255, 255, .10);
+  --gs-sheen-a: rgba(255, 255, 255, .14); --gs-sheen-b: rgba(255, 255, 255, .05);
+  --gs-rim-a: rgba(255, 255, 255, .34); --gs-rim-b: rgba(255, 255, 255, .03); --gs-rim-c: rgba(255, 255, 255, .02); --gs-rim-d: rgba(255, 255, 255, .18);
+}
+.gs { --glass-frost: 0; }
+.tabbar .gs, .composer.gs { --glass-frost: .1; }
+.gs-svg {
+  background: rgba(255, 255, 255, var(--glass-frost)) !important;
+  box-shadow:
+    inset 0 0 2px 1px var(--gs-line),
+    inset 0 0 10px 4px var(--gs-glow),
+    0 4px 16px rgba(17, 17, 26, .05), 0 8px 24px rgba(17, 17, 26, .05), 0 16px 56px rgba(17, 17, 26, .05),
+    inset 0 4px 16px rgba(17, 17, 26, .05), inset 0 8px 24px rgba(17, 17, 26, .05), inset 0 16px 56px rgba(17, 17, 26, .05) !important;
+}
+.gs-fallback {
+  background: rgba(255, 255, 255, calc(.12 + var(--glass-frost) * .5)) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(1.4) brightness(1.04) !important;
+  backdrop-filter: blur(12px) saturate(1.4) brightness(1.04) !important;
+  box-shadow:
+    inset 0 1px 0 0 var(--gs-fb-top), inset 0 -1px 0 0 var(--gs-fb-bottom),
+    inset 0 0 2px 1px var(--gs-fb-line), inset 0 0 12px 3px var(--gs-fb-glow),
+    0 4px 16px rgba(17, 17, 26, .06), 0 8px 24px rgba(17, 17, 26, .06), 0 16px 56px rgba(17, 17, 26, .06) !important;
+}
+.circle-btn.gs, .pill.gs, .btn.gs { position: relative; }
+.gs-fallback::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; padding: 3px;
+  background:
+    linear-gradient(135deg, var(--gs-sheen-a) 0%, transparent 42%, transparent 64%, var(--gs-sheen-b) 100%) padding-box,
+    linear-gradient(150deg, var(--gs-rim-a), var(--gs-rim-b) 45%, var(--gs-rim-c) 60%, var(--gs-rim-d)) border-box;
+}
+.gs-fallback > *, .gs-svg > * { position: relative; z-index: 1; }
+.tabbar .tabs.gs > .lens { position: absolute; z-index: 0; }
 
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.app { -webkit-user-select: none; user-select: none; }
-.app input, .app textarea { -webkit-user-select: text; user-select: text; }
-#tab-chat .suggest button { background: rgba(0, 0, 0, .2); }
-.media .foot { opacity: 1; color: var(--on-media-2); }
-.sheet .foot, .page:not(.media) .foot { opacity: 1; color: var(--label2); }
-.detail h1 { font-size: 26px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
@@ -690,7 +718,7 @@ const BANKS = [
 ];
 const TX = [
   { id: 'bb', emoji: '☕️', name: 'Bonanza Coffee', note: '14th visit this month · €94 so far', amt: -4.06, cat: 'Eating out', when: 'Today, 08:12', insight: 'Coffee is most of why eating out is €130 over this month. Ten fewer visits would close the gap.' },
-  { id: 'wf', emoji: '🥬', name: 'Lidl', note: 'Groceries · normal for a Saturday', amt: -86.40, cat: 'Groceries', when: 'Saturday, 17:40', insight: 'Right in line with your usual Saturday shop. Groceries are as expected for August.' },
+  { id: 'wf', emoji: '🥬', name: 'Lidl', note: 'Normal for a Saturday', amt: -86.40, cat: 'Groceries', when: 'Saturday, 17:40', insight: 'Right in line with your usual Saturday shop. Groceries are as expected for August.' },
   { id: 'sp', emoji: '🎧', name: 'Spotify', note: 'Second Individual plan', amt: -10.99, cat: 'Subscriptions', when: '21 Aug', insight: 'You also pay for Spotify Family on this card. This one looks like a leftover from March.' },
   { id: 'sh', emoji: '⛽️', name: 'Shell', note: 'Transport · as expected', amt: -52.10, cat: 'Transport', when: '20 Aug', insight: 'Fuel is steady. Transport is right where it usually sits.' },
 ];
@@ -1035,7 +1063,7 @@ function monthPage() {
   const bills = fc.ev.map(e => `
     <div class="row${e.car ? ' car-row' : ''}" style="padding-left:0;padding-right:0;--inset:0px">
       <span class="grow t" style="font-size:15px">${e.name}</span>
-      <span class="s" style="margin:0;min-width:52px;text-align:right">${dayLabel(e.day).toUpperCase()}</span>
+      <span class="s" style="margin:0;min-width:52px;text-align:right">${dayLabel(e.day)}</span>
       <span class="v" style="font-size:15px;min-width:76px;text-align:right">${e.amt > 0 ? '+' : ''}${eur(e.amt)}</span>
     </div>`).join('');
   return `
@@ -1651,77 +1679,82 @@ document.addEventListener('keydown', e => {
 renderToday(); renderMoney(); renderChat();
 selectTab('today');
 
-/* ---------------- Liquid Glass refraction ---------------- */
+/* ---------------- Liquid Glass (React Bits GlassSurface, SVG mode) ---------------- */
 (function liquidGlass() {
-  const brands = (navigator.userAgentData && navigator.userAgentData.brands) || [];
-  const chromium = brands.some(b => /Chromium|Google Chrome|Microsoft Edge/.test(b.brand));
-  if (!chromium) return; // Safari and Firefox can't use SVG filters as backdrop filters
-  document.documentElement.classList.add('lg-on');
+  const ua = navigator.userAgent;
+  const isWebkit = /Safari/.test(ua) && !/Chrome/.test(ua);
+  const isFirefox = /Firefox/.test(ua);
+  const probe = document.createElement('div');
+  probe.style.backdropFilter = 'url(#x)';
+  const svgOK = !isWebkit && !isFirefox && probe.style.backdropFilter !== '';
   const SEL = '.tabbar .tabs, .tabbar .gear, .composer, .circle-btn.glass, .pill.glass, .btn.glass';
   const defs = $('#lg-defs');
+  const NS = 'http://www.w3.org/2000/svg';
   const made = new Map();
   let n = 0;
+  // GlassSurface defaults
+  const G = { borderWidth: .07, brightness: 50, opacity: .93, blur: 11, displace: .7, distortionScale: -180, red: 0, green: 10, blue: 20, mix: 'difference', saturation: 1 };
 
-  // Displacement map for a rounded rectangle: zero in the middle, bending toward the rim
-  function mapURL(w, h, r, bezel) {
-    const c = document.createElement('canvas');
-    c.width = w; c.height = h;
-    const ctx = c.getContext('2d');
-    const img = ctx.createImageData(w, h);
-    const hw = w / 2, hh = h / 2;
-    for (let y = 0; y < h; y++) {
-      for (let x = 0; x < w; x++) {
-        const px = x + .5 - hw, py = y + .5 - hh;
-        const qx = Math.abs(px) - (hw - r), qy = Math.abs(py) - (hh - r);
-        const ox = Math.max(qx, 0), oy = Math.max(qy, 0);
-        const sd = Math.hypot(ox, oy) + Math.min(Math.max(qx, qy), 0) - r; // negative inside
-        let nx, ny;
-        if (qx > 0 && qy > 0) { const l = Math.hypot(qx, qy) || 1; nx = qx / l; ny = qy / l; }
-        else if (qx > qy) { nx = 1; ny = 0; } else { nx = 0; ny = 1; }
-        nx *= Math.sign(px) || 1; ny *= Math.sign(py) || 1;
-        const d = -sd;
-        let m = 0;
-        if (d > 0 && d < bezel) { const t = 1 - d / bezel; m = t * t * (3 - 2 * t); } // smooth convex rim
-        const i = (y * w + x) * 4;
-        // Sample from further out along the edge normal, like light bent by a convex lens
-        img.data[i] = 128 + Math.round(nx * m * 127);
-        img.data[i + 1] = 128 + Math.round(ny * m * 127);
-        img.data[i + 2] = 128;
-        img.data[i + 3] = 255;
-      }
-    }
-    ctx.putImageData(img, 0, 0);
-    return c.toDataURL();
+  function mapURL(w, h, r, k) {
+    const edge = Math.min(w, h) * (G.borderWidth * .5);
+    const svg = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="rg${k}" x1="100%" y1="0%" x2="0%" y2="0%"><stop offset="0%" stop-color="#0000"/><stop offset="100%" stop-color="red"/></linearGradient>
+        <linearGradient id="bg${k}" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#0000"/><stop offset="100%" stop-color="blue"/></linearGradient>
+        <filter id="sf${k}" filterUnits="userSpaceOnUse" x="0" y="0" width="${w}" height="${h}" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="${Math.min(G.blur, Math.min(w, h) / 4)}"/></filter>
+      </defs>
+      <rect x="0" y="0" width="${w}" height="${h}" fill="black"/>
+      <rect x="0" y="0" width="${w}" height="${h}" rx="${r}" fill="url(#rg${k})"/>
+      <rect x="0" y="0" width="${w}" height="${h}" rx="${r}" fill="url(#bg${k})" style="mix-blend-mode:${G.mix}"/>
+      <rect x="${edge}" y="${edge}" width="${w - edge * 2}" height="${h - edge * 2}" rx="${r}" fill="hsl(0 0% ${G.brightness}% / ${G.opacity})" filter="url(#sf${k})"/>
+    </svg>`;
+    return 'data:image/svg+xml,' + encodeURIComponent(svg);
+  }
+  // Rasterise the SVG map to PNG: filter images load more reliably as bitmaps
+  function rasterise(url, w, h, done) {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      try { done(c.toDataURL('image/png')); } catch (e) { done(url); }
+    };
+    img.onerror = () => done(url);
+    img.src = url;
   }
 
   function filterFor(w, h, r) {
     const key = `${w}x${h}r${r}`;
     if (made.has(key)) return made.get(key);
     const id = 'lg-' + (++n);
-    const bezel = Math.max(8, Math.min(h / 2, w / 2, 22) * .85);
-    const scale = Math.round(bezel * 1.6);
-    const NS = 'http://www.w3.org/2000/svg';
+    // Small controls get proportionally less distortion so icons and labels stay readable
+    const k = Math.max(.35, Math.min(1, Math.min(w, h) / 90));
+    const sc = o => ((G.distortionScale + o) * k).toFixed(1);
     const f = document.createElementNS(NS, 'filter');
     f.setAttribute('id', id);
-    f.setAttribute('filterUnits', 'userSpaceOnUse');
-    f.setAttribute('x', '0'); f.setAttribute('y', '0'); f.setAttribute('width', w); f.setAttribute('height', h);
+    f.setAttribute('x', '0%'); f.setAttribute('y', '0%'); f.setAttribute('width', '100%'); f.setAttribute('height', '100%');
     f.setAttribute('color-interpolation-filters', 'sRGB');
     f.innerHTML = `
-      <feImage href="${mapURL(w, h, r, bezel)}" x="0" y="0" width="${w}" height="${h}" preserveAspectRatio="none" result="map"/>
-      <feDisplacementMap in="SourceGraphic" in2="map" scale="${scale}" xChannelSelector="R" yChannelSelector="G" result="dr"/>
-      <feDisplacementMap in="SourceGraphic" in2="map" scale="${scale * 1.06}" xChannelSelector="R" yChannelSelector="G" result="dg"/>
-      <feDisplacementMap in="SourceGraphic" in2="map" scale="${scale * 1.12}" xChannelSelector="R" yChannelSelector="G" result="db"/>
-      <feColorMatrix in="dr" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/>
-      <feColorMatrix in="dg" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/>
-      <feColorMatrix in="db" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/>
-      <feBlend in="r" in2="g" mode="screen" result="rg"/>
-      <feBlend in="rg" in2="b" mode="screen"/>`;
+      <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map"/>
+      <feDisplacementMap in="SourceGraphic" in2="map" scale="${sc(G.red)}" xChannelSelector="R" yChannelSelector="G" result="dispRed"/>
+      <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red"/>
+      <feDisplacementMap in="SourceGraphic" in2="map" scale="${sc(G.green)}" xChannelSelector="R" yChannelSelector="G" result="dispGreen"/>
+      <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green"/>
+      <feDisplacementMap in="SourceGraphic" in2="map" scale="${sc(G.blue)}" xChannelSelector="R" yChannelSelector="G" result="dispBlue"/>
+      <feColorMatrix in="dispBlue" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blue"/>
+      <feBlend in="red" in2="green" mode="screen" result="rg"/>
+      <feBlend in="rg" in2="blue" mode="screen" result="output"/>
+      <feGaussianBlur in="output" stdDeviation="${G.displace}"/>`;
     defs.appendChild(f);
+    rasterise(mapURL(w, h, r, n), w, h, url => f.querySelector('feImage').setAttribute('href', url));
     made.set(key, id);
     return id;
   }
 
   function apply(el) {
+    el.classList.add('gs', svgOK ? 'gs-svg' : 'gs-fallback');
+    if (!svgOK) return;
     const w = Math.round(el.offsetWidth), h = Math.round(el.offsetHeight);
     if (!w || !h) return;
     const br = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
@@ -1729,9 +1762,7 @@ selectTab('today');
     const key = `${w}x${h}r${r}`;
     if (el.dataset.lg === key) return;
     el.dataset.lg = key;
-    el.classList.add('lg');
-    const id = filterFor(w, h, r);
-    const v = `url(#${id}) blur(1.5px) saturate(185%) brightness(1.04)`;
+    const v = `url(#${filterFor(w, h, r)}) saturate(${G.saturation})`;
     el.style.backdropFilter = v;
     el.style.webkitBackdropFilter = v;
   }
@@ -1739,10 +1770,7 @@ selectTab('today');
   const ro = new ResizeObserver(entries => entries.forEach(e => apply(e.target)));
   const seen = new WeakSet();
   function scan() {
-    $$(SEL, app).forEach(el => {
-      if (!seen.has(el)) { seen.add(el); ro.observe(el); }
-      apply(el);
-    });
+    $$(SEL, app).forEach(el => { if (!seen.has(el)) { seen.add(el); ro.observe(el); } apply(el); });
   }
   let queued = false;
   new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; scan(); }); } })
