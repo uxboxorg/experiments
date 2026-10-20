@@ -102,9 +102,9 @@ svg { display: block; }
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
-.about { max-width: 340px; display: grid; gap: 22px; min-width: 0; }
+.about { max-width: 340px; display: grid; gap: 18px; min-width: 0; }
 .about .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--page-muted); font-weight: 600; }
-.about h1 { margin: 0; font-size: 40px; line-height: 1.05; letter-spacing: -.025em; font-weight: 700; text-wrap: balance; }
+.about h1 { margin: 0; font-size: 36px; line-height: 1.05; letter-spacing: -.025em; font-weight: 700; text-wrap: balance; }
 .about p { margin: 0; color: var(--page-muted); font-size: 15px; line-height: 1.5; }
 .about h2 { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: var(--page-ink); }
 .about ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 14px; line-height: 1.4; color: var(--page-muted); }
@@ -229,7 +229,7 @@ button.row[disabled] { cursor: default; }
   scrollbar-width: none; overscroll-behavior: contain;
 }
 .tab-panel::-webkit-scrollbar, .page::-webkit-scrollbar { display: none; }
-.tab-panel { padding-bottom: 132px; --edge: var(--bg); }
+.tab-panel { padding-bottom: 132px; --edge: var(--bg); scroll-padding-bottom: 140px; scroll-padding-top: 70px; }
 .content { padding: 8px 16px 0; display: grid; gap: 28px; }
 .page { z-index: 20; background: var(--bg); --edge: var(--bg); transition: transform .5s cubic-bezier(.32, .72, 0, 1), filter .5s; will-change: transform; }
 .page.from-right { transform: translateX(100%); }
@@ -237,7 +237,8 @@ button.row[disabled] { cursor: default; }
 .page.under { transform: translateX(-28%); filter: brightness(.9); }
 .wrap { min-height: calc(100% - var(--top)); display: flex; flex-direction: column; padding-bottom: 40px; }
 .wrap:has(.dock) { padding-bottom: 0; }
-.media { color: var(--on-media); --edge: rgba(0, 0, 0, .14); }
+.media { color: var(--on-media); --edge: rgba(0, 0, 0, .22); }
+.media .edge-top { -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
 
 /* Scroll-edge effect: content softens as it passes under the status bar */
 .edge-top {
@@ -247,6 +248,10 @@ button.row[disabled] { cursor: default; }
   -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
   mask-image: linear-gradient(to bottom, #000 70%, transparent);
 }
+.page .edge-top { height: calc(var(--top) + 52px); margin-bottom: -52px; }
+.page .nav, .chat-title.pinned { position: sticky; top: var(--top); z-index: 7; }
+#tab-chat .edge-top.tall { transition: height .2s; }
+#tab-chat.scrolled .edge-top.tall { height: calc(var(--top) + 80px); margin-bottom: -80px; -webkit-mask-image: linear-gradient(to bottom, #000 82%, transparent); mask-image: linear-gradient(to bottom, #000 82%, transparent); background: linear-gradient(to bottom, rgba(110, 90, 50, .45), rgba(110, 90, 50, .25) 80%, transparent); -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); }
 .edge-btm {
   position: sticky; bottom: 0; z-index: 6; height: 40px; margin-top: -40px; flex: none; pointer-events: none;
   background: linear-gradient(to top, var(--edge), transparent);
@@ -280,7 +285,7 @@ button.row[disabled] { cursor: default; }
 .tabbar.away { transform: translateY(140px); }
 .tabbar .glass { background: var(--glass-strong); -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%); }
 .tabbar .tabs { flex: 1; height: 62px; border-radius: 99px; display: flex; padding: 4px; position: relative; }
-.tabbar .tab { flex: 1; display: grid; place-items: center; align-content: center; gap: 2px; font-size: 10px; font-weight: 600; color: var(--label); border-radius: 99px; position: relative; z-index: 1; transition: color .2s; }
+.tabbar .tab { flex: 1; display: grid; place-items: center; align-content: center; gap: 2px; font-size: 10px; font-weight: 500; color: var(--label); border-radius: 99px; position: relative; z-index: 1; transition: color .2s; }
 .tabbar .tab[aria-selected="true"] { color: var(--blue); }
 .tabbar .tab svg { width: 26px; height: 26px; }
 .tabbar .lens { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 3); border-radius: 99px; background: var(--fill); transition: transform .45s cubic-bezier(.3, 1.3, .5, 1); }
@@ -364,7 +369,8 @@ button.row[disabled] { cursor: default; }
 .callout svg { flex: none; margin-top: 1px; }
 .paused-badge { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; background: rgba(255, 255, 255, .22); }
 .dock { position: sticky; bottom: 0; z-index: 6; margin-top: auto; padding: 30px 20px 34px; display: grid; gap: 6px; }
-.dock::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, .28) 40%); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%); mask-image: linear-gradient(to bottom, transparent, #000 22%); }
+.dock::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, .3) 40%); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%); mask-image: linear-gradient(to bottom, transparent, #000 18%); }
+.dock .btn.glass[disabled] { opacity: .75; }
 .dock .btn.glass { background: rgba(255, 255, 255, .24); -webkit-backdrop-filter: blur(20px) saturate(160%); backdrop-filter: blur(20px) saturate(160%); }
 .detail { padding-bottom: 8px; }
 .chart { width: 100%; height: auto; }
@@ -398,8 +404,8 @@ button.row[disabled] { cursor: default; }
 
 /* ---------- Sheets, alerts, toast ---------- */
 .layer { position: absolute; inset: 0; z-index: 60; pointer-events: none; }
-.scrim { position: absolute; inset: 0; background: var(--scrim); opacity: 0; transition: opacity .35s; pointer-events: auto; }
-.scrim.show { opacity: 1; }
+.scrim { position: absolute; inset: 0; background: var(--scrim); opacity: 0; transition: opacity .35s; pointer-events: none; }
+.scrim.show { opacity: 1; pointer-events: auto; }
 .sheet {
   position: absolute; left: 8px; right: 8px; bottom: 8px; max-height: calc(100% - 70px); overflow-y: auto; scrollbar-width: none;
   border-radius: 40px; padding: 10px 20px 22px; background: var(--sheet);
@@ -520,9 +526,9 @@ button.row[disabled] { cursor: default; }
       </div>
 
       <div class="chat-bg g-chat" id="chat-bg" hidden></div>
-      <section class="tab-panel" id="tab-today" aria-label="Today"></section>
-      <section class="tab-panel" id="tab-money" aria-label="Money" hidden></section>
-      <section class="tab-panel" id="tab-chat" aria-label="Chat" hidden></section>
+      <section class="tab-panel" role="tabpanel" id="tab-today" aria-label="Today"></section>
+      <section class="tab-panel" role="tabpanel" id="tab-money" aria-label="Money" hidden></section>
+      <section class="tab-panel" role="tabpanel" id="tab-chat" aria-label="Chat" hidden></section>
       <div class="edge-bottom" id="edge-bottom"></div>
 
       <div class="composer glass on-media" id="composer" hidden>
@@ -659,7 +665,7 @@ function forecast(over = {}) {
     { day: sep(4), name: 'Freelance invoice', amt: 370 },
     { day: sep(st.payDay), name: 'Salary', amt: 3482 },
   ];
-  if (st.payDay >= 24) ev.push({ day: st.payDay - 24, name: 'Salary', amt: 3482 });
+  if (st.payDay >= 25) ev.push({ day: st.payDay - 24, name: 'Salary', amt: 3482 });
   if (!S.iceland.paused) ev.push({ day: sep(23), name: 'Iceland transfer', amt: -S.iceland.monthly });
   ev.sort((a, b) => a.day - b.day || b.amt - a.amt);
   const start = st.start - st.extra;
@@ -741,7 +747,7 @@ function renderToday() {
       <div class="safe">
         <div class="num" id="safe-num" aria-label="${usd(sf.safe, 2)} safe to spend today"><span class="cur">USD</span><span class="w">${whole}</span><span class="cents">.${cents}</span></div>
         <div class="cap">Safe to spend today</div>
-        <p class="why">${sf.daysToPay} days to pay day · ${sf.limitedByCash ? `held back to keep $1,000 in checking on ${dayLabel(sf.fc.pre.day)}` : `checking stays above $1,000 all month`}</p>
+        <p class="why">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day · ${sf.limitedByCash ? `held back to keep $1,000 in checking on ${dayLabel(sf.fc.pre.day)}` : `checking stays above $1,000 all month`}</p>
       </div>
       <div class="actions" id="actions">${cards || done}</div>
       <div>
@@ -749,7 +755,7 @@ function renderToday() {
         <div class="list">${TX.map(t => `
           <button class="row" data-act="tx" data-id="${t.id}" style="--inset:64px">
             <span class="merchant" aria-hidden="true">${t.emoji}</span>
-            <span class="grow"><div class="t">${t.name}</div><div class="s">${t.id === 'sp' && S.spotifyCancelled ? 'Cancelled · this was the last charge' : t.note}</div></span>
+            <span class="grow"><div class="t">${t.name}</div><div class="s">${t.id === 'sp' && S.spotifyCancelled ? 'Cancelled · last charge' : t.note}</div></span>
             <span class="v">${usd(t.amt, 2)}</span>
           </button>`).join('')}
         </div>
@@ -826,14 +832,14 @@ const SUGGEST = ['Can I afford a $600 flight in March?', 'Why is eating out up t
 function renderChat() {
   const c = S.chat;
   const head = c.title
-    ? `<div class="chat-title"><h1><span aria-hidden="true">${c.emoji}</span>${esc(c.title)}</h1><button class="circle-btn glass on-media" data-act="clear-chat" aria-label="Close conversation" ${c.busy ? 'disabled' : ''}>${I.x}</button></div>`
+    ? `<div class="chat-title pinned"><h1><span aria-hidden="true">${c.emoji}</span>${esc(c.title)}</h1><button class="circle-btn glass on-media" data-act="clear-chat" aria-label="Close conversation" ${c.busy ? 'disabled' : ''}>${I.x}</button></div>`
     : `<div class="chat-title"><h1 class="large-title">Chat</h1></div><p class="lede" style="margin:-10px 0 0;max-width:30ch">Ask about a purchase, a bill or a goal. I answer from your sample accounts.</p>`;
   const body = c.msgs.map((m, i) => m.role === 'user'
     ? `<div class="bubble-user">${esc(m.text)}</div>`
     : `<div class="ai" id="ai-${i}">${m.typing ? '<div class="typing" aria-label="Cushion is typing"><i></i><i></i><i></i></div>' : m.paras.map(p => `<p>${esc(p)}</p>`).join('')}</div>`).join('');
   const sug = c.msgs.length ? '' : `<div class="suggest">${SUGGEST.map(s => `<button class="glass on-media" data-act="ask" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>`;
   keepFocus(() => {
-    $('#tab-chat').innerHTML = `${edge}<div class="chat-wrap" aria-live="polite">${head}${body}${sug}</div>`;
+    $('#tab-chat').innerHTML = `${c.title ? edge.replace('edge-top', 'edge-top tall') : edge}<div class="chat-wrap" aria-live="polite">${head}${body}${sug}</div>`;
   });
   $('#composer').querySelectorAll('button').forEach(b => { b.disabled = c.busy; });
   updateChrome();
@@ -910,7 +916,7 @@ function icelandPage() {
       <p class="foot">Held in Maya's Stash at 4.3%, so it earns while it fills.<br>Nothing here is locked. You can take it back any time.</p>
     </div>
     <div class="dock">
-      <button class="btn glass" data-act="send-fixes" ${avail > 0 ? '' : 'disabled'}>${avail > 0 ? `Send the fixes money here · ${usd(avail, 2)}` : S.fixesSent ? 'Fixes money sent' : 'No fixes money yet'}</button>
+      <button class="btn glass" data-act="send-fixes" ${avail > 0 ? '' : 'disabled'}>${avail > 0 ? `Send the fixes money here · ${usd(avail, 2)}` : S.fixesSent ? '✓ Fixes money sent' : 'No fixes money yet'}</button>
       <button class="btn plain" data-act="change-monthly">Change the monthly amount</button>
       <p class="foot">Local demo · Sample balances only</p>
     </div>`;
@@ -1047,7 +1053,7 @@ function addAccountShell() {
 const stack = [];
 let navBusy = false;
 const lockNav = () => { navBusy = true; setTimeout(() => { navBusy = false; }, T); };
-function push(render, { modal = false, media = '', onMount } = {}) {
+function push(render, { modal = false, media = '', onMount, opener, kind } = {}) {
   if (navBusy) return null;
   lockNav();
   hideToast();
@@ -1064,7 +1070,8 @@ function push(render, { modal = false, media = '', onMount } = {}) {
   });
   el.render();
   el.modal = modal;
-  el.opener = document.activeElement;
+  el.kind = kind;
+  el.opener = opener || document.activeElement;
   el.openerKey = focusKey(el.opener);
   $('#pages').appendChild(el);
   const prev = stack[stack.length - 1];
@@ -1142,7 +1149,7 @@ function openSheet(html, { dark = false, onMount } = {}) {
   const sh = document.createElement('div'); sh.className = 'sheet' + (dark ? ' dark-sheet' : ''); sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-modal', 'true'); sh.setAttribute('aria-labelledby', id);
   sh.innerHTML = `<div class="grab"></div>${html.replace('data-title', `id="${id}"`)}`;
   layer.append(scrim, sh);
-  sheetEl = { scrim, sh, opener: document.activeElement, key: focusKey(document.activeElement) };
+  sheetEl = { scrim, sh, opener: document.activeElement, key: focusKey(document.activeElement), at: performance.now() };
   syncInert();
   requestAnimationFrame(() => requestAnimationFrame(() => { scrim.classList.add('show'); sh.classList.add('show'); }));
   onMount && onMount(sh);
@@ -1218,23 +1225,25 @@ function reply(q) {
   const sf = safety();
   const fc = sf.fc;
   const pay = ord(S.payDay);
-  const thin = dayLabel(fc.pre.day);
+  const thin = fc.pre.day ? dayLabel(fc.pre.day) : 'today';
+  const onThin = fc.pre.day ? `on ${thin}` : 'today';
   const spendToLow = r2(sf.safe * (fc.pre.day + 1));
   const room = r2(fc.pre.bal - COMFORT - spendToLow); // what can go out now and still keep the comfort line
   if (/dental|1,?430|dentist/.test(s)) {
-    if (room >= 1430) return { title: 'The dental bill', emoji: '🦷', paras: [`Yes. Paying $1,430 now and spending your safe-to-spend each day still leaves ${usd(fc.pre.bal - spendToLow - 1430)} on ${thin}, above your comfort line.`] };
+    if (room >= 1430) return { title: 'The dental bill', emoji: '🦷', paras: [`Yes. Paying $1,430 now and spending your safe-to-spend each day still leaves ${usd(fc.pre.bal - spendToLow - 1430)} ${onThin}, above your comfort line.`] };
     const now = Math.max(0, Math.floor(room / 10) * 10);
     return { title: 'The dental bill', emoji: '🦷', paras: [
-      `Not all at once. The month ahead shows ${usd(fc.pre.bal)} on ${thin} before everyday spending. Take off ${usd(spendToLow)} of spending at your safe-to-spend pace and $1,430 for the bill, and you'd be at ${usd(fc.pre.bal - spendToLow - 1430)}, under your $1,000 comfort line.`,
+      `Not all at once. The month ahead shows ${usd(fc.pre.bal)} ${onThin} before everyday spending. Take off ${usd(spendToLow)} of spending at your safe-to-spend pace and $1,430 for the bill, and you'd be at ${usd(fc.pre.bal - spendToLow - 1430)}, under your $1,000 comfort line.`,
       now > 0 ? `Pay ${usd(now)} now and the other ${usd(1430 - now)} after pay day on the ${pay}. Or take it from Maya's Stash, which has ${usd(acct('stash').bal)}.` : `Ask the office to bill you after pay day on the ${pay}, or take it from Maya's Stash, which has ${usd(acct('stash').bal)}.`] };
   }
   if (/flight|\$?600|march|book/.test(s) && !/iceland/.test(s)) {
     const after = r2(fc.pre.bal - spendToLow - 600);
-    if (room >= 600) return { title: 'The March flight', emoji: '🎟️', paras: [`Yes. Even after $600 and your usual daily spending, you'd keep ${usd(after)} on ${thin}, still above your comfort line.`] };
+    if (room >= 600) return { title: 'The March flight', emoji: '🎟️', paras: [`Yes. Even after $600 and your usual daily spending, you'd keep ${usd(after)} ${onThin}, still above your comfort line.`] };
     const hits = fc.ev.filter(e => e.day <= fc.pre.day && e.day > fc.pre.day - 6 && e.amt < 0).map(e => e.name.toLowerCase());
-    const why = hits.length ? `${hits.join(' and ').replace(/^./, c => c.toUpperCase())} ${hits.length > 1 ? 'both land' : 'lands'} by ${thin}.` : `Your checking is lowest on ${thin}.`;
+    const list = hits.length > 1 ? `${hits.slice(0, -1).join(', ')} and ${hits[hits.length - 1]}` : hits[0];
+    const why = hits.length ? `${list.replace(/^./, c => c.toUpperCase())} ${hits.length === 1 ? 'lands' : hits.length === 2 ? 'both land' : 'all land'} by ${thin}.` : `Your checking is lowest ${onThin}.`;
     return { title: 'The March flight', emoji: '🎟️', paras: [
-      `Yes, but not before pay day. ${why} The month ahead shows ${usd(fc.pre.bal)} on ${thin}, but that's before everyday spending. Add ${usd(spendToLow)} of that at your safe-to-spend pace and $600 for the flight, and you'd be at ${usd(after)}, under your comfort line.`,
+      `Yes, but not before pay day. ${why} The month ahead shows ${usd(fc.pre.bal)} ${onThin}, but that's before everyday spending. Add ${usd(spendToLow)} of that at your safe-to-spend pace and $600 for the flight, and you'd be at ${usd(after)}, under your comfort line.`,
       sf.limitedByCash ? `Book after pay day on the ${pay}, when the flight no longer competes with this stretch.` : `Book after pay day on the ${pay} and you keep your full ${usd(sf.safe, 2)} a day.`] };
   }
   if (/eat|coffee|blue bottle|restaurant/.test(s)) {
@@ -1251,14 +1260,15 @@ function reply(q) {
   }
   if (/safe|spend|today/.test(s)) {
     return { title: 'Safe to spend', emoji: '💧', paras: [sf.limitedByCash
-      ? `You can spend ${usd(sf.safe, 2)} today. Your budget allows ${usd(sf.budget, 2)}, but I held it back so checking stays above $1,000 on ${thin}.`
-      : `You can spend ${usd(sf.safe, 2)} today. That's your flexible budget for the day, and checking still stays above $1,000 on ${thin}.`] };
+      ? `You can spend ${usd(sf.safe, 2)} today. Your budget allows ${usd(sf.budget, 2)}, but I held it back so checking stays above $1,000 ${onThin}.`
+      : `You can spend ${usd(sf.safe, 2)} today. That's your flexible budget for the day, and checking still stays above $1,000 ${onThin}.`] };
   }
   return { title: 'Your question', emoji: '💬', paras: ['In this demo I can only see the sample accounts. Try asking about a $600 flight, the dental bill, eating out or the Iceland goal.'] };
 }
 async function send(text) {
   text = (text || '').trim();
-  if (!text || S.chat.busy) return;
+  if (!text) return;
+  if (S.chat.busy) { S.chat.queued = text; $('#chat-input').value = ''; toast('Sending after this answer'); return; }
   S.chat.busy = true;
   const r = reply(text);
   if (!S.chat.title) { S.chat.title = r.title; S.chat.emoji = r.emoji; }
@@ -1288,6 +1298,7 @@ async function send(text) {
   S.chat.busy = false;
   renderChat();
   panel.scrollTop = panel.scrollHeight;
+  if (S.chat.queued) { const q = S.chat.queued; S.chat.queued = null; return send(q); }
   if (S.tab === 'chat' && !stack.length) $('#chat-input').focus({ preventScroll: true });
 }
 
@@ -1320,7 +1331,7 @@ function fixesSheet() {
         </div>`).join('')}
         <div class="row">
           <span class="grow"><div class="t" style="font-size:16px">Second Spotify plan</div><div class="s">${S.spotifyCancelled ? 'Cancelled · $13.99 a month back in your budget' : S.dismissed.includes('spotify') ? 'Dismissed · $13.99 a month' : 'Saves $13.99 a month · needs your go-ahead'}</div></span>
-          ${S.spotifyCancelled ? `<span class="tag">Done</span>` : `<button class="pill" style="background:var(--blue);color:#fff;height:32px" data-act="fix-review">Review</button>`}
+          ${S.spotifyCancelled ? `<span class="tag">✓ Cancelled</span>` : `<button class="pill" style="background:var(--blue);color:#fff;height:32px" data-act="fix-review">Review</button>`}
         </div>
       </div>
       <div class="list" style="background:var(--fill)">
@@ -1423,7 +1434,7 @@ const H = {
   }),
   tx(el) { txSheet(TX.find(t => t.id === el.dataset.id)); },
   fixes() { fixesSheet(); },
-  'fix-review'() { closeSheet(true); push(spotifyPage, { media: 'g-teal' }); },
+  'fix-review'() { const o = sheetEl && sheetEl.opener; closeSheet(true); push(spotifyPage, { media: 'g-teal', opener: o }); },
   'fix-to-iceland'() {
     if (fixesAvailable() <= 0) return;
     closeSheet();
@@ -1467,7 +1478,7 @@ const H = {
   },
   accounts() { push(accountsPage, { modal: true, media: 'g-accounts' }); },
   'add-account'() {
-    push(addAccountShell, { onMount: el => {
+    push(addAccountShell, { kind: 'add', onMount: el => {
       const inp = $('#bank-search', el);
       const res = $('#bank-results', el);
       inp.value = el.q || '';
@@ -1480,17 +1491,19 @@ const H = {
     const b = BANKS.find(x => x.id === el.dataset.id);
     if (!b || S.accounts.some(a => a.id === b.id)) return;
     el.innerHTML = '<span class="spinner"></span> Connecting…'; el.disabled = true;
+    const mySheet = sheetEl && sheetEl.sh;
     await wait(reduced ? 0 : 1000);
+    if (!sheetEl || sheetEl.sh !== mySheet) return; // the sheet was closed while connecting
     closeSheet();
     S.accounts.push({ id: b.id, name: b.name, sub: b.sub.split(' · ')[0], mask: b.mask, kind: b.kind, bal: b.bal, color: b.color, mono: b.mono });
     S.linked.push({ name: b.name, bal: b.bal });
-    pop(true);
+    if (stack.length && stack[stack.length - 1].kind === 'add') pop(true);
     refresh();
     const row = $(`[data-acct="${b.id}"]`); if (row) { row.classList.add('flash'); setTimeout(() => row.focus({ preventScroll: false }), T + 40); }
     toast(`${b.name} added · ${usd(b.bal)}`);
   }),
   back(el) { if (el.closest('.page') !== stack[stack.length - 1]) return; pop(); },
-  'close-sheet'() { closeSheet(); },
+  'close-sheet'() { if (sheetEl && performance.now() - sheetEl.at < 400) return; closeSheet(); },
   ask(el) { send(el.dataset.q); },
   send() { send($('#chat-input').value); },
   voice() { voiceSheet(); },
@@ -1498,9 +1511,10 @@ const H = {
     if (S.chat.busy) return;
     const t = $('#voice-text').value.trim();
     if (!t) { toast('Type or keep a transcript to send', { error: true }); $('#voice-text').focus(); return; }
-    closeSheet(); send(t);
+    closeSheet(true); send(t);
+    setTimeout(() => $('#chat-input').focus({ preventScroll: true }), 30);
   },
-  'clear-chat'() { if (S.chat.busy) return; S.chat = { title: null, emoji: null, msgs: [], busy: false }; renderChat(); setTimeout(() => $('#chat-input').focus({ preventScroll: true }), 50); },
+  'clear-chat'() { if (S.chat.busy) return; S.chat = { title: null, emoji: null, msgs: [], busy: false, queued: null }; renderChat(); setTimeout(() => $('#chat-input').focus({ preventScroll: true }), 50); },
 };
 
 app.addEventListener('click', e => {
@@ -1520,17 +1534,19 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (alertOpen) alertOpen.cancel();
     else if (sheetEl) closeSheet();
-    else if (stack.length) pop();
+    else if (stack.length) { if (navBusy) setTimeout(() => pop(), T); else pop(); }
     else if (S.tab === 'chat' && S.chat.msgs.length) H['clear-chat']();
   }
   // Arrow keys move between tabs, like a native tab bar
-  if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && e.target.classList && e.target.classList.contains('tab')) {
+  if (['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key) && e.target.classList && e.target.classList.contains('tab')) {
+    e.preventDefault();
     const order = ['today', 'money', 'chat'];
-    const i = (order.indexOf(S.tab) + (e.key === 'ArrowRight' ? 1 : 2)) % 3;
+    const i = e.key === 'Home' ? 0 : e.key === 'End' ? 2 : (order.indexOf(S.tab) + (e.key === 'ArrowRight' ? 1 : 2)) % 3;
     selectTab(order[i]); $(`.tab[data-tab="${order[i]}"]`).focus();
   }
 });
 
+$('#tab-chat').addEventListener('scroll', e => e.currentTarget.classList.toggle('scrolled', e.currentTarget.scrollTop > 4), { passive: true });
 renderToday(); renderMoney(); renderChat();
 selectTab('today');
 })();
