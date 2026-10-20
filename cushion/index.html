@@ -205,7 +205,7 @@ svg { display: block; }
 .media .field:focus { box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .8); }
 
 /* Inset grouped list */
-.section-h { font-size: 13px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: var(--label2); padding: 0 4px 8px; }
+.section-h { font-size: 13px; font-weight: 500; letter-spacing: .02em; text-transform: uppercase; color: var(--label2); padding: 0 4px 8px; }
 .media .section-h { color: var(--on-media-2); }
 .list { background: var(--card); border-radius: 22px; overflow: hidden; }
 .row { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 10px 16px; position: relative; width: 100%; text-align: left; }
@@ -216,6 +216,7 @@ svg { display: block; }
 .row .v { font-variant-numeric: tabular-nums; font-size: 17px; white-space: nowrap; }
 .row .chev { color: var(--label3); }
 button.row:active { background: var(--fill); }
+.row:focus-visible { outline-offset: -3px; border-radius: 14px; }
 button.row[disabled] { cursor: default; }
 .media .list { background: rgba(255, 255, 255, .12); }
 .media .row + .row::before { background: var(--media-sep); }
@@ -248,10 +249,23 @@ button.row[disabled] { cursor: default; }
   -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
   mask-image: linear-gradient(to bottom, #000 70%, transparent);
 }
-.page .edge-top { height: calc(var(--top) + 52px); margin-bottom: -52px; }
-.page .nav, .chat-title.pinned { position: sticky; top: var(--top); z-index: 7; }
-#tab-chat .edge-top.tall { transition: height .2s; }
-#tab-chat.scrolled .edge-top.tall { height: calc(var(--top) + 80px); margin-bottom: -80px; -webkit-mask-image: linear-gradient(to bottom, #000 82%, transparent); mask-image: linear-gradient(to bottom, #000 82%, transparent); background: linear-gradient(to bottom, rgba(110, 90, 50, .45), rgba(110, 90, 50, .25) 80%, transparent); -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); }
+.page { --bar-bg: var(--bg); }
+.g-month { --bar-bg: rgba(16, 62, 132, .82); }
+.g-iceland { --bar-bg: rgba(108, 118, 82, .85); }
+.g-teal { --bar-bg: rgba(104, 136, 135, .85); }
+.g-accounts { --bar-bg: rgba(24, 98, 200, .85); }
+.page .nav { position: sticky; top: 0; z-index: 7; padding-top: calc(var(--top) + 4px); }
+.page .nav::before, .chat-title.pinned::before {
+  content: ""; position: absolute; z-index: -1; inset: 0 0 -18px; pointer-events: none;
+  background: var(--bar-bg); -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent); mask-image: linear-gradient(to bottom, #000 72%, transparent);
+  opacity: 0; transition: opacity .25s;
+}
+.page.scrolled .nav::before, #tab-chat.scrolled .chat-title.pinned::before { opacity: 1; }
+.nav .inline { position: absolute; left: 76px; right: 76px; bottom: 21px; text-align: center; font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0; transform: translateY(6px); transition: opacity .25s, transform .25s; pointer-events: none; }
+.page.scrolled .nav .inline { opacity: 1; transform: none; }
+.chat-title.pinned { position: sticky; top: 0; z-index: 7; margin: 0 -16px; padding: calc(var(--top) + 4px) 16px 12px; --bar-bg: rgba(122, 96, 58, .86); }
+#tab-chat .chat-title.pinned::before { inset: 0 0 -10px; -webkit-mask-image: linear-gradient(to bottom, #000 86%, transparent); mask-image: linear-gradient(to bottom, #000 86%, transparent); }
 .edge-btm {
   position: sticky; bottom: 0; z-index: 6; height: 40px; margin-top: -40px; flex: none; pointer-events: none;
   background: linear-gradient(to top, var(--edge), transparent);
@@ -260,11 +274,11 @@ button.row[disabled] { cursor: default; }
   mask-image: linear-gradient(to top, #000 40%, transparent);
 }
 .edge-bottom {
-  position: absolute; z-index: 14; left: 0; right: 0; bottom: 0; height: 128px; pointer-events: none;
-  background: linear-gradient(to top, var(--bg) 10%, transparent);
+  position: absolute; z-index: 14; left: 0; right: 0; bottom: 0; height: 136px; pointer-events: none;
+  background: linear-gradient(to top, var(--bg) 35%, transparent);
   -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-  -webkit-mask-image: linear-gradient(to top, #000 45%, transparent);
-  mask-image: linear-gradient(to top, #000 45%, transparent);
+  -webkit-mask-image: linear-gradient(to top, #000 60%, transparent);
+  mask-image: linear-gradient(to top, #000 60%, transparent);
   transition: opacity .3s;
 }
 .app[data-tab="chat"] .edge-bottom { background: none; height: 190px; }
@@ -369,7 +383,7 @@ button.row[disabled] { cursor: default; }
 .callout svg { flex: none; margin-top: 1px; }
 .paused-badge { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; background: rgba(255, 255, 255, .22); }
 .dock { position: sticky; bottom: 0; z-index: 6; margin-top: auto; padding: 30px 20px 34px; display: grid; gap: 6px; }
-.dock::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, .3) 40%); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%); mask-image: linear-gradient(to bottom, transparent, #000 18%); }
+.dock::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, .4) 40%); -webkit-backdrop-filter: blur(26px); backdrop-filter: blur(26px); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 10%); mask-image: linear-gradient(to bottom, transparent, #000 10%); }
 .dock .btn.glass[disabled] { opacity: .75; }
 .dock .btn.glass { background: rgba(255, 255, 255, .24); -webkit-backdrop-filter: blur(20px) saturate(160%); backdrop-filter: blur(20px) saturate(160%); }
 .detail { padding-bottom: 8px; }
@@ -476,6 +490,7 @@ button.row[disabled] { cursor: default; }
   .device { width: 100%; height: 100svh; padding: 0; border-radius: 0; box-shadow: none; background: var(--bg); }
   .app { width: 100%; height: 100%; border-radius: 0; --top: max(14px, env(safe-area-inset-top, 0px)); }
   .island, .statusbar, .home-ind { display: none; }
+  body { background: var(--bg); }
   .tabbar { bottom: max(14px, env(safe-area-inset-bottom, 0px)); }
   .composer { bottom: calc(max(14px, env(safe-area-inset-bottom, 0px)) + 74px); }
   .composer.solo { bottom: max(14px, env(safe-area-inset-bottom, 0px)); }
@@ -656,6 +671,7 @@ const DAYS = 38;
 const sep = d => 7 + d; // day offset of a September date
 const payIndex = pd => pd > 24 ? pd - 24 : sep(pd); // next pay day on or after tomorrow
 const dayLabel = i => i <= 7 ? `${24 + i} Aug` : `${i - 7} Sep`;
+const onDay = i => i === 0 ? 'today' : `on ${dayLabel(i)}`;
 function forecast(over = {}) {
   const st = Object.assign({ carLate: S.carLate, payDay: S.payDay, start: sumKind('cash'), extra: 0 }, over);
   const ev = [
@@ -705,7 +721,7 @@ function restoreFocus(opener, key, fallbacks = []) {
   if (!n) { const t = stack[stack.length - 1]; n = t ? t.querySelector('.nav button') : $('.tab[aria-selected="true"]'); }
   n && n.focus({ preventScroll: true });
 }
-const FALLBACK = ['.page:last-child .dock button:not([disabled])', '.page:last-child .nav button', '.action .ok', '#all-done', '.tab[aria-selected="true"]'];
+const FALLBACK = ['.page:last-child .dock button:not([disabled])', '.page:last-child .nav button', '.action button.ok', '#all-done', '.tab[aria-selected="true"]'];
 function keepFocus(fn) {
   const a = document.activeElement;
   const key = a && a !== document.body && (a.id ? '#' + a.id : a.dataset && a.dataset.act ? `[data-act="${a.dataset.act}"]${a.dataset.id ? `[data-id="${a.dataset.id}"]` : ''}` : null);
@@ -722,7 +738,7 @@ function renderToday() {
   const sf = safety();
   const n = S.actions.length;
   const lead = n === 2 ? 'Two things need your action' : n === 1 ? 'One thing needs your action' : 'Nothing needs you today.';
-  const tail = n ? ' to secure your spend.' : sf.limitedByCash ? ` Checking runs thin on ${dayLabel(sf.fc.pre.day)}, so today's number is lower.` : ' Your spend is covered.';
+  const tail = n ? ' to secure your spend.' : sf.limitedByCash ? ` Checking runs thin ${onDay(sf.fc.pre.day)}, so today's number is lower.` : ' Your spend is covered.';
   const [whole, cents] = sf.safe.toFixed(2).split('.');
   const saveAfter = safety(forecast({ extra: 1200 })).safe;
   const saveLine = saveAfter >= sf.safe ? "today's safe-to-spend stays the same" : `today's safe-to-spend drops to ${usd(saveAfter, 2)}`;
@@ -747,7 +763,7 @@ function renderToday() {
       <div class="safe">
         <div class="num" id="safe-num" aria-label="${usd(sf.safe, 2)} safe to spend today"><span class="cur">USD</span><span class="w">${whole}</span><span class="cents">.${cents}</span></div>
         <div class="cap">Safe to spend today</div>
-        <p class="why">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day · ${sf.limitedByCash ? `held back to keep $1,000 in checking on ${dayLabel(sf.fc.pre.day)}` : `checking stays above $1,000 all month`}</p>
+        <p class="why">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day · ${sf.limitedByCash ? `held back to keep $1,000 in checking ${onDay(sf.fc.pre.day)}` : `checking stays above $1,000 all month`}</p>
       </div>
       <div class="actions" id="actions">${cards || done}</div>
       <div>
@@ -810,7 +826,7 @@ function renderMoney() {
         <button class="card-media g-month" data-act="open-month">
           <span class="pct">Pay day ${dayLabel(fc.payIdx)}</span>
           <span style="font-size:13px;opacity:.9">The month ahead · thinnest moment</span>
-          <span class="ttl">${usd(fc.pre.bal)} on ${dayLabel(fc.pre.day)}</span>
+          <span class="ttl">${usd(fc.pre.bal)} ${onDay(fc.pre.day)}</span>
           <span style="font-size:13px;opacity:.9">${fc.pre.bal < COMFORT ? 'Under your $1,000 comfort line' : `${usd(fc.pre.bal - COMFORT)} above your $1,000 comfort line`}</span>
         </button>
       </div>
@@ -839,7 +855,7 @@ function renderChat() {
     : `<div class="ai" id="ai-${i}">${m.typing ? '<div class="typing" aria-label="Cushion is typing"><i></i><i></i><i></i></div>' : m.paras.map(p => `<p>${esc(p)}</p>`).join('')}</div>`).join('');
   const sug = c.msgs.length ? '' : `<div class="suggest">${SUGGEST.map(s => `<button class="glass on-media" data-act="ask" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>`;
   keepFocus(() => {
-    $('#tab-chat').innerHTML = `${c.title ? edge.replace('edge-top', 'edge-top tall') : edge}<div class="chat-wrap" aria-live="polite">${head}${body}${sug}</div>`;
+    $('#tab-chat').innerHTML = `${c.title ? '' : edge}<div class="chat-wrap" aria-live="polite" style="${c.title ? 'padding-top:0' : ''}">${head}${body}${sug}</div>`;
   });
   $('#composer').querySelectorAll('button').forEach(b => { b.disabled = c.busy; });
   updateChrome();
@@ -955,13 +971,21 @@ function monthPage() {
   const fc = forecast();
   const other = forecast({ carLate: !S.carLate });
   const gain = r2(fc.pre.bal - other.pre.bal);
+  const joinList = a => a.length > 1 ? `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}` : a[0];
+  const sfNow = safety(fc), sfOther = safety(other);
+  const lowNames = fc.ev.filter(e => e.day === fc.pre.day && e.amt < 0).map(e => e.name.toLowerCase());
   const lowIsRentCar = !S.carLate && (fc.pre.day === sep(1) || fc.pre.day === sep(2)) && fc.payIdx > sep(2);
   let explain;
   if (lowIsRentCar) explain = `Rent and the car payment land a day apart. It clears, but there's little room if something unexpected turns up that week.`;
-  else if (S.carLate && gain > 0 && sep(6) >= fc.payIdx) explain = `With the car payment on the 6th, it lands after pay day. Your thinnest moment rises by ${usd(gain)}.`;
-  else if (S.carLate && gain > 0) explain = `With the car payment on the 6th, your freelance invoice lands first. Your thinnest moment rises by ${usd(gain)}.`;
-  else if (S.carLate) explain = `Moving the car payment doesn't change your thinnest moment with pay day on the ${ord(S.payDay)}.`;
+  else if (fc.pre.day === 0) explain = `Pay lands ${onDay(fc.payIdx)} before any bill, so checking never dips below where it is today.`;
+  else if (lowNames.length) explain = `Your thinnest moment comes after the ${joinList(lowNames)} on ${dayLabel(fc.pre.day)}, the last ${lowNames.length > 1 ? 'payments' : 'payment'} before pay day.`;
   else explain = `Your bills are spread out enough that no single week gets tight.`;
+  if (sfNow.limitedByCash) explain += ` Today's safe-to-spend is held to ${usd(sfNow.safe, 2)} so checking stays above $1,000 then.`;
+  if (S.carLate) {
+    const where = sep(6) === fc.payIdx ? ' It now lands on pay day, after your salary.' : sep(6) > fc.payIdx ? ' It now lands after pay day.' : (gain > 0 && other.pre.day === sep(2)) ? ' Your freelance invoice lands first.' : '';
+    explain += gain > 0 ? ` Moving the car payment to the 6th raises your thinnest moment by ${usd(gain)}.${where}` : gain < 0 ? ` Moving the car payment to the 6th lowers your thinnest moment by ${usd(-gain)}.${where}` : ` Moving the car payment to the 6th doesn't change your thinnest moment.${where}`;
+    if (sfNow.safe !== sfOther.safe) explain += ` Today's safe-to-spend ${sfNow.safe > sfOther.safe ? 'rises' : 'falls'} from ${usd(sfOther.safe, 2)} to ${usd(sfNow.safe, 2)}.`;
+  }
   const bills = fc.ev.map(e => `
     <div class="row${e.car ? ' car-row' : ''}" style="padding-left:0;padding-right:0;--inset:0px">
       <span class="grow t" style="font-size:15px">${e.name}</span>
@@ -977,7 +1001,7 @@ function monthPage() {
       </div>
       <div>
         <div class="section-h" style="padding:0 0 8px">Your thinnest moment before pay day</div>
-        <div class="big"><span class="num"><span class="cur">$</span>${fmt(fc.pre.bal)}</span><span class="of">on ${dayLabel(fc.pre.day)}${S.carLate && gain > 0 ? ' with a later payment' : ''}</span></div>
+        <div class="big"><span class="num"><span class="cur">$</span>${fmt(fc.pre.bal)}</span><span class="of">${onDay(fc.pre.day)}${S.carLate && gain > 0 ? ' with a later payment' : ''}</span></div>
         <p class="body" style="margin-top:12px;font-size:15px">${explain}</p>
       </div>
       ${chartSVG(fc)}
@@ -1063,14 +1087,21 @@ function push(render, { modal = false, media = '', onMount, opener, kind } = {})
   el.render = () => keepFocus(() => {
     const st = el.scrollTop;
     const html = render();
-    el.innerHTML = `${edge}<div class="wrap">${html}</div>${html.includes('class="dock"') ? '' : '<div class="edge-btm" aria-hidden="true"></div>'}`;
+    el.innerHTML = `<div class="wrap">${html}</div>${html.includes('class="dock"') ? '' : '<div class="edge-btm" aria-hidden="true"></div>'}`;
     el.scrollTop = st;
-    const h = el.querySelector('h1'); if (h) el.setAttribute('aria-label', h.textContent.trim());
+    const h = el.querySelector('h1');
+    if (h) {
+      const name = h.textContent.replace(/[^\p{L}\p{N}\s·'.,-]/gu, '').trim();
+      el.setAttribute('aria-label', name);
+      const nav = el.querySelector('.nav');
+      if (nav) nav.insertAdjacentHTML('beforeend', `<span class="inline" aria-hidden="true">${esc(name)}</span>`);
+    }
     onMount && onMount(el);
   });
   el.render();
   el.modal = modal;
   el.kind = kind;
+  el.addEventListener('scroll', () => el.classList.toggle('scrolled', el.scrollTop > 8), { passive: true });
   el.opener = opener || document.activeElement;
   el.openerKey = focusKey(el.opener);
   $('#pages').appendChild(el);
@@ -1146,6 +1177,7 @@ function openSheet(html, { dark = false, onMount } = {}) {
   const layer = $('#layer');
   const id = 'sheet-title-' + (++uid);
   const scrim = document.createElement('div'); scrim.className = 'scrim'; scrim.dataset.act = 'close-sheet';
+  scrim.addEventListener('mousedown', e => e.preventDefault());
   const sh = document.createElement('div'); sh.className = 'sheet' + (dark ? ' dark-sheet' : ''); sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-modal', 'true'); sh.setAttribute('aria-labelledby', id);
   sh.innerHTML = `<div class="grab"></div>${html.replace('data-title', `id="${id}"`)}`;
   layer.append(scrim, sh);
@@ -1188,7 +1220,8 @@ function alertBox({ title, msg, actions }) {
       al.closing = true;
       scrim.classList.remove('show'); al.classList.remove('show');
       syncInert();
-      setTimeout(() => restoreFocus(opener, key, FALLBACK), 20);
+      // Only put focus back if the action that ran didn't already move it somewhere useful
+      setTimeout(() => { const a = document.activeElement; if (!a || a === document.body || al.contains(a) || a.closest('[inert]')) restoreFocus(opener, key, FALLBACK); }, 20);
       setTimeout(() => { scrim.remove(); al.remove(); syncInert(); }, 250);
       resolve(value);
     };
@@ -1268,7 +1301,7 @@ function reply(q) {
 async function send(text) {
   text = (text || '').trim();
   if (!text) return;
-  if (S.chat.busy) { S.chat.queued = text; $('#chat-input').value = ''; toast('Sending after this answer'); return; }
+  if (S.chat.busy) { (S.chat.queue = S.chat.queue || []).push(text); $('#chat-input').value = ''; toast('Sending after this answer'); return; }
   S.chat.busy = true;
   const r = reply(text);
   if (!S.chat.title) { S.chat.title = r.title; S.chat.emoji = r.emoji; }
@@ -1298,7 +1331,7 @@ async function send(text) {
   S.chat.busy = false;
   renderChat();
   panel.scrollTop = panel.scrollHeight;
-  if (S.chat.queued) { const q = S.chat.queued; S.chat.queued = null; return send(q); }
+  if (S.chat.queue && S.chat.queue.length) return send(S.chat.queue.shift());
   if (S.tab === 'chat' && !stack.length) $('#chat-input').focus({ preventScroll: true });
 }
 
@@ -1392,8 +1425,7 @@ function voiceSheet() {
 }
 
 /* ---------------- Actions ---------------- */
-let actionBusy = false;
-const once = fn => async el => { if (actionBusy) return; actionBusy = true; try { await fn(el); } finally { actionBusy = false; } };
+const once = fn => { let busy = false; return async el => { if (busy) return; busy = true; try { await fn(el); } finally { busy = false; } }; };
 const H = {
   'approve-save': once(async () => {
     if (!S.actions.includes('save')) return;
@@ -1403,7 +1435,7 @@ const H = {
     await removeAction('save');
     acct('chk').bal -= 1200; acct('stash').bal += 1200;
     refresh();
-    restoreFocus(null, null, ['.action .ok', '#all-done']);
+    restoreFocus(null, null, ['.action button.ok', '#all-done']);
     toast('Moved $1,200 to Maya\'s Stash');
   }),
   dismiss: once(async el => {
@@ -1412,10 +1444,10 @@ const H = {
     await removeAction(id);
     S.dismissed.push(id);
     refresh();
-    restoreFocus(null, null, ['.action .ok', '#all-done']);
+    restoreFocus(null, null, ['.action button.ok', '#all-done']);
     toast('Dismissed. I won\'t suggest it again');
   }),
-  'open-spotify'() { push(spotifyPage, { media: 'g-teal' }); },
+  'open-spotify'() { push(spotifyPage, { media: 'g-teal', kind: 'spotify' }); },
   'confirm-spotify': once(async el => {
     if (S.spotifyCancelled) return;
     const ok = await alertBox({ title: 'Approve in local demo?', msg: 'This updates only the sample balances and suggestions in this browser.', actions: [{ label: 'Approve demo fix', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
@@ -1427,14 +1459,15 @@ const H = {
     S.actions = S.actions.filter(a => a !== 'spotify');
     S.spotifyDelta = r2(safeNow() - from);
     refresh();
-    restoreFocus(null, null, ['.page:last-child .dock button']);
+    const topPage = stack[stack.length - 1];
+    if (topPage && topPage.kind === 'spotify') { const d = topPage.querySelector('.dock button'); d && d.focus({ preventScroll: true }); }
     const to = safeNow();
     const w = $('#safe-num .w'); if (w) tween(w, Math.floor(from), Math.floor(to));
     toast(S.spotifyDelta > 0 ? `Safe to spend is now ${usd(to, 2)}` : 'Second Spotify cancelled');
   }),
   tx(el) { txSheet(TX.find(t => t.id === el.dataset.id)); },
   fixes() { fixesSheet(); },
-  'fix-review'() { const o = sheetEl && sheetEl.opener; closeSheet(true); push(spotifyPage, { media: 'g-teal', opener: o }); },
+  'fix-review'() { const o = sheetEl && sheetEl.opener; closeSheet(true); push(spotifyPage, { media: 'g-teal', opener: o, kind: 'spotify' }); },
   'fix-to-iceland'() {
     if (fixesAvailable() <= 0) return;
     closeSheet();
@@ -1514,7 +1547,7 @@ const H = {
     closeSheet(true); send(t);
     setTimeout(() => $('#chat-input').focus({ preventScroll: true }), 30);
   },
-  'clear-chat'() { if (S.chat.busy) return; S.chat = { title: null, emoji: null, msgs: [], busy: false, queued: null }; renderChat(); setTimeout(() => $('#chat-input').focus({ preventScroll: true }), 50); },
+  'clear-chat'() { if (S.chat.busy) return; S.chat = { title: null, emoji: null, msgs: [], busy: false, queue: [] }; renderChat(); setTimeout(() => $('#chat-input').focus({ preventScroll: true }), 50); },
 };
 
 app.addEventListener('click', e => {
