@@ -746,7 +746,7 @@ const BANKS = [
   { id: 'bunq', name: 'bunq', sub: 'Netherlands · Savings account', mask: '0402', bal: 3100, kind: 'saved', logo: { brand: 'bunq', bg: '#3394D7' } },
 ];
 const TX = [
-  { id: 'bb', logo: { icon: 'coffee', bg: '#8B5A2B' }, name: 'Bonanza Coffee', note: '14th visit this month · €94 so far', amt: -4.06, cat: 'Eating out', when: 'Today, 08:12', insight: 'Coffee is €94 of your eating out this month, the biggest single part of the €130 overspend. Ten fewer visits would save about €40.' },
+  { id: 'bb', logo: { icon: 'coffee', bg: '#8B5A2B' }, name: 'Bonanza Coffee', note: '14th visit this month · €94 so far', amt: -4.06, cat: 'Eating out', when: 'Today, 08:12', insight: 'Coffee is €94 of your eating out this month, the biggest single part of the €130 overspend. Ten fewer visits would save about €67.' },
   { id: 'wf', logo: { brand: 'lidl', bg: '#0050AA' }, name: 'Lidl', note: 'Normal for a Saturday', amt: -86.40, cat: 'Groceries', when: 'Saturday, 17:40', insight: 'Right in line with your usual Saturday shop. Groceries are as expected for August.' },
   { id: 'sp', logo: { brand: 'spotify', bg: '#191414', fg: '#1ED760' }, name: 'Spotify', note: 'Second Individual plan', amt: -10.99, cat: 'Subscriptions', when: '21 Aug', insight: 'You also pay for Spotify Family on this card. This one looks like a leftover from March.' },
   { id: 'sh', logo: { brand: 'shell', bg: '#FBCE07', fg: '#DD1D21' }, name: 'Shell', note: 'Transport · as expected', amt: -52.10, cat: 'Transport', when: '20 Aug', insight: 'Fuel is steady. Transport is right where it usually sits.' },
@@ -896,7 +896,7 @@ function renderMoney() {
         <p class="lede">What you have, what's coming and what I think is worth fixing.</p>
       </div>
       <div>
-        <div class="total"><span class="num" id="net-num"><span class="cur">€</span>${fmt(net())}</span><span class="delta">+€412 this month</span></div>
+        <div class="total"><span class="num" id="net-num"><span class="cur">€</span>${fmt(net())}</span><span class="delta">+€412 this month${S.linked.length ? ' · before added accounts' : ''}</span></div>
         ${S.linked.length ? `<p class="lede" style="margin-top:4px;font-size:13px;max-width:none">Includes ${S.linked.map(l => esc(l.name)).join(', ')} (${eur(linkedTotal)}), added today</p>` : ''}
         <div class="split" style="margin-top:14px" aria-hidden="true">
           <i style="flex-grow:${cash};background:var(--olive)"></i>
@@ -1179,6 +1179,7 @@ function addAccountShell() {
 
 /* ---------------- Navigation stack ---------------- */
 const stack = [];
+let pendingFix = [];
 let navBusy = false;
 const lockNav = () => { navBusy = true; setTimeout(() => { navBusy = false; }, T); };
 function push(render, { modal = false, media = '', onMount, opener, kind } = {}) {
@@ -1317,6 +1318,7 @@ function alertBox({ title, msg, actions }) {
     const id = 'alert-title-' + (++uid);
     const opener = document.activeElement, key = focusKey(opener);
     const scrim = document.createElement('div'); scrim.className = 'scrim';
+    scrim.addEventListener('mousedown', e => e.preventDefault());
     const al = document.createElement('div'); al.className = 'alert'; al.setAttribute('role', 'alertdialog'); al.setAttribute('aria-modal', 'true'); al.setAttribute('aria-labelledby', id);
     al.innerHTML = `<h3 id="${id}">${title}</h3><p>${msg}</p>${actions.map((a, i) => `<button class="btn ${a.style || 'gray'}" data-i="${i}">${a.label}</button>`).join('')}`;
     layer.append(scrim, al);
@@ -1368,7 +1370,9 @@ function reply(q) {
   const pay = ord(S.payDay);
   const thin = fc.pre.day ? dayLabel(fc.pre.day) : 'today';
   const onThin = fc.pre.day ? `on ${thin}` : `until pay day on the ${ord(S.payDay)}`;
-  const spendToLow = Math.round(sf.safe * (fc.pre.day + 1));
+  // Days of everyday spending to count: through the thinnest moment, or until pay day when that moment is today
+  const spendDays = fc.pre.day === 0 ? fc.payIdx : fc.pre.day + 1;
+  const spendToLow = Math.round(sf.safe * spendDays);
   const preBal = Math.round(fc.pre.bal);
   const room = preBal - COMFORT - spendToLow; // what can go out now and still keep the comfort line
   if (/dental|1,?430|dentist/.test(s)) {
@@ -1575,6 +1579,7 @@ const H = {
     refresh();
     const topPage = stack[stack.length - 1];
     if (topPage && topPage.kind === 'spotify') { const d = topPage.querySelector('.dock button'); d && d.focus({ preventScroll: true }); }
+    else if (document.activeElement === document.body) restoreFocus(null, null, ['.action button.ok', '#all-done']);
     const to = safeNow();
     const w = $('#safe-num .w'); if (w) tween(w, Math.floor(from), Math.floor(to));
     toast(S.spotifyDelta > 0 ? `Safe to spend is now ${eur(to, 2)}` : 'Second Spotify cancelled');
@@ -1585,7 +1590,12 @@ const H = {
   'fix-to-iceland'() {
     if (fixesAvailable() <= 0) return;
     closeSheet();
-    setTimeout(() => { const pg = push(icelandPage, { media: 'g-iceland' }); if (pg) setTimeout(() => { if (stack[stack.length - 1] === pg) H['send-fixes'](); }, T + 20); }, 260);
+    // Escape cancels this two-step hand-off at any point before the alert appears
+    pendingFix = [setTimeout(() => {
+      const pg = push(icelandPage, { media: 'g-iceland', kind: 'iceland-fix' });
+      if (pg) pendingFix = [setTimeout(() => { pendingFix = []; if (stack[stack.length - 1] === pg) H['send-fixes'](); }, T + 20)];
+      else pendingFix = [];
+    }, 260)];
   },
   'open-iceland'() { push(icelandPage, { media: 'g-iceland' }); },
   'open-month'() { S.payDraft = null; push(monthPage, { media: 'g-month' }); },
@@ -1619,7 +1629,7 @@ const H = {
   },
   'save-payday'() {
     const inp = $('#payday'); if (!inp) return;
-    const v = Number(inp.value);
+    const v = /^\d{1,2}$/.test(inp.value.trim()) ? Number(inp.value) : NaN;
     if (!Number.isInteger(v) || v < 1 || v > 28) { toast('Pick a whole day from 1 to 28', { error: true }); inp.focus(); return; }
     S.payDay = v; S.payDraft = null; refresh(); toast(`Pay day saved: the ${ord(v)}`);
   },
@@ -1700,7 +1710,8 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target.id === 'chat-input') { e.preventDefault(); send(e.target.value); }
   if (e.key === 'Enter' && e.target.id === 'payday') { e.preventDefault(); H['save-payday'](); }
   if (e.key === 'Escape') {
-    if (alertOpen) alertOpen.cancel();
+    if (pendingFix.length) { pendingFix.forEach(clearTimeout); pendingFix = []; if (stack.length && stack[stack.length - 1].kind === 'iceland-fix') setTimeout(() => pop(true), 0); }
+    else if (alertOpen) alertOpen.cancel();
     else if (sheetEl) closeSheet();
     else if (stack.length) { if (navBusy) setTimeout(() => { if (!alertOpen && !sheetEl) pop(); }, T); else pop(); }
     else if (S.tab === 'chat' && S.chat.msgs.length) H['clear-chat']();
