@@ -735,6 +735,41 @@ button.row[disabled] { cursor: default; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --cat-blue: #5B9BFF; --green-text: #63D68A; } :root:not([data-theme="light"]) .safe { background: #1E3A10; box-shadow: inset 0 0 0 1px rgba(160, 229, 89, .28); } }
 :root:not([data-theme="dark"]) { --green-text: #0F7B4F; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --green-text: #63D68A; } }
+:root { --stroke: rgba(14, 15, 12, .32); --red: #D70015; --green-text: var(--label); }
+:root[data-theme="dark"] { --stroke: rgba(241, 244, 236, .34); --red: #FF6961; --green-text: var(--label); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --stroke: rgba(241, 244, 236, .34); --red: #FF6961; --green-text: var(--label); } }
+@media (prefers-contrast: more) {
+  :root { --label2: #2A2C28; --sep: rgba(14, 15, 12, .3); --fill: rgba(22, 51, 0, .14); --stroke: rgba(14, 15, 12, .6); }
+  :root[data-theme="dark"] { --label2: #DADED4; --sep: rgba(241, 244, 236, .3); --fill: rgba(241, 244, 236, .16); --stroke: rgba(241, 244, 236, .6); }
+}
+/* Lime marks things you can tap; figures and bubbles stay neutral */
+.safe .num { color: #FFFFFF; }
+.card-media.g-month .ttl { color: #FFFFFF; }
+.bubble-user { background: var(--card); color: var(--label); }
+.greet .avatar { box-shadow: 0 0 0 2px var(--bg); }
+.tabbar .lens, .app[data-tab="chat"] .tabbar .lens, .app.media-top .tabbar .lens { background: var(--fill2); }
+.tabbar .tab[aria-selected="true"], .app[data-tab="chat"] .tabbar .tab[aria-selected="true"], .app.media-top .tabbar .tab[aria-selected="true"] { color: var(--accent); font-weight: 700; }
+/* Non-text controls with visible boundaries */
+.field, .media .field { box-shadow: inset 0 0 0 1px var(--stroke); }
+.field:focus, .media .field:focus { box-shadow: inset 0 0 0 2px var(--accent); }
+.switch span, .media .switch span { background: var(--stroke); }
+.slider::-webkit-slider-runnable-track { background: linear-gradient(var(--accent), var(--accent)) 0 / var(--p, 50%) 100% no-repeat, var(--stroke); }
+.slider::-moz-range-track { background: var(--stroke); }
+.chart line { stroke: var(--label2); }
+/* Compact titles: short and centred; stronger edge under bars */
+.tab-panel .nav { justify-content: space-between; }
+.tab-panel .nav .inline { left: 120px; right: 120px; text-align: center; }
+.page .nav::before { inset: 0 0 -12px; -webkit-mask-image: linear-gradient(to bottom, #000 90%, transparent); mask-image: linear-gradient(to bottom, #000 90%, transparent); }
+.nav .pill { height: 44px; }
+#tab-money .content > div:first-child { margin-top: 12px; }
+/* Fact lists sit in grouped cards like every other list */
+.detail .kv, .detail .plain-rows { background: var(--card); border-radius: 22px; padding: 0 16px; }
+.detail .kv div:last-child, .detail .plain-rows .row:last-child { border-bottom: 0; }
+.sheet .kv { background: none; padding: 0; }
+.card-media.g-iceland .logo-tile svg { color: #FFFFFF; }
+.undo-row { display: flex !important; align-items: center; justify-content: space-between; gap: 12px; flex-basis: 100% !important; padding: 14px 18px !important; }
+.pill.neutral { background: var(--fill); color: var(--label); }
+.sheet-head .save { margin-left: auto; }
 .field-err { margin: -4px 0 0; font-size: 13px; color: var(--red); min-height: 0; }
 .about li::before { background: var(--accent); }
 
@@ -981,7 +1016,7 @@ function restoreFocus(opener, key, fallbacks = []) {
   if (!n) { const t = stack[stack.length - 1]; n = t ? t.querySelector('.nav button') : $('.tab[aria-selected="true"]'); }
   n && n.focus({ preventScroll: true });
 }
-const FALLBACK = ['.page:last-child .dock button:not([disabled])', '.page:last-child .nav button', '.action button.ok', '#all-done', '.tab[aria-selected="true"]'];
+const FALLBACK = ['.page:last-child .dock button:not([disabled])', '.page:last-child .nav button', '.action .review-pill', '#all-done', '.tab[aria-selected="true"]'];
 function keepFocus(fn) {
   const a = document.activeElement;
   const key = a && a !== document.body && (a.id ? '#' + a.id : a.dataset && a.dataset.act ? `[data-act="${a.dataset.act}"]${a.dataset.id ? `[data-id="${a.dataset.id}"]` : ''}` : null);
@@ -1002,18 +1037,19 @@ function renderToday() {
   const [whole, cents] = sf.safe.toFixed(2).split('.');
   const saveAfter = safety(forecast({ extra: 1200 })).safe;
   const saveLine = saveAfter >= sf.safe ? "today's safe-to-spend stays the same" : `today's safe-to-spend drops to ${eur(saveAfter, 2)}`;
+  const undo = S.lastDismissed ? `<article class="action undo-row"><span>Suggestion dismissed</span><button class="pill neutral" data-act="undo-dismiss">Undo</button></article>` : '';
   const cards = S.actions.map(id => id === 'save' ? `
       <article class="action glass" data-card="save">
         ${tile({ icon: 'piggy-bank', bg: '#2E9E55' }, 44)}
         <h3>Move €1,200 into savings</h3>
         <p>It has sat in your Sparkasse current account for 41 days. You'd earn about €37 a year, and ${saveLine}.</p>
-        <div class="btns"><button class="ok" data-act="approve-save" aria-label="Approve move to savings">${I.check}</button><button class="no" data-act="dismiss" data-id="save" aria-label="Dismiss move to savings">${I.x}</button></div>
+        <div class="btns"><button class="review-pill" data-act="approve-save">Move €1,200</button><button class="pill neutral" style="height:44px" data-act="dismiss" data-id="save">Not Now</button></div>
       </article>` : `
       <article class="action glass" data-card="spotify">
         ${tile({ brand: 'spotify', bg: '#191414', fg: '#1ED760' }, 44)}
         <h3>Cancel the second Spotify</h3>
         <p>Two accounts bill the same card. I have drafted the cancellation and just need your go-ahead.</p>
-        <div class="btns"><button class="review-pill" data-act="open-spotify">Review</button><button class="no" data-act="dismiss" data-id="spotify" aria-label="Dismiss Spotify suggestion">${I.x}</button></div>
+        <div class="btns"><button class="review-pill" data-act="open-spotify">Review</button><button class="pill neutral" style="height:44px" data-act="dismiss" data-id="spotify">Not Now</button></div>
       </article>`).join('');
   const done = `<article class="action glass done" tabindex="-1" id="all-done"><span class="ok" aria-hidden="true">${I.check}</span><div><h3>All caught up</h3><p>New suggestions show up here when I spot them.</p></div></article>`;
   $('#tab-today').innerHTML = `${edge}
@@ -1047,7 +1083,7 @@ function renderMoney() {
   const avail = fixesAvailable();
   const linkedTotal = S.linked.reduce((a, b) => a + b.bal, 0);
   $('#tab-money').innerHTML = `
-    <div class="nav"><span class="inline" aria-hidden="true">Money</span><button class="pill glass" data-act="accounts">${icon('landmark', 17)} Accounts</button><button class="pill glass" data-act="fixes">Fixes${avail > 0 ? ` <span style="color:var(--green-text);font-weight:600">${eur(avail, 2)}</span>` : ''}</button></div>
+    <div class="nav"><button class="pill glass" data-act="accounts">${icon('landmark', 17)} Accounts</button><span class="inline" aria-hidden="true">Money</span><button class="pill glass" data-act="fixes">Fixes${avail > 0 ? ` <span style="color:var(--green-text);font-weight:600">${eur(avail, 2)}</span>` : ''}</button></div>
     <div class="content" style="padding-top:0">
       <div>
         <h1 class="large-title">Money</h1>
@@ -1091,10 +1127,9 @@ function renderMoney() {
       <div>
         <h2 class="section-h" style="margin:0">Savings</h2>
         <button class="card-media g-iceland" data-act="open-iceland">
-          <span class="pct">${pct}%${ic.paused ? ' · Paused' : ''}</span>
-          <span aria-hidden="true">${icon('mountain-snow', 28)}</span>
+          <span aria-hidden="true">${tile({ icon: 'mountain-snow', bg: 'var(--forest)' }, 40)}</span>
           <span class="ttl">Iceland · February trip</span>
-          <span style="font-size:13px;opacity:.9">${eur(ic.saved)} of ${eur(ic.goal)}</span>
+          <span style="font-size:13px;opacity:.9">${pct}% · ${eur(ic.saved)} of ${eur(ic.goal)}${ic.paused ? ' · Paused' : ''}</span>
           <span class="meter"><i style="width:${pct}%"></i></span>
         </button>
       </div>
@@ -1132,7 +1167,7 @@ function spotifyPage() {
   if (S.spotifyCancelled) return `
     <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
     <div class="detail">
-      <h1>Cancel the second Spotify</h1>
+      <h1 data-short="Spotify Plan">Cancel the second Spotify</h1>
       <p class="body">I cancelled the account opened in March and kept the family plan. The last play on it was 7 June.</p>
       <div class="kv"><div><span>Keeping</span><span>Family · €17.99</span></div><div><span>Cancelled</span><span>Individual · €10.99</span></div></div>
       <div class="callout glass">${I.check}<span><b>The second Spotify has been cancelled.</b><br>${spDelta > 0 ? `Your safe-to-spend went up by ${eur(spDelta, 2)} a day.` : sf.limitedByCash ? `Your safe-to-spend stays at ${eur(sf.safe, 2)} for now, because ${cashWord()} ${cashWord() === 'your current account' ? 'is' : 'are'} what limits it until pay day.` : `Your next charge would have come after pay day, so the saving shows up in your next pay period.`} You'll save €10.99 a month from 21 September.</span></div>
@@ -1144,7 +1179,7 @@ function spotifyPage() {
   return `
     <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
     <div class="detail">
-      <h1>Cancel the second Spotify</h1>
+      <h1 data-short="Spotify Plan">Cancel the second Spotify</h1>
       <p class="body">I'll cancel the account opened in March and keep the family plan. The last play on it was 7 June.</p>
       <div class="kv">
         <div><span>Keeping</span><span>Family · €17.99</span></div>
@@ -1155,7 +1190,7 @@ function spotifyPage() {
     </div>
     <div class="dock">
       <p class="foot">Local demo · No provider or bank will be contacted</p>
-      <button class="btn primary" data-act="confirm-spotify">Cancel It for Me</button>
+      <button class="btn primary" data-act="confirm-spotify">End It for Me</button>
     </div>`;
 }
 
@@ -1178,7 +1213,7 @@ function icelandPage() {
     </div>
     <div class="detail">
       <div>
-        <h1>Iceland · February trip</h1>
+        <h1 data-short="Iceland">Iceland · February trip</h1>
         <p class="body" style="margin-top:6px">Flights, a week of car hire and the northern-lights tour in February.</p>
       </div>
       <div>
@@ -1197,7 +1232,7 @@ function icelandPage() {
       </div>
     </div>
     <div class="dock dock-flow">
-      <button class="btn primary" data-act="send-fixes" ${avail > 0 ? '' : 'disabled'}>${avail > 0 ? `Send Fixes Money Here · ${eur(avail, 2)}` : S.fixesSent ? 'Fixes Money Sent' : 'No Fixes Money Yet'}</button>
+      ${avail > 0 ? `<button class="btn primary" data-act="send-fixes">Send Fixes Money Here · ${eur(avail, 2)}</button>` : `<p class="foot" style="font-size:15px">${S.fixesSent ? `Fixes money sent · ${eur(S.fixesSent, 2)}` : 'No fixes money yet'}</p>`}
       <button class="btn plain" data-act="change-monthly">Change Monthly Amount</button>
       <p class="foot">Local demo · Sample balances only</p>
     </div>`;
@@ -1306,7 +1341,7 @@ function accountsPage() {
         </div>`).join('')}
       </div>
       <div class="list accounts-total" style="border-radius:22px"><div class="row"><span class="grow t" style="font-size:16px">Total</span><span class="v" style="font-weight:600">${eur(net())}</span></div></div>
-      <button class="btn tinted" data-act="add-account">${I.plus} Add New</button>
+      <button class="btn tinted" data-act="add-account">${I.plus} Add Account</button>
       <p class="foot">Sample accounts · All balances are fictional</p>
       <button class="pill tinted" data-act="about" style="justify-self:center">About This Prototype</button>
     </div>`;
@@ -1332,7 +1367,7 @@ function addAccountShell() {
     <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
     <div class="content">
       <div>
-        <h1 class="large-title" style="font-size:28px">Add an account</h1>
+        <h1 class="large-title" style="font-size:28px" data-short="Add Account">Add an account</h1>
         <p class="lede" style="max-width:none">The more I can see, the better I know what's actually safe to spend. Start with the account your pay lands in.</p>
       </div>
       <label style="position:relative;display:block">
@@ -1359,7 +1394,7 @@ function drainPops() {
   if (queuedPops) setTimeout(drainPops, T);
 }
 let navBusy = false;
-const lockNav = () => { navBusy = true; setTimeout(() => { navBusy = false; }, T); };
+const lockNav = () => { navBusy = true; setTimeout(() => { navBusy = false; }, Math.max(T, 350)); }; // long enough to swallow a double tap
 function push(render, { modal = false, media = '', onMount, opener, kind } = {}) {
   if (navBusy) return null;
   lockNav();
@@ -1382,7 +1417,7 @@ function push(render, { modal = false, media = '', onMount, opener, kind } = {})
       const name = h.textContent.replace(/[^\p{L}\p{N}\s·'.,-]/gu, '').trim();
       el.setAttribute('aria-label', name);
       const nav = el.querySelector('.nav');
-      if (nav) nav.insertAdjacentHTML('beforeend', `<span class="inline" aria-hidden="true">${esc(name)}</span>`);
+      if (nav) nav.insertAdjacentHTML('beforeend', `<span class="inline" aria-hidden="true">${esc(h.dataset.short || name)}</span>`);
     }
     onMount && onMount(el);
   });
@@ -1440,7 +1475,7 @@ function syncInert() {
   ['#tab-today', '#tab-money', '#tab-chat', '#composer'].forEach(s => { $(s).inert = overlay || !!top; });
   $('#tabbar').inert = overlay || !!(top && (top.modal || top.inModal));
   allPages().forEach(p => { p.inert = overlay || p !== top; });
-  const al = $('#layer .alert');
+  const al = $$('#layer .alert').some(a => !a.closing);
   $$('#layer .sheet').forEach(s => { s.inert = !!al || s.closing; });
 }
 function refresh() {
@@ -1475,15 +1510,15 @@ function openSheet(html, { dark = false, onMount } = {}) {
   scrim.addEventListener('mousedown', e => e.preventDefault());
   const sh = document.createElement('div'); sh.className = 'sheet' + (dark ? ' dark-sheet' : ''); sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-modal', 'true'); sh.setAttribute('aria-labelledby', id);
   if (pendingFix.length) { pendingFix.forEach(clearTimeout); pendingFix = []; }
-  sh.innerHTML = `<button class="grab" aria-label="Resize sheet"></button>${html.replace('data-title', `id="${id}"`)}`;
-  const grab = sh.querySelector('.grab');
-  // Tapping the grabber cycles between the medium and large detents
-  grab.addEventListener('click', () => { if (!grab.dragged) sh.classList.toggle('medium'); grab.dragged = false; });
+  // These sheets have one height, so there's no grabber; drag down anywhere to dismiss
+  sh.innerHTML = html.replace('data-title', `id="${id}"`);
+  sh.style.paddingTop = '20px';
+  const grab = { dragged: false };
   sh.addEventListener('input', () => { if (sheetEl && sheetEl.sh === sh) sheetEl.dirty = true; });
   // Drag the grabber (or the sheet header) down to dismiss, like a UISheetPresentationController
   let y0 = null;
   const down = e => {
-    if (e.target.closest('input, textarea, select, a, button:not(.grab)') || sh.scrollTop > 0) return;
+    if (e.target.closest('input, textarea, select, a, button') || sh.scrollTop > 0) return;
     grab.dragged = false; y0 = e.clientY; sh.style.transition = 'none';
     sh.setPointerCapture && sh.setPointerCapture(e.pointerId);
   };
@@ -1503,7 +1538,7 @@ async function requestCloseSheet() {
   if (!sheetEl) return;
   if (sheetEl.dirty) {
     const sh = sheetEl.sh;
-    const ok = await alertBox({ sheet: true, title: 'Discard your changes?', msg: 'Your edits in this sheet will be lost.', actions: [{ label: 'Discard Changes', style: 'destructive', value: true }, { label: 'Keep Editing', value: false }] });
+    const ok = await alertBox({ sheet: true, title: 'Discard your changes?', msg: 'Your edits in this sheet will be lost.', actions: [{ label: 'Discard Changes', style: 'destructive', value: true }, { label: 'Cancel', value: false }] });
     if (!ok || !sheetEl || sheetEl.sh !== sh) return;
   }
   closeSheet();
@@ -1532,7 +1567,7 @@ function alertBox({ title, msg, actions, sheet = false }) {
     const scrim = document.createElement('div'); scrim.className = 'scrim';
     scrim.addEventListener('mousedown', e => e.preventDefault());
     const al = document.createElement('div'); al.className = 'alert' + (sheet ? ' action-sheet' : ''); al.setAttribute('role', 'alertdialog'); al.setAttribute('aria-modal', 'true'); al.setAttribute('aria-labelledby', id);
-    al.innerHTML = `<h3 id="${id}">${title}</h3><p>${msg}</p>${actions.map((a, i) => `<button class="btn ${a.style || 'gray'}" data-i="${i}">${a.label}</button>`).join('')}`;
+    al.innerHTML = `<h3 id="${id}" tabindex="-1">${title}</h3><p>${msg}</p>${actions.map((a, i) => `<button class="btn ${a.style || 'gray'}" data-i="${i}">${a.label}</button>`).join('')}`;
     layer.append(scrim, al);
     const finish = value => {
       if (!alertOpen) return;
@@ -1547,9 +1582,10 @@ function alertBox({ title, msg, actions, sheet = false }) {
       resolve(value);
     };
     alertOpen = { cancel: () => finish(false) };
-    if (sheet) scrim.addEventListener('click', () => finish(false));
+    const openedAt = performance.now();
+    if (sheet) scrim.addEventListener('click', () => { if (performance.now() - openedAt > 300) finish(false); });
     syncInert();
-    requestAnimationFrame(() => requestAnimationFrame(() => { scrim.classList.add('show'); al.classList.add('show'); al.querySelector('button').focus(); }));
+    requestAnimationFrame(() => requestAnimationFrame(() => { scrim.classList.add('show'); al.classList.add('show'); al.querySelector('h3').focus(); })); // no default button, so Return can't confirm unread
     al.addEventListener('click', e => { const b = e.target.closest('button'); if (b) finish(actions[+b.dataset.i].value); });
   });
 }
@@ -1634,7 +1670,6 @@ async function send(text) {
   hideToast();
   const r = reply(text);
   if (!S.chat.msgs.length) { S.chat.title = r.title; S.chat.emoji = r.emoji; }
-  else if (S.chat.title !== r.title) { S.chat.title = 'Chat'; S.chat.emoji = 'sparkles'; }
   S.chat.msgs.push({ role: 'user', text });
   const ai = { role: 'ai', typing: true, paras: [] };
   S.chat.msgs.push(ai);
@@ -1713,16 +1748,15 @@ function monthlySheet() {
     return `About ${m} month${m === 1 ? '' : 's'} to go${m > 6 ? ', which lands after the February trip.' : ', in time for February.'}`;
   };
   openSheet(`
-    <div class="sheet-head"><h2 data-title>Monthly amount</h2><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
+    <div class="sheet-head"><h2 data-title>Monthly amount</h2><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button><button class="pill save" style="background:var(--lime);color:var(--forest);height:44px" data-act="save-monthly">Save</button></div>
     <p class="sub">${ic.paused ? 'Transfers are paused. Saving a new amount resumes them on 23 Sep.' : 'Moves from your Sparkasse current account to Lena\'s Stash on the 23rd.'}</p>
     <div class="body">
       <div class="num" style="font-size:52px;text-align:center"><span class="cur">€</span><span id="m-val">${ic.monthly}</span></div>
       <input id="m-slider" class="slider" type="range" min="50" max="400" step="10" value="${ic.monthly}" aria-label="Monthly amount" autofocus>
       <p class="sub" id="m-desc" style="text-align:center;margin:0">${desc(ic.monthly)}</p>
-      <button class="btn prominent" data-act="save-monthly">${ic.paused ? 'Save and Resume' : 'Save'}</button>
     </div>`, { onMount: sh => {
       const sl = $('#m-slider', sh);
-      const upd = () => { sl.style.setProperty('--p', ((sl.value - 50) / 350 * 100) + '%'); $('#m-val', sh).textContent = sl.value; $('#m-desc', sh).textContent = desc(+sl.value); };
+      const upd = () => { sl.setAttribute('aria-valuetext', `€${sl.value} a month`); sl.style.setProperty('--p', ((sl.value - 50) / 350 * 100) + '%'); $('#m-val', sh).textContent = sl.value; $('#m-desc', sh).textContent = desc(+sl.value); };
       sl.addEventListener('input', upd); upd();
     } });
 }
@@ -1738,6 +1772,7 @@ function bankPage(b) {
       <div class="perm"><span class="ic" style="background:var(--label3)">${I.x}</span><b>Selling or sharing your data</b><p>No account details or demo changes leave this browser.</p></div>
       <div class="stack">
         <button class="btn prominent" data-act="link-bank" data-id="${b.id}">Continue with ${b.name}</button>
+        <button class="btn plain" data-act="back">Not Now</button>
       </div>
     </div>`;
 }
@@ -1766,7 +1801,7 @@ const H = {
     await removeAction('save');
     acct('chk').bal -= 1200; acct('stash').bal += 1200;
     refresh();
-    restoreFocus(null, null, ['.action button.ok', '#all-done']);
+    restoreFocus(null, null, ['.action .review-pill', '#all-done']);
     toast('Moved €1,200 to Lena\'s Stash');
   }),
   dismiss: once(async el => {
@@ -1774,14 +1809,23 @@ const H = {
     if (!S.actions.includes(id)) return;
     await removeAction(id);
     S.dismissed.push(id);
+    S.lastDismissed = id;
     refresh();
-    restoreFocus(null, null, ['.action button.ok', '#all-done']);
-    toast('Dismissed from Today');
+    restoreFocus(null, null, ['.action .review-pill', '#all-done']);
+    const u = $('[data-act="undo-dismiss"]'); u && u.focus({ preventScroll: true });
   }),
+  'undo-dismiss'() {
+    const id = S.lastDismissed; if (!id) return;
+    S.lastDismissed = null;
+    S.dismissed = S.dismissed.filter(x => x !== id);
+    if (!(id === 'spotify' && S.spotifyCancelled)) S.actions = ['save', 'spotify'].filter(x => x === id || S.actions.includes(x));
+    refresh();
+    restoreFocus(null, null, ['.action .review-pill', '#all-done']);
+  },
   'open-spotify'() { push(spotifyPage, { media: 'g-teal', kind: 'spotify' }); },
   'confirm-spotify': once(async el => {
     if (S.spotifyCancelled) return;
-    const ok = await alertBox({ sheet: true, title: 'Cancel your second Spotify plan?', msg: 'Sample data only. This updates the balances and suggestions in this browser.', actions: [{ label: 'Cancel Spotify Plan', style: 'destructive', value: true }, { label: 'Cancel', value: false }] });
+    const ok = await alertBox({ sheet: true, title: 'End your second Spotify plan?', msg: 'Sample data only. This updates the balances and suggestions in this browser.', actions: [{ label: 'End Plan', style: 'destructive', value: true }, { label: 'Cancel', value: false }] });
     if (!ok || S.spotifyCancelled) return;
     el.innerHTML = '<span class="spinner"></span> Cancelling…'; el.disabled = true;
     await wait(reduced ? 0 : 1100);
@@ -1792,7 +1836,7 @@ const H = {
     refresh();
     const topPage = stack[stack.length - 1];
     if (topPage && topPage.kind === 'spotify') { const d = topPage.querySelector('.dock button'); d && d.focus({ preventScroll: true }); }
-    else if (document.activeElement === document.body) restoreFocus(null, null, ['.action button.ok', '#all-done']);
+    else if (document.activeElement === document.body) restoreFocus(null, null, ['.action .review-pill', '#all-done']);
     const to = safeNow();
     const w = $('#safe-num .w'); if (w) tween(w, Math.floor(from), Math.floor(to));
     toast(S.spotifyDelta > 0 ? `Safe to spend is now ${eur(to, 2)}` : 'Second Spotify cancelled');
@@ -1921,6 +1965,10 @@ app.addEventListener('change', e => {
 // Show focus rings only while someone navigates with the keyboard
 document.addEventListener('keydown', e => { if (['Tab', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'Enter', ' ', 'Escape'].includes(e.key)) document.documentElement.classList.add('kbd'); }, true);
 document.addEventListener('pointerdown', () => document.documentElement.classList.remove('kbd'), true);
+document.addEventListener('mousedown', e => {
+  const box = alertOpen ? $('#layer .alert') : sheetEl ? sheetEl.sh : null;
+  if (box && !box.contains(e.target) && !e.target.closest('.scrim')) e.preventDefault();
+}, true);
 document.addEventListener('focusin', e => {
   const box = alertOpen ? $('#layer .alert') : sheetEl ? sheetEl.sh : null;
   if (box && !box.contains(e.target)) { const f = box.querySelector('button, input, textarea'); f && f.focus({ preventScroll: true }); }
