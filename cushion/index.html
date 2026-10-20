@@ -661,7 +661,7 @@ button.row[disabled] { cursor: default; }
 .card-media.g-month { background: var(--forest) !important; color: #FFFFFF; }
 .card-media.g-month .ttl { color: var(--lime); }
 .card-media .meter { background: var(--fill2); }
-.card-media .meter i { background: var(--accent); }
+.card-media .meter i { background: var(--data); }
 .card-media.g-iceland svg { color: var(--accent); }
 .page.g-iceland, .page.g-month, .page.g-teal, .page.g-accounts { background: var(--bg) !important; --bar-bg: var(--bg); --edge: var(--bg); }
 .media { --edge: var(--bg); }
@@ -677,7 +677,7 @@ button.row[disabled] { cursor: default; }
 .detail .body { color: var(--label2); }
 .kv div { border-bottom-color: var(--sep); }
 .progress { background: var(--fill2); }
-.progress i { background: var(--accent); }
+.progress i { background: var(--data); }
 .paused-badge { background: var(--fill); color: var(--label); }
 .callout.glass, .media .callout.glass { background: var(--card); box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; color: var(--label); }
 .dock::before { background: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--bg) 34%); -webkit-backdrop-filter: none; backdrop-filter: none; -webkit-mask-image: none; mask-image: none; }
@@ -685,9 +685,9 @@ button.row[disabled] { cursor: default; }
 .chart text { fill: var(--label2); }
 .chart text[font-weight="600"] { fill: #FFFFFF; }
 .chart line { stroke: var(--label3); }
-.chart path[fill="none"] { stroke: var(--accent); }
-.chart stop { stop-color: var(--accent); }
-.chart circle { fill: var(--bg); stroke: var(--accent); }
+.chart path[fill="none"] { stroke: var(--data); }
+.chart stop { stop-color: var(--data); }
+.chart circle { fill: var(--bg); stroke: var(--data); }
 .chart rect { fill: var(--forest); }
 /* Chat on a calm surface */
 #tab-chat, .ai { color: var(--label); }
@@ -733,11 +733,9 @@ button.row[disabled] { cursor: default; }
 :root[data-theme="dark"] { --cat-blue: #5B9BFF; --green-text: #63D68A; }
 :root[data-theme="dark"] .safe { background: #1E3A10; box-shadow: inset 0 0 0 1px rgba(160, 229, 89, .28); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --cat-blue: #5B9BFF; --green-text: #63D68A; } :root:not([data-theme="light"]) .safe { background: #1E3A10; box-shadow: inset 0 0 0 1px rgba(160, 229, 89, .28); } }
-:root:not([data-theme="dark"]) { --green-text: #0F7B4F; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --green-text: #63D68A; } }
-:root { --stroke: rgba(14, 15, 12, .32); --red: #D70015; --green-text: var(--label); }
-:root[data-theme="dark"] { --stroke: rgba(241, 244, 236, .34); --red: #FF6961; --green-text: var(--label); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --stroke: rgba(241, 244, 236, .34); --red: #FF6961; --green-text: var(--label); } }
+:root { --stroke: rgba(14, 15, 12, .56); --red: #D70015; --green-text: var(--label); }
+:root[data-theme="dark"] { --stroke: rgba(241, 244, 236, .46); --red: #FF6961; --green-text: var(--label); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --stroke: rgba(241, 244, 236, .46); --red: #FF6961; --green-text: var(--label); } }
 @media (prefers-contrast: more) {
   :root { --label2: #2A2C28; --sep: rgba(14, 15, 12, .3); --fill: rgba(22, 51, 0, .14); --stroke: rgba(14, 15, 12, .6); }
   :root[data-theme="dark"] { --label2: #DADED4; --sep: rgba(241, 244, 236, .3); --fill: rgba(241, 244, 236, .16); --stroke: rgba(241, 244, 236, .6); }
@@ -771,11 +769,28 @@ button.row[disabled] { cursor: default; }
 .pill.neutral { background: var(--fill); color: var(--label); }
 .sheet-head .save { margin-left: auto; }
 .field-err { margin: -4px 0 0; font-size: 13px; color: var(--red); min-height: 0; }
-.about li::before { background: var(--accent); }
+.about li::before { background: var(--data); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+
+/* Round 15 */
+:root { --data: #163300; }
+:root[data-theme="dark"] { --data: #D3DCC8; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --data: #D3DCC8; } }
+.composer .send:disabled { background: var(--fill2); color: var(--label3); }
+.perm .ic.ok { background: #1F7A3A !important; }
+.perm .ic.no { background: var(--label2) !important; }
+.safe { text-align: left; padding: 24px 22px 20px; }
+.safe .why { margin: -4px 0 0; max-width: 34ch; }
+.tab-panel .nav .inline { bottom: 17px; }
+.page .nav::before, .tab-panel .nav::before { inset: 0 0 -44px; -webkit-mask-image: linear-gradient(to bottom, #000 60%, rgba(0,0,0,.7) 78%, transparent); mask-image: linear-gradient(to bottom, #000 60%, rgba(0,0,0,.7) 78%, transparent); }
+.today-nav { height: calc(var(--top) + 52px); margin-bottom: calc(-1 * (var(--top) + 52px)); pointer-events: none; }
+.sheet-head.centered h2 { flex: 1; text-align: center; }
+.sheet-head.centered .save { margin-left: 0; }
+.page.swiping { transition: none !important; }
+#tab-today .undo-row { margin: 0; border-radius: 22px; background: var(--card); }
 </style>
 </head>
 <body>
@@ -1052,16 +1067,16 @@ function renderToday() {
         <div class="btns"><button class="review-pill" data-act="open-spotify">Review</button><button class="pill neutral" style="height:44px" data-act="dismiss" data-id="spotify">Not Now</button></div>
       </article>`).join('');
   const done = `<article class="action glass done" tabindex="-1" id="all-done"><span class="ok" aria-hidden="true">${I.check}</span><div><h3>All caught up</h3><p>New suggestions show up here when I spot them.</p></div></article>`;
-  $('#tab-today').innerHTML = `${edge}
+  $('#tab-today').innerHTML = `<div class="nav today-nav"><span class="inline" aria-hidden="true">Today</span></div>
     <div class="today-hero" aria-hidden="true"></div>
     <div class="content">
       <p class="greet">Good morning <span class="avatar" aria-hidden="true"></span> Lena.<br><span class="sub">${lead}${tail}</span></p>
       <div class="safe">
         <div class="num" id="safe-num" aria-label="${eur(sf.safe, 2)} safe to spend today"><span class="cur">€</span><span class="w">${whole}</span><span class="cents">.${cents}</span></div>
         <div class="cap">Safe to spend today</div>
-        <p class="why">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day · ${sf.limitedByCash ? `held back to protect your €1,000 cushion ${onDay(sf.fc.pre.day)}` : 'your €1,000 cushion stays intact'}</p>
+        <p class="why">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day · ${sf.limitedByCash ? `held back to keep you above your €1,000 comfort line ${onDay(sf.fc.pre.day)}` : 'you stay above your €1,000 comfort line'}</p>
       </div>
-      <div class="actions" id="actions">${cards || done}</div>
+      ${undo}<div class="actions" id="actions">${cards || done}</div>
       <div>
         <h2 class="section-h" style="margin:0">Recent transactions</h2>
         <div class="list">${TX.map(t => `
@@ -1253,10 +1268,11 @@ function chartSVG(fc) {
   const below = ly + 30 < H - padB && Math.abs((ly + 20) - cy) > 12;
   const pillY = below ? ly + 10 : ly - 30;
   const pillX = Math.min(W - lw - 2, Math.max(2, lx - lw / 2));
-  const ticks = [0, 8, 22, 37].map(i => `<text x="${x(i).toFixed(1)}" y="${H - 4}" font-size="11" fill="rgba(255,255,255,.85)" text-anchor="${i === 0 ? 'start' : i === 37 ? 'end' : 'middle'}">${dayLabel(i)}</text>`).join('');
+  const mid = (fc.pre.day > 4 && fc.pre.day < 18) ? fc.pre.day : 8;
+  const ticks = [0, mid, 22, 37].map(i => `<text x="${x(i).toFixed(1)}" y="${H - 4}" font-size="11" fill="rgba(255,255,255,.85)" text-anchor="${i === 0 ? 'start' : i === 37 ? 'end' : 'middle'}">${dayLabel(i)}</text>`).join('');
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-describedby="bills-list" aria-label="Projected balance in ${cashWord()} from 24 August to 30 September. Thinnest moment before pay day: ${label} on ${dayLabel(fc.pre.day)}.">
     <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
-    <text x="${padL}" y="12" font-size="11" fill="rgba(255,255,255,.88)">- - Comfort line €1,000</text>
+    <text class="cl" x="${W - padR}" y="${(cy - 6).toFixed(1)}" font-size="11" fill="rgba(255,255,255,.88)" text-anchor="end">Comfort line €1,000</text>
     <line x1="${padL}" x2="${W - padR}" y1="${cy.toFixed(1)}" y2="${cy.toFixed(1)}" stroke="rgba(255,255,255,.6)" stroke-dasharray="3 4" stroke-width="1"/>
     <path d="${area}" fill="url(#ga)"/>
     <path d="${d}" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
@@ -1310,9 +1326,9 @@ function monthPage() {
       ${chartSVG(fc)}
       <div class="list" style="padding:12px 16px;display:grid;gap:10px;border-radius:24px">
         <label for="payday" style="font-size:15px">Pay day of each month</label>
-        <input id="payday" class="field" type="number" inputmode="numeric" min="1" max="28" aria-describedby="payday-err" ${S.payErr ? 'aria-invalid="true"' : ''} value="${S.payDraft != null ? esc(S.payDraft) : S.payDay}">
+        <input id="payday" class="field" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-describedby="payday-err" ${S.payErr ? 'aria-invalid="true"' : ''} value="${S.payDraft != null ? esc(S.payDraft) : S.payDay}">
         <p class="field-err" id="payday-err" role="alert">${S.payErr || ''}</p>
-        <button class="pill tinted" data-act="save-payday" style="justify-self:start">Save Pay Day</button>
+        <button class="pill tinted" data-act="save-payday" style="justify-self:start" ${S.payErr ? 'disabled' : ''}>Save Pay Day</button>
       </div>
       <div class="list" style="padding:4px 16px;border-radius:24px">
         <div class="row" style="padding-left:0;padding-right:0">
@@ -1665,7 +1681,7 @@ function reply(q) {
 async function send(text) {
   text = (text || '').trim();
   if (!text) return;
-  if (S.chat.busy) { (S.chat.queue = S.chat.queue || []).push(text); $('#chat-input').value = ''; toast('Sending after this answer'); return; }
+  if (S.chat.busy) { (S.chat.queue = S.chat.queue || []).push(text); $('#chat-input').value = ''; syncSend(); toast('Sending after this answer'); return; }
   S.chat.busy = true;
   hideToast();
   const r = reply(text);
@@ -1673,7 +1689,7 @@ async function send(text) {
   S.chat.msgs.push({ role: 'user', text });
   const ai = { role: 'ai', typing: true, paras: [] };
   S.chat.msgs.push(ai);
-  $('#chat-input').value = '';
+  $('#chat-input').value = ''; syncSend();
   renderChat();
   if (!stack.length && (document.activeElement === document.body || !document.activeElement)) $('#chat-input').focus({ preventScroll: true });
   const panel = $('#tab-chat');
@@ -1737,7 +1753,7 @@ function fixesSheet() {
         <div class="row"><span class="grow t" style="font-size:16px">Ready to move</span><span class="v" style="font-weight:600">${eur(avail, 2)}</span></div>
         ${S.fixesSent ? `<div class="row"><span class="grow t" style="font-size:16px">Already sent to Iceland</span><span class="v">${eur(S.fixesSent, 2)}</span></div>` : ''}
       </div>
-      <button class="btn prominent" data-act="fix-to-iceland" ${avail > 0 ? '' : 'disabled'}>Send to Iceland Goal</button>
+      <button class="btn prominent" data-act="fix-to-iceland" ${avail > 0 ? '' : 'disabled'}>Send to Iceland goal</button>
     </div>`);
 }
 function monthlySheet() {
@@ -1748,12 +1764,12 @@ function monthlySheet() {
     return `About ${m} month${m === 1 ? '' : 's'} to go${m > 6 ? ', which lands after the February trip.' : ', in time for February.'}`;
   };
   openSheet(`
-    <div class="sheet-head"><h2 data-title>Monthly amount</h2><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button><button class="pill save" style="background:var(--lime);color:var(--forest);height:44px" data-act="save-monthly">Save</button></div>
+    <div class="sheet-head centered"><h2 data-title>Monthly amount</h2><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button><button class="pill save" style="background:var(--lime);color:var(--forest);height:44px" data-act="save-monthly">Save</button></div>
     <p class="sub">${ic.paused ? 'Transfers are paused. Saving a new amount resumes them on 23 Sep.' : 'Moves from your Sparkasse current account to Lena\'s Stash on the 23rd.'}</p>
     <div class="body">
       <div class="num" style="font-size:52px;text-align:center"><span class="cur">€</span><span id="m-val">${ic.monthly}</span></div>
       <input id="m-slider" class="slider" type="range" min="50" max="400" step="10" value="${ic.monthly}" aria-label="Monthly amount" autofocus>
-      <p class="sub" id="m-desc" style="text-align:center;margin:0">${desc(ic.monthly)}</p>
+      <p class="sub" id="m-desc" style="text-align:center;margin:0 0 16px">${desc(ic.monthly)}</p>
     </div>`, { onMount: sh => {
       const sl = $('#m-slider', sh);
       const upd = () => { sl.setAttribute('aria-valuetext', `€${sl.value} a month`); sl.style.setProperty('--p', ((sl.value - 50) / 350 * 100) + '%'); $('#m-val', sh).textContent = sl.value; $('#m-desc', sh).textContent = desc(+sl.value); };
@@ -1766,10 +1782,10 @@ function bankPage(b) {
     <div class="detail bank-detail" data-bank="${b.id}">
       <div style="display:flex;gap:14px;align-items:center">${tile(b.logo, 52)}<h1>${b.name}</h1></div>
       <p class="lede" style="margin:0;max-width:none">Here's exactly what I'd see from this account. Sample data only.</p>
-      <div class="perm"><span class="ic" style="background:var(--green)">${I.check}</span><b>Balances and transactions</b><p>Sample balances and history help build a picture of your money.</p></div>
-      <div class="perm"><span class="ic" style="background:var(--green)">${I.check}</span><b>Merchant names and fees</b><p>Spot duplicate subscriptions, price rises or fees worth checking.</p></div>
-      <div class="perm"><span class="ic" style="background:var(--label3)">${I.x}</span><b>Moving money out</b><p>This local preview cannot access or move money at a bank.</p></div>
-      <div class="perm"><span class="ic" style="background:var(--label3)">${I.x}</span><b>Selling or sharing your data</b><p>No account details or demo changes leave this browser.</p></div>
+      <div class="perm"><span class="ic ok" style="background:var(--green)">${I.check}</span><b>Balances and transactions</b><p>Sample balances and history help build a picture of your money.</p></div>
+      <div class="perm"><span class="ic ok" style="background:var(--green)">${I.check}</span><b>Merchant names and fees</b><p>Spot duplicate subscriptions, price rises or fees worth checking.</p></div>
+      <div class="perm"><span class="ic no" style="background:var(--label3)">${I.x}</span><b>Moving money out</b><p>This local preview cannot access or move money at a bank.</p></div>
+      <div class="perm"><span class="ic no" style="background:var(--label3)">${I.x}</span><b>Selling or sharing your data</b><p>No account details or demo changes leave this browser.</p></div>
       <div class="stack">
         <button class="btn prominent" data-act="link-bank" data-id="${b.id}">Continue with ${b.name}</button>
         <button class="btn plain" data-act="back">Not Now</button>
@@ -1925,8 +1941,9 @@ const H = {
   voice() { voiceSheet(); },
   about() {
     const a = $('.about');
-    openSheet(`<div class="sheet-head"><h2 data-title>About this prototype</h2><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
-      <div class="body about-sheet">${a.innerHTML.replace(/<h1[^>]*>[\s\S]*?<\/h1>/, '').replace(/id="[^"]*"/g, '')}</div>`);
+    const body = a.innerHTML.replace(/<h1[^>]*>[\s\S]*?<\/h1>/, '').replace(/id="[^"]*"/g, '');
+    push(() => `<div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
+      <div class="detail about-sheet"><h1 data-short="About">About this prototype</h1>${body}</div>`);
   },
   'send-voice'() {
     if (S.chat.busy) return;
@@ -1958,7 +1975,20 @@ app.addEventListener('click', e => {
   const fn = H[el.dataset.act];
   if (fn) fn(el);
 });
-app.addEventListener('input', e => { if (e.target.id === 'payday') S.payDraft = e.target.value; });
+app.addEventListener('input', e => {
+  if (e.target.id === 'payday') {
+    const inp = e.target, clean = inp.value.replace(/\D/g, '').slice(0, 2);
+    if (clean !== inp.value) inp.value = clean;
+    S.payDraft = clean;
+    const v = +clean, bad = clean !== '' && (v < 1 || v > 28);
+    S.payErr = clean === '' ? '' : bad ? 'Enter a whole day from 1 to 28.' : '';
+    const er = $('#payday-err'); if (er && er.textContent !== S.payErr) er.textContent = S.payErr;
+    inp.toggleAttribute('aria-invalid', bad); if (bad) inp.setAttribute('aria-invalid', 'true');
+    const b = $('[data-act="save-payday"]'); if (b) b.disabled = bad || clean === '';
+  }
+  if (e.target.id === 'chat-input') syncSend();
+});
+function syncSend() { const b = $('#composer .send'), i = $('#chat-input'); if (b && i) b.disabled = !i.value.trim(); }
 app.addEventListener('change', e => {
   if (e.target.id === 'car-late') H['toggle-car'](e.target);
 });
@@ -2003,7 +2033,7 @@ document.addEventListener('keydown', e => {
 });
 
 ['#tab-chat', '#tab-money', '#tab-today'].forEach(id => $(id).addEventListener('scroll', e => e.currentTarget.classList.toggle('scrolled', e.currentTarget.scrollTop > 4), { passive: true }));
-renderToday(); renderMoney(); renderChat();
+renderToday(); renderMoney(); renderChat(); syncSend();
 selectTab('today');
 
 /* ---------------- Liquid Glass (React Bits GlassSurface, SVG mode) ---------------- */
@@ -2107,7 +2137,37 @@ selectTab('today');
   scan();
 })();
 
+/* Swipe from the left edge to go back */
+(() => {
+  let g = null;
+  $('#pages').addEventListener('pointerdown', e => {
+    const el = stack[stack.length - 1];
+    if (!el || el.modal || navBusy || sheetEl || alertOpen || e.button) return;
+    const r = el.getBoundingClientRect();
+    if (e.clientX - r.left > 24 || !el.contains(e.target)) return;
+    g = { el, x0: e.clientX, y0: e.clientY, w: r.width, dx: 0, on: false, id: e.pointerId };
+  });
+  window.addEventListener('pointermove', e => {
+    if (!g || e.pointerId !== g.id) return;
+    const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
+    if (!g.on) { if (Math.abs(dy) > 12 && Math.abs(dy) > dx) { g = null; return; } if (dx < 10) return; g.on = true; g.el.classList.add('swiping'); }
+    g.dx = Math.max(0, dx);
+    g.el.style.transform = `translateX(${g.dx}px)`;
+  });
+  const end = e => {
+    if (!g || (e && e.pointerId !== g.id)) return;
+    const { el, dx, w, on } = g; g = null;
+    if (!on) return;
+    el.classList.remove('swiping');
+    el.style.transform = '';
+    if (dx > w * .33) { navBusy = false; pop(); }
+  };
+  window.addEventListener('pointerup', end);
+  window.addEventListener('pointercancel', end);
 })();
+
+})();
+
 </script>
 </body>
 </html>
