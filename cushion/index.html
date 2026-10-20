@@ -241,11 +241,18 @@ button.row[disabled] { cursor: default; }
 
 /* Scroll-edge effect: content softens as it passes under the status bar */
 .edge-top {
-  position: sticky; top: 0; z-index: 6; height: var(--top); pointer-events: none;
-  background: linear-gradient(to bottom, var(--edge) 0%, transparent 100%);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
-  mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  position: sticky; top: 0; z-index: 6; height: calc(var(--top) + 22px); margin-bottom: -22px; pointer-events: none;
+  background: linear-gradient(to bottom, var(--edge) 0%, var(--edge) 45%, transparent 100%);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
+  mask-image: linear-gradient(to bottom, #000 70%, transparent);
+}
+.edge-btm {
+  position: sticky; bottom: 0; z-index: 6; height: 40px; margin-top: -40px; flex: none; pointer-events: none;
+  background: linear-gradient(to top, var(--edge), transparent);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  -webkit-mask-image: linear-gradient(to top, #000 40%, transparent);
+  mask-image: linear-gradient(to top, #000 40%, transparent);
 }
 .edge-bottom {
   position: absolute; z-index: 14; left: 0; right: 0; bottom: 0; height: 128px; pointer-events: none;
@@ -259,6 +266,7 @@ button.row[disabled] { cursor: default; }
 
 .nav { display: flex; align-items: center; justify-content: space-between; padding: 4px 16px 10px; min-height: 52px; gap: 8px; }
 .nav .ttl { font-size: 17px; font-weight: 600; text-align: center; flex: 1; }
+.page-title { margin: 0; text-align: center; font-size: 30px; font-weight: 600; letter-spacing: -.015em; }
 .large-title { font-size: 34px; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; display: flex; align-items: center; gap: 8px; margin: 0; }
 .lede { font-size: 15px; line-height: 1.4; color: var(--label2); margin: 6px 0 0; max-width: 32ch; }
 .media .lede, #tab-chat .lede { color: var(--on-media-2); }
@@ -289,8 +297,7 @@ button.row[disabled] { cursor: default; }
 .greet { color: #FFFFFF; font-size: 24px; line-height: 1.22; letter-spacing: -.01em; font-weight: 500; text-wrap: balance; margin: 4px 0 0; }
 .greet .sub { color: rgba(255, 255, 255, .8); }
 .greet .avatar { display: inline-block; width: 26px; height: 26px; border-radius: 50%; vertical-align: -5px; margin: 0 2px; background: radial-gradient(circle at 50% 38%, #F6C8A8 0 30%, transparent 31%), radial-gradient(circle at 50% 110%, #E58A4E 0 46%, transparent 47%), linear-gradient(#5B3B2A, #3A2418); box-shadow: 0 0 0 2px rgba(255, 255, 255, .7); }
-.safe { position: relative; text-align: center; color: #FFFFFF; display: grid; gap: 12px; padding: 22px 0 12px; }
-.safe::before { content: ""; position: absolute; z-index: -1; left: 50%; top: 50%; width: 300px; height: 190px; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 255, 255, .28), transparent); }
+.safe { position: relative; text-align: center; color: #FFFFFF; display: grid; gap: 12px; padding: 26px 16px 20px; border-radius: 32px; background: linear-gradient(180deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .08)); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
 .safe .num { font-size: 88px; font-weight: 200; }
 .safe .num .cur { font-size: 14px; vertical-align: 52px; margin-right: 6px; opacity: .8; letter-spacing: .02em; }
 .safe .num .cents { font-size: 16px; vertical-align: 52px; margin-left: 4px; }
@@ -356,13 +363,16 @@ button.row[disabled] { cursor: default; }
 .callout { border-radius: 18px; padding: 14px 16px; font-size: 14px; line-height: 1.4; display: flex; gap: 10px; align-items: flex-start; }
 .callout svg { flex: none; margin-top: 1px; }
 .paused-badge { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; background: rgba(255, 255, 255, .22); }
-.dock { position: sticky; bottom: 0; z-index: 6; margin-top: auto; padding: 28px 20px 34px; display: grid; gap: 6px; }
-.dock::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, .16)); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 40%); mask-image: linear-gradient(to bottom, transparent, #000 40%); }
+.dock { position: sticky; bottom: 0; z-index: 6; margin-top: auto; padding: 30px 20px 34px; display: grid; gap: 6px; }
+.dock::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, .28) 40%); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%); mask-image: linear-gradient(to bottom, transparent, #000 22%); }
+.dock .btn.glass { background: rgba(255, 255, 255, .24); -webkit-backdrop-filter: blur(20px) saturate(160%); backdrop-filter: blur(20px) saturate(160%); }
+.detail { padding-bottom: 8px; }
 .chart { width: 100%; height: auto; }
 
 /* ---------- Chat ---------- */
 #tab-chat { color: var(--on-media); padding-bottom: 200px; --edge: rgba(120, 100, 60, .3); }
-.chat-bg { position: absolute; inset: 0; z-index: -1; min-height: 100%; }
+.chat-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.composer input { color: #FFFFFF; }
 .chat-wrap { padding: 8px 16px 0; display: grid; gap: 18px; }
 .chat-title { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 44px; }
 .chat-title h1 { margin: 0; font-size: 22px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
@@ -430,6 +440,10 @@ button.row[disabled] { cursor: default; }
 }
 .toast.show { transform: translateX(-50%) scale(1); opacity: 1; height: 44px; border-radius: 22px; }
 .toast .tick { width: 26px; height: 26px; border-radius: 50%; background: var(--green); color: #FFFFFF; display: grid; place-items: center; flex: none; }
+.toast.error .tick { background: var(--red); }
+.toast .bang { display: none; font-weight: 800; font-size: 15px; }
+.toast.error .tick svg { display: none; }
+.toast.error .bang { display: block; }
 .toast span:last-child { overflow: hidden; text-overflow: ellipsis; }
 
 .spinner { width: 20px; height: 20px; border-radius: 50%; border: 2.5px solid rgba(255, 255, 255, .4); border-top-color: #FFFFFF; animation: spin .8s linear infinite; }
@@ -505,6 +519,7 @@ button.row[disabled] { cursor: default; }
         </span>
       </div>
 
+      <div class="chat-bg g-chat" id="chat-bg" hidden></div>
       <section class="tab-panel" id="tab-today" aria-label="Today"></section>
       <section class="tab-panel" id="tab-money" aria-label="Money" hidden></section>
       <section class="tab-panel" id="tab-chat" aria-label="Chat" hidden></section>
@@ -539,7 +554,7 @@ button.row[disabled] { cursor: default; }
 
       <div id="pages"></div>
       <div class="layer" id="layer"></div>
-      <div class="toast" id="toast" role="status" aria-live="polite"><span class="tick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span id="toast-text"></span></div>
+      <div class="toast" id="toast" role="status" aria-live="polite"><span class="tick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span class="bang">!</span></span><span id="toast-text"></span></div>
       <div class="home-ind"></div>
     </div>
   </div>
@@ -591,12 +606,15 @@ const S = {
   linked: [],
   iceland: { saved: 1400, goal: 2400, monthly: 140, paused: false },
   fixesSent: 0,
+  dismissed: [],
+  spotifyDelta: 0,
   payDay: 22,
   carLate: false,
   chat: { title: null, emoji: null, msgs: [], busy: false },
   tab: 'today',
 };
-const FLEX_LEFT = 2553.45; // flexible budget left in this pay period, before fixes
+const FLEX_DAILY = 88.05;  // flexible budget per day this pay period
+const SPOTIFY_DAILY = 0.48; // $13.99 a month back in the budget, spread over the 29-day pay period
 const COMFORT = 1000;      // the balance Maya never wants checking to drop below
 const BANKS = [
   { id: 'chase', name: 'Chase Bank', sub: 'Checking Account · USD', mask: '9331', bal: 850, kind: 'cash', color: '#117ACA', mono: '◆', found: true },
@@ -620,7 +638,6 @@ const SPEND = [
 ];
 const FIXES = [
   { id: 'parking', name: 'Duplicate parking charge', note: 'City Parking refund · 19 Aug', amt: 46.01, ready: () => true },
-  { id: 'spotify', name: 'Second Spotify plan', note: '', amt: 13.99, ready: () => S.spotifyCancelled },
 ];
 const fixesTotal = () => FIXES.filter(f => f.ready()).reduce((a, f) => a + f.amt, 0);
 const fixesAvailable = () => r2(fixesTotal() - S.fixesSent);
@@ -630,10 +647,11 @@ const sumKind = k => S.accounts.filter(a => a.kind === k).reduce((a, b) => a + b
 
 /* ---------------- Forecast: checking, 24 Aug to 30 Sep ---------------- */
 const DAYS = 38;
-const dayLabel = i => i <= 7 ? `${24 + i} Aug` : `${i - 7} Sep`;
 const sep = d => 7 + d; // day offset of a September date
+const payIndex = pd => pd > 24 ? pd - 24 : sep(pd); // next pay day on or after tomorrow
+const dayLabel = i => i <= 7 ? `${24 + i} Aug` : `${i - 7} Sep`;
 function forecast(over = {}) {
-  const st = Object.assign({ carLate: S.carLate, payDay: S.payDay, start: acct('chk').bal, extra: 0 }, over);
+  const st = Object.assign({ carLate: S.carLate, payDay: S.payDay, start: sumKind('cash'), extra: 0 }, over);
   const ev = [
     { day: 4, name: 'Energy bill', amt: -299 },
     { day: sep(1), name: 'Rent', amt: -1850 },
@@ -641,6 +659,7 @@ function forecast(over = {}) {
     { day: sep(4), name: 'Freelance invoice', amt: 370 },
     { day: sep(st.payDay), name: 'Salary', amt: 3482 },
   ];
+  if (st.payDay >= 24) ev.push({ day: st.payDay - 24, name: 'Salary', amt: 3482 });
   if (!S.iceland.paused) ev.push({ day: sep(23), name: 'Iceland transfer', amt: -S.iceland.monthly });
   ev.sort((a, b) => a.day - b.day || b.amt - a.amt);
   const start = st.start - st.extra;
@@ -653,22 +672,34 @@ function forecast(over = {}) {
     if (bal < low.bal) low = { bal, day: i };
   }
   // The low point that matters for today is the one before the next pay day
-  const payIdx = sep(st.payDay);
+  const payIdx = payIndex(st.payDay);
   let pre = { bal: start, day: 0 };
   for (let i = 0; i < payIdx; i++) if (days[i] < pre.bal) pre = { bal: days[i], day: i };
-  return { ev, days, low, pre, start, payIdx };
+  return { ev, days, low, pre, start, payIdx, st };
 }
 // Safe to spend: the flexible budget per day until pay day, capped by what checking can cover
 // before its thinnest moment while staying above the comfort line.
 function safety(fc = forecast()) {
   const daysToPay = fc.payIdx;
-  const budget = r2((FLEX_LEFT + (S.spotifyCancelled ? 13.99 : 0)) / daysToPay);
+  const budget = r2(FLEX_DAILY + (S.spotifyCancelled ? SPOTIFY_DAILY : 0));
   const cash = r2((fc.pre.bal - COMFORT) / (fc.pre.day + 1));
   return { safe: Math.max(0, Math.min(budget, cash)), budget, cash, limitedByCash: cash < budget, daysToPay, fc };
 }
 const safeNow = () => safety().safe;
 
 /* ---------------- Rendering helpers ---------------- */
+function focusKey(a) {
+  return a && a !== document.body && (a.id ? '#' + a.id : a.dataset && a.dataset.act ? `[data-act="${a.dataset.act}"]${a.dataset.id ? `[data-id="${a.dataset.id}"]` : ''}` : null);
+}
+function restoreFocus(opener, key, fallbacks = []) {
+  const ok = n => n && n.isConnected && !n.closest('[inert]') && !n.disabled && n.offsetParent !== null;
+  let n = ok(opener) ? opener : null;
+  if (!n && key) n = $$(key, app).find(ok);
+  for (const f of fallbacks) { if (n) break; n = $$(f, app).find(ok); }
+  if (!n) { const t = stack[stack.length - 1]; n = t ? t.querySelector('.nav button') : $('.tab[aria-selected="true"]'); }
+  n && n.focus({ preventScroll: true });
+}
+const FALLBACK = ['.page:last-child .dock button:not([disabled])', '.page:last-child .nav button', '.action .ok', '#all-done', '.tab[aria-selected="true"]'];
 function keepFocus(fn) {
   const a = document.activeElement;
   const key = a && a !== document.body && (a.id ? '#' + a.id : a.dataset && a.dataset.act ? `[data-act="${a.dataset.act}"]${a.dataset.id ? `[data-id="${a.dataset.id}"]` : ''}` : null);
@@ -687,11 +718,13 @@ function renderToday() {
   const lead = n === 2 ? 'Two things need your action' : n === 1 ? 'One thing needs your action' : 'Nothing needs you today.';
   const tail = n ? ' to secure your spend.' : sf.limitedByCash ? ` Checking runs thin on ${dayLabel(sf.fc.pre.day)}, so today's number is lower.` : ' Your spend is covered.';
   const [whole, cents] = sf.safe.toFixed(2).split('.');
+  const saveAfter = safety(forecast({ extra: 1200 })).safe;
+  const saveLine = saveAfter >= sf.safe ? "today's safe-to-spend stays the same" : `today's safe-to-spend drops to ${usd(saveAfter, 2)}`;
   const cards = S.actions.map(id => id === 'save' ? `
       <article class="action glass" data-card="save">
         <div class="emoji" aria-hidden="true">🐣</div>
         <h3>Move $1,200 into savings</h3>
-        <p>It has sat in checking for 41 days. You'd earn about $52 a year, and today's safe-to-spend stays the same.</p>
+        <p>It has sat in checking for 41 days. You'd earn about $52 a year, and ${saveLine}.</p>
         <div class="btns"><button class="ok" data-act="approve-save" aria-label="Approve move to savings">${I.check}</button><button class="no" data-act="dismiss" data-id="save" aria-label="Dismiss move to savings">${I.x}</button></div>
       </article>` : `
       <article class="action glass" data-card="spotify">
@@ -700,7 +733,7 @@ function renderToday() {
         <p>Two accounts bill the same card. I have drafted the cancellation and just need your go-ahead.</p>
         <div class="btns"><button class="ok" data-act="open-spotify" aria-label="Review the Spotify cancellation">${I.check}</button><button class="no" data-act="dismiss" data-id="spotify" aria-label="Dismiss Spotify suggestion">${I.x}</button></div>
       </article>`).join('');
-  const done = `<article class="action glass done"><span class="ok" aria-hidden="true">${I.check}</span><div><h3>All caught up</h3><p>New suggestions show up here when Cushion spots them.</p></div></article>`;
+  const done = `<article class="action glass done" tabindex="-1" id="all-done"><span class="ok" aria-hidden="true">${I.check}</span><div><h3>All caught up</h3><p>New suggestions show up here when Cushion spots them.</p></div></article>`;
   $('#tab-today').innerHTML = `${edge}
     <div class="today-hero" aria-hidden="true"></div>
     <div class="content">
@@ -738,7 +771,7 @@ function renderMoney() {
           <h1 class="large-title">Money <span aria-hidden="true">👾</span></h1>
           <p class="lede">What you have, what's coming and what I think is worth fixing.</p>
         </div>
-        <button class="pill glass" data-act="fixes" style="margin-top:4px;flex:none">Fixes${avail > 0 ? ` <span style="color:var(--green);font-weight:600">${usd(avail, 0)}</span>` : ''}</button>
+        <button class="pill glass" data-act="fixes" style="margin-top:4px;flex:none">Fixes${avail > 0 ? ` <span style="color:var(--green);font-weight:600">${usd(avail, 2)}</span>` : ''}</button>
       </div>
       <div>
         <div class="total"><span class="num" id="net-num"><span class="cur">$</span>${fmt(net())}</span><span class="delta">+$412 this month</span></div>
@@ -769,7 +802,7 @@ function renderMoney() {
       <div>
         <h2 class="section-h" style="margin:0">Coming up</h2>
         <button class="card-media g-month" data-act="open-month">
-          <span class="pct">Pay day ${S.payDay} Sep</span>
+          <span class="pct">Pay day ${dayLabel(fc.payIdx)}</span>
           <span style="font-size:13px;opacity:.9">The month ahead · thinnest moment</span>
           <span class="ttl">${usd(fc.pre.bal)} on ${dayLabel(fc.pre.day)}</span>
           <span style="font-size:13px;opacity:.9">${fc.pre.bal < COMFORT ? 'Under your $1,000 comfort line' : `${usd(fc.pre.bal - COMFORT)} above your $1,000 comfort line`}</span>
@@ -800,7 +833,7 @@ function renderChat() {
     : `<div class="ai" id="ai-${i}">${m.typing ? '<div class="typing" aria-label="Cushion is typing"><i></i><i></i><i></i></div>' : m.paras.map(p => `<p>${esc(p)}</p>`).join('')}</div>`).join('');
   const sug = c.msgs.length ? '' : `<div class="suggest">${SUGGEST.map(s => `<button class="glass on-media" data-act="ask" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>`;
   keepFocus(() => {
-    $('#tab-chat').innerHTML = `<div class="chat-bg g-chat"></div>${edge}<div class="chat-wrap" aria-live="polite">${head}${body}${sug}</div>`;
+    $('#tab-chat').innerHTML = `${edge}<div class="chat-wrap" aria-live="polite">${head}${body}${sug}</div>`;
   });
   $('#composer').querySelectorAll('button').forEach(b => { b.disabled = c.busy; });
   updateChrome();
@@ -815,7 +848,7 @@ function spotifyPage() {
       <h1>Cancel the second Spotify <span aria-hidden="true">👹</span></h1>
       <p class="body">I cancelled the account opened in March and kept the family plan. The last play on it was 7 June.</p>
       <div class="kv"><div><span>Keeping</span><span>Family · $19.99</span></div><div><span>Cancelled</span><span>Individual · $13.99</span></div></div>
-      <div class="callout glass">${I.check}<span><b>The second Spotify has been cancelled.</b><br>Your safe-to-spend went up by ${usd(13.99 / sf.daysToPay, 2)} a day until pay day, and $13.99 joins your fixes money.</span></div>
+      <div class="callout glass">${I.check}<span><b>The second Spotify has been cancelled.</b><br>${S.spotifyDelta > 0 ? `Your safe-to-spend went up by ${usd(S.spotifyDelta, 2)} a day.` : `Your safe-to-spend stays at ${usd(sf.safe, 2)} for now, because checking is what limits it until pay day.`} You'll save $13.99 a month from 21 September.</span></div>
     </div>
     <div class="dock">
       <p class="foot">Completed in the local demo</p>
@@ -916,9 +949,10 @@ function monthPage() {
   const fc = forecast();
   const other = forecast({ carLate: !S.carLate });
   const gain = r2(fc.pre.bal - other.pre.bal);
-  const lowIsRentCar = !S.carLate && (fc.pre.day === sep(1) || fc.pre.day === sep(2)) && S.payDay > 2;
+  const lowIsRentCar = !S.carLate && (fc.pre.day === sep(1) || fc.pre.day === sep(2)) && fc.payIdx > sep(2);
   let explain;
   if (lowIsRentCar) explain = `Rent and the car payment land a day apart. It clears, but there's little room if something unexpected turns up that week.`;
+  else if (S.carLate && gain > 0 && sep(6) >= fc.payIdx) explain = `With the car payment on the 6th, it lands after pay day. Your thinnest moment rises by ${usd(gain)}.`;
   else if (S.carLate && gain > 0) explain = `With the car payment on the 6th, your freelance invoice lands first. Your thinnest moment rises by ${usd(gain)}.`;
   else if (S.carLate) explain = `Moving the car payment doesn't change your thinnest moment with pay day on the ${ord(S.payDay)}.`;
   else explain = `Your bills are spread out enough that no single week gets tight.`;
@@ -955,17 +989,18 @@ function monthPage() {
       <div>
         <div class="section-h" style="padding:0 0 4px">Selected sample bills</div>
         <div class="plain-rows">${bills}</div>
-        <p class="foot" style="margin-top:14px">Starts from ${usd(fc.start)} in checking. Bills and pay only; everyday spending comes out of safe-to-spend. Local forecast only, bank payment dates stay unchanged.</p>
+        <p class="foot" style="margin-top:14px">Starts from ${usd(fc.start)} across your spending accounts. Bills and pay only; everyday spending comes out of safe-to-spend. Local forecast only, bank payment dates stay unchanged.</p>
       </div>
     </div>`;
 }
 
 function accountsPage() {
   return `
-    <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Close accounts">${I.x}</button><span class="ttl">Accounts</span><span style="width:44px"></span></div>
+    <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Close accounts">${I.x}</button></div>
     <div class="detail">
+      <h1 class="page-title">Accounts</h1>
       <div class="list" style="border-radius:28px">${S.accounts.map(a => `
-        <div class="row" data-acct="${a.id}" style="--inset:64px;min-height:64px">
+        <div class="row" data-acct="${a.id}" tabindex="-1" style="--inset:64px;min-height:64px">
           <span class="bank-logo" style="background:${a.color}">${a.mono}</span>
           <span class="grow"><div class="t" style="font-size:16px">${esc(a.name)}</div><div class="s">${esc(a.sub)} ···· ${a.mask}</div></span>
           <span class="v">${usd(a.bal)}</span>
@@ -1019,10 +1054,18 @@ function push(render, { modal = false, media = '', onMount } = {}) {
   const el = document.createElement('div');
   el.className = `page ${modal ? 'from-bottom' : 'from-right'} ${media ? 'media ' + media : ''}`;
   el.setAttribute('role', 'region');
-  el.render = () => keepFocus(() => { const st = el.scrollTop; el.innerHTML = `${edge}<div class="wrap">${render()}</div>`; el.scrollTop = st; onMount && onMount(el); });
+  el.render = () => keepFocus(() => {
+    const st = el.scrollTop;
+    const html = render();
+    el.innerHTML = `${edge}<div class="wrap">${html}</div>${html.includes('class="dock"') ? '' : '<div class="edge-btm" aria-hidden="true"></div>'}`;
+    el.scrollTop = st;
+    const h = el.querySelector('h1'); if (h) el.setAttribute('aria-label', h.textContent.trim());
+    onMount && onMount(el);
+  });
   el.render();
   el.modal = modal;
   el.opener = document.activeElement;
+  el.openerKey = focusKey(el.opener);
   $('#pages').appendChild(el);
   const prev = stack[stack.length - 1];
   stack.push(el);
@@ -1031,7 +1074,7 @@ function push(render, { modal = false, media = '', onMount } = {}) {
     if (prev && !modal) prev.classList.add('under');
   }));
   updateChrome();
-  setTimeout(() => { const f = el.querySelector('.nav button'); f && f.focus({ preventScroll: true }); }, 60);
+  setTimeout(() => { if (!$$('#layer .sheet, #layer .alert').some(x => !x.closing)) { const f = el.querySelector('.nav button'); f && f.focus({ preventScroll: true }); } }, 60);
   return el;
 }
 function pop(force) {
@@ -1046,11 +1089,8 @@ function pop(force) {
   if (prev) prev.classList.remove('under');
   setTimeout(() => el.remove(), 520);
   updateChrome();
-  const o = el.opener;
-  setTimeout(() => {
-    if (o && o.isConnected && !o.closest('[inert]')) o.focus({ preventScroll: true });
-    else { const t = stack[stack.length - 1]; const f = t ? t.querySelector('.nav button') : $(`.tab[aria-selected="true"]`); f && f.focus({ preventScroll: true }); }
-  }, 30);
+  const o = el.opener, k = el.openerKey;
+  setTimeout(() => restoreFocus(o, k, FALLBACK.slice(1)), 30);
 }
 function updateChrome() {
   const top = stack[stack.length - 1];
@@ -1061,10 +1101,11 @@ function updateChrome() {
   $('#tabbar').classList.toggle('away', !!top || convo);
   $('#composer').hidden = !!top || !inChat;
   $('#composer').classList.toggle('solo', convo);
+  $('#chat-bg').hidden = !inChat;
   syncInert();
 }
 function syncInert() {
-  const overlay = !!$('#layer .sheet, #layer .alert');
+  const overlay = $$('#layer .sheet, #layer .alert').some(x => !x.closing);
   const top = stack[stack.length - 1];
   ['#tab-today', '#tab-money', '#tab-chat', '#composer'].forEach(s => { $(s).inert = overlay || !!top; });
   $('#tabbar').inert = overlay || !!top || (S.tab === 'chat' && S.chat.msgs.length > 0);
@@ -1101,7 +1142,7 @@ function openSheet(html, { dark = false, onMount } = {}) {
   const sh = document.createElement('div'); sh.className = 'sheet' + (dark ? ' dark-sheet' : ''); sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-modal', 'true'); sh.setAttribute('aria-labelledby', id);
   sh.innerHTML = `<div class="grab"></div>${html.replace('data-title', `id="${id}"`)}`;
   layer.append(scrim, sh);
-  sheetEl = { scrim, sh, opener: document.activeElement };
+  sheetEl = { scrim, sh, opener: document.activeElement, key: focusKey(document.activeElement) };
   syncInert();
   requestAnimationFrame(() => requestAnimationFrame(() => { scrim.classList.add('show'); sh.classList.add('show'); }));
   onMount && onMount(sh);
@@ -1110,15 +1151,17 @@ function openSheet(html, { dark = false, onMount } = {}) {
 }
 function closeSheet(instant) {
   if (!sheetEl) return;
-  const { scrim, sh, opener } = sheetEl; sheetEl = null;
+  const { scrim, sh, opener, key } = sheetEl; sheetEl = null;
   sh.closing = true;
   sh.inert = true;
   scrim.style.pointerEvents = sh.style.pointerEvents = 'none';
   scrim.classList.remove('show'); sh.classList.remove('show');
+  sh.inert = true;
+  syncInert();
+  // Focus returns as the sheet starts to leave, once the screen underneath is interactive again
+  if (!instant) setTimeout(() => restoreFocus(opener, key, FALLBACK), 20);
   const done = () => { scrim.remove(); sh.remove(); syncInert(); };
   if (instant) done(); else setTimeout(done, 500);
-  syncInert();
-  if (!instant && opener && opener.isConnected) setTimeout(() => { if (!opener.closest('[inert]')) opener.focus({ preventScroll: true }); }, 20);
 }
 let alertOpen = null;
 function alertBox({ title, msg, actions }) {
@@ -1126,7 +1169,7 @@ function alertBox({ title, msg, actions }) {
   return new Promise(resolve => {
     const layer = $('#layer');
     const id = 'alert-title-' + (++uid);
-    const opener = document.activeElement;
+    const opener = document.activeElement, key = focusKey(opener);
     const scrim = document.createElement('div'); scrim.className = 'scrim';
     const al = document.createElement('div'); al.className = 'alert'; al.setAttribute('role', 'alertdialog'); al.setAttribute('aria-modal', 'true'); al.setAttribute('aria-labelledby', id);
     al.innerHTML = `<h3 id="${id}">${title}</h3><p>${msg}</p>${actions.map((a, i) => `<button class="btn ${a.style || 'gray'}" data-i="${i}">${a.label}</button>`).join('')}`;
@@ -1135,8 +1178,11 @@ function alertBox({ title, msg, actions }) {
       if (!alertOpen) return;
       alertOpen = null;
       al.style.pointerEvents = 'none';
+      al.closing = true;
       scrim.classList.remove('show'); al.classList.remove('show');
-      setTimeout(() => { scrim.remove(); al.remove(); syncInert(); if (opener && opener.isConnected && !opener.closest('[inert]')) opener.focus({ preventScroll: true }); }, 250);
+      syncInert();
+      setTimeout(() => restoreFocus(opener, key, FALLBACK), 20);
+      setTimeout(() => { scrim.remove(); al.remove(); syncInert(); }, 250);
       resolve(value);
     };
     alertOpen = { cancel: () => finish(false) };
@@ -1146,8 +1192,9 @@ function alertBox({ title, msg, actions }) {
   });
 }
 let toastT;
-function toast(text) {
+function toast(text, opts = {}) {
   $('#toast-text').textContent = text;
+  $('#toast').classList.toggle('error', !!opts.error);
   $('#toast').classList.add('show');
   clearTimeout(toastT);
   toastT = setTimeout(hideToast, 2400);
@@ -1184,9 +1231,11 @@ function reply(q) {
   if (/flight|\$?600|march|book/.test(s) && !/iceland/.test(s)) {
     const after = r2(fc.pre.bal - spendToLow - 600);
     if (room >= 600) return { title: 'The March flight', emoji: '🎟️', paras: [`Yes. Even after $600 and your usual daily spending, you'd keep ${usd(after)} on ${thin}, still above your comfort line.`] };
+    const hits = fc.ev.filter(e => e.day <= fc.pre.day && e.day > fc.pre.day - 6 && e.amt < 0).map(e => e.name.toLowerCase());
+    const why = hits.length ? `${hits.join(' and ').replace(/^./, c => c.toUpperCase())} ${hits.length > 1 ? 'both land' : 'lands'} by ${thin}.` : `Your checking is lowest on ${thin}.`;
     return { title: 'The March flight', emoji: '🎟️', paras: [
-      `Yes, but not before pay day. Rent and car insurance both land by the ${S.carLate ? '6th' : '2nd'}. The month ahead shows ${usd(fc.pre.bal)} on ${thin}, but that's before everyday spending. Add ${usd(spendToLow)} of that at your safe-to-spend pace and $600 for the flight, and you'd be at ${usd(after)}, under your comfort line.`,
-      `Book after pay day on the ${pay} and you keep your full ${usd(sf.safe, 2)} a day.`] };
+      `Yes, but not before pay day. ${why} The month ahead shows ${usd(fc.pre.bal)} on ${thin}, but that's before everyday spending. Add ${usd(spendToLow)} of that at your safe-to-spend pace and $600 for the flight, and you'd be at ${usd(after)}, under your comfort line.`,
+      sf.limitedByCash ? `Book after pay day on the ${pay}, when the flight no longer competes with this stretch.` : `Book after pay day on the ${pay} and you keep your full ${usd(sf.safe, 2)} a day.`] };
   }
   if (/eat|coffee|blue bottle|restaurant/.test(s)) {
     return { title: 'Eating out', emoji: '☕️', paras: [
@@ -1201,7 +1250,9 @@ function reply(q) {
          m > 6 ? `That's after February. ${usd(Math.ceil(rem / 6 / 10) * 10)} a month gets you there in time.` : 'That gets you there before the February trip.'] };
   }
   if (/safe|spend|today/.test(s)) {
-    return { title: 'Safe to spend', emoji: '💧', paras: [`You can spend ${usd(sf.safe, 2)} today. It spreads your flexible budget over the ${sf.daysToPay} days to pay day and keeps checking above $1,000 on ${thin}.`] };
+    return { title: 'Safe to spend', emoji: '💧', paras: [sf.limitedByCash
+      ? `You can spend ${usd(sf.safe, 2)} today. Your budget allows ${usd(sf.budget, 2)}, but I held it back so checking stays above $1,000 on ${thin}.`
+      : `You can spend ${usd(sf.safe, 2)} today. That's your flexible budget for the day, and checking still stays above $1,000 on ${thin}.`] };
   }
   return { title: 'Your question', emoji: '💬', paras: ['In this demo I can only see the sample accounts. Try asking about a $600 flight, the dental bill, eating out or the Iceland goal.'] };
 }
@@ -1251,7 +1302,7 @@ function txSheet(t) {
     <div class="sheet-head"><span class="merchant" style="width:48px;height:48px;font-size:26px;border-radius:14px" aria-hidden="true">${t.emoji}</span><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
     <div class="body">
       <div><h2 data-title>${t.name}</h2><p class="sub">${t.when} · ${t.cat}</p></div>
-      <div class="num" style="font-size:44px">−<span class="cur">$</span>${fmt(t.amt, 2)}</div>
+      <div class="num" style="font-size:44px;letter-spacing:-.02em">${usd(t.amt, 2)}</div>
       <div class="callout" style="background:var(--fill)">${I.info}<span>${t.id === 'sp' && S.spotifyCancelled ? 'Cancelled today. This was the last charge on this plan.' : t.insight}</span></div>
       <button class="btn gray" data-act="close-sheet">Done</button>
     </div>`);
@@ -1264,11 +1315,18 @@ function fixesSheet() {
     <div class="body">
       <div class="list" style="background:var(--fill)">${FIXES.map(f => `
         <div class="row">
-          <span class="grow"><div class="t" style="font-size:16px">${f.name}</div><div class="s">${f.id === 'spotify' ? (S.spotifyCancelled ? 'Cancelled today · $13.99 a month' : 'Waiting for your go-ahead') : f.note}</div></span>
-          ${f.ready() ? `<span class="v" style="color:var(--green)">+${usd(f.amt, 2)}</span>` : `<button class="pill" style="background:var(--blue);color:#fff;height:32px" data-act="fix-review">Review</button>`}
+          <span class="grow"><div class="t" style="font-size:16px">${f.name}</div><div class="s">${f.note}</div></span>
+          <span class="v" style="color:var(--green)">+${usd(f.amt, 2)}</span>
         </div>`).join('')}
+        <div class="row">
+          <span class="grow"><div class="t" style="font-size:16px">Second Spotify plan</div><div class="s">${S.spotifyCancelled ? 'Cancelled · $13.99 a month back in your budget' : S.dismissed.includes('spotify') ? 'Dismissed · $13.99 a month' : 'Saves $13.99 a month · needs your go-ahead'}</div></span>
+          ${S.spotifyCancelled ? `<span class="tag">Done</span>` : `<button class="pill" style="background:var(--blue);color:#fff;height:32px" data-act="fix-review">Review</button>`}
+        </div>
       </div>
-      <div class="kv"><div><span>Ready to move</span><span style="font-weight:600">${usd(avail, 2)}</span></div>${S.fixesSent ? `<div><span>Already sent to Iceland</span><span>${usd(S.fixesSent, 2)}</span></div>` : ''}</div>
+      <div class="list" style="background:var(--fill)">
+        <div class="row"><span class="grow t" style="font-size:16px">Ready to move</span><span class="v" style="font-weight:600">${usd(avail, 2)}</span></div>
+        ${S.fixesSent ? `<div class="row"><span class="grow t" style="font-size:16px">Already sent to Iceland</span><span class="v">${usd(S.fixesSent, 2)}</span></div>` : ''}
+      </div>
       <button class="btn prominent" data-act="fix-to-iceland" ${avail > 0 ? '' : 'disabled'}>Send to Iceland goal</button>
     </div>`);
 }
@@ -1304,7 +1362,7 @@ function bankSheet(b) {
       <div class="perm"><span class="ic" style="background:var(--label3)">${I.x}</span><b>Selling or sharing your data</b><p>No account details or demo changes leave this browser.</p></div>
       <div class="stack">
         <button class="btn prominent" data-act="link-bank" data-id="${b.id}">Continue with ${b.name} · demo</button>
-        <button class="btn plain" data-act="close-sheet">Keep existing samples</button>
+        <button class="btn plain" data-act="close-sheet">Not now</button>
       </div>
     </div>`);
 }
@@ -1328,19 +1386,22 @@ const once = fn => async el => { if (actionBusy) return; actionBusy = true; try 
 const H = {
   'approve-save': once(async () => {
     if (!S.actions.includes('save')) return;
-    const before = safeNow(), after = forecast({ extra: 1200 });
-    const ok = await alertBox({ title: 'Move $1,200 into savings?', msg: `This moves sample money from checking to Maya's Stash. Your thinnest moment before pay day becomes ${usd(after.pre.bal)}, and today's ${usd(before, 2)} stays the same.`, actions: [{ label: 'Move $1,200 · demo', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
+    const before = safeNow(), after = forecast({ extra: 1200 }), afterSafe = safety(after).safe;
+    const ok = await alertBox({ title: 'Move $1,200 into savings?', msg: `This moves sample money from checking to Maya's Stash. Your thinnest moment before pay day becomes ${usd(after.pre.bal)}, and today's safe-to-spend ${afterSafe >= before ? `stays at ${usd(before, 2)}` : `drops from ${usd(before, 2)} to ${usd(afterSafe, 2)}`}.`, actions: [{ label: 'Move $1,200 · demo', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
     if (!ok || !S.actions.includes('save')) return;
     await removeAction('save');
     acct('chk').bal -= 1200; acct('stash').bal += 1200;
     refresh();
+    restoreFocus(null, null, ['.action .ok', '#all-done']);
     toast('Moved $1,200 to Maya\'s Stash');
   }),
   dismiss: once(async el => {
     const id = el.dataset.id;
     if (!S.actions.includes(id)) return;
     await removeAction(id);
+    S.dismissed.push(id);
     refresh();
+    restoreFocus(null, null, ['.action .ok', '#all-done']);
     toast('Dismissed. I won\'t suggest it again');
   }),
   'open-spotify'() { push(spotifyPage, { media: 'g-teal' }); },
@@ -1353,14 +1414,16 @@ const H = {
     const from = safeNow();
     S.spotifyCancelled = true;
     S.actions = S.actions.filter(a => a !== 'spotify');
+    S.spotifyDelta = r2(safeNow() - from);
     refresh();
+    restoreFocus(null, null, ['.page:last-child .dock button']);
     const to = safeNow();
     const w = $('#safe-num .w'); if (w) tween(w, Math.floor(from), Math.floor(to));
-    toast(`Safe to spend is now ${usd(to, 2)}`);
+    toast(S.spotifyDelta > 0 ? `Safe to spend is now ${usd(to, 2)}` : 'Second Spotify cancelled');
   }),
   tx(el) { txSheet(TX.find(t => t.id === el.dataset.id)); },
   fixes() { fixesSheet(); },
-  'fix-review'() { closeSheet(); selectTab('today'); setTimeout(() => push(spotifyPage, { media: 'g-teal' }), 260); },
+  'fix-review'() { closeSheet(true); push(spotifyPage, { media: 'g-teal' }); },
   'fix-to-iceland'() {
     if (fixesAvailable() <= 0) return;
     closeSheet();
@@ -1379,6 +1442,7 @@ const H = {
     acct('chk').bal = r2(acct('chk').bal - amt2); acct('stash').bal = r2(acct('stash').bal + amt2);
     refresh();
     tween($('#ice-num .w'), from, S.iceland.saved, 1100);
+    restoreFocus(null, null, ['.page:last-child [data-act="change-monthly"]']);
     toast(`${usd(amt2, 2)} added to Iceland`);
   }),
   'change-monthly'() { monthlySheet(); },
@@ -1387,6 +1451,7 @@ const H = {
     const wasPaused = S.iceland.paused;
     S.iceland.monthly = +sl.value; S.iceland.paused = false;
     closeSheet(); refresh();
+    restoreFocus(null, null, ['.page:last-child [data-act="change-monthly"]']);
     toast(`${usd(S.iceland.monthly)} a month${wasPaused ? ', transfers resumed' : ''}`);
   },
   'toggle-pause'() { S.iceland.paused = !S.iceland.paused; refresh(); toast(S.iceland.paused ? 'Transfers paused' : 'Transfers resumed'); },
@@ -1397,7 +1462,7 @@ const H = {
   'save-payday'() {
     const inp = $('#payday'); if (!inp) return;
     const v = Number(inp.value);
-    if (!Number.isInteger(v) || v < 1 || v > 28) { toast('Pick a whole day from 1 to 28'); inp.focus(); return; }
+    if (!Number.isInteger(v) || v < 1 || v > 28) { toast('Pick a whole day from 1 to 28', { error: true }); inp.focus(); return; }
     S.payDay = v; refresh(); toast(`Pay day saved: the ${ord(v)}`);
   },
   accounts() { push(accountsPage, { modal: true, media: 'g-accounts' }); },
@@ -1421,7 +1486,7 @@ const H = {
     S.linked.push({ name: b.name, bal: b.bal });
     pop(true);
     refresh();
-    const row = $(`[data-acct="${b.id}"]`); row && row.classList.add('flash');
+    const row = $(`[data-acct="${b.id}"]`); if (row) { row.classList.add('flash'); setTimeout(() => row.focus({ preventScroll: false }), T + 40); }
     toast(`${b.name} added · ${usd(b.bal)}`);
   }),
   back(el) { if (el.closest('.page') !== stack[stack.length - 1]) return; pop(); },
@@ -1431,7 +1496,9 @@ const H = {
   voice() { voiceSheet(); },
   'send-voice'() {
     if (S.chat.busy) return;
-    const t = $('#voice-text').value; closeSheet(); send(t);
+    const t = $('#voice-text').value.trim();
+    if (!t) { toast('Type or keep a transcript to send', { error: true }); $('#voice-text').focus(); return; }
+    closeSheet(); send(t);
   },
   'clear-chat'() { if (S.chat.busy) return; S.chat = { title: null, emoji: null, msgs: [], busy: false }; renderChat(); setTimeout(() => $('#chat-input').focus({ preventScroll: true }), 50); },
 };
