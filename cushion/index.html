@@ -512,6 +512,32 @@ button.row[disabled] { cursor: default; }
   .toast { top: max(8px, env(safe-area-inset-top, 0px)); }
 }
 
+
+/* ---------- Liquid Glass: real refraction where the browser supports SVG backdrop filters ----------
+   A per-size displacement map bends the backdrop at the bezel like a lens, with a slight
+   colour split. Other browsers keep the frosted fallback above. */
+:root { --lg-tint: rgba(255, 255, 255, .22); --lg-tint-strong: rgba(255, 255, 255, .34); --lg-rim: rgba(255, 255, 255, .85); --lg-rim-low: rgba(255, 255, 255, .35); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --lg-tint: rgba(40, 40, 46, .32); --lg-tint-strong: rgba(40, 40, 46, .44); --lg-rim: rgba(255, 255, 255, .42); --lg-rim-low: rgba(255, 255, 255, .14); } }
+:root[data-theme="dark"] { --lg-tint: rgba(40, 40, 46, .32); --lg-tint-strong: rgba(40, 40, 46, .44); --lg-rim: rgba(255, 255, 255, .42); --lg-rim-low: rgba(255, 255, 255, .14); }
+.lg-on .lg {
+  background: var(--lg-tint) !important;
+  box-shadow:
+    inset 1.5px 1.5px 0 -.5px var(--lg-rim),
+    inset -1px -1px 0 -.5px var(--lg-rim-low),
+    inset 0 0 14px rgba(255, 255, 255, .10),
+    0 8px 24px rgba(0, 0, 0, .14), 0 1px 3px rgba(0, 0, 0, .10) !important;
+}
+.lg-on .tabbar .lg { background: var(--lg-tint-strong) !important; }
+.lg-on .media .lg, .lg-on .lg.on-media, .lg-on .app[data-tab="chat"] .tabbar .lg { background: rgba(255, 255, 255, .12) !important; }
+.lg-on .dock .btn.lg { background: rgba(255, 255, 255, .16) !important; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.app { -webkit-user-select: none; user-select: none; }
+.app input, .app textarea { -webkit-user-select: text; user-select: text; }
+#tab-chat .suggest button { background: rgba(0, 0, 0, .2); }
+.media .foot { opacity: 1; color: var(--on-media-2); }
+.sheet .foot, .page:not(.media) .foot { opacity: 1; color: var(--label2); }
+.detail h1 { font-size: 26px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
@@ -522,16 +548,16 @@ button.row[disabled] { cursor: default; }
   <section class="about" aria-labelledby="about-title">
     <div class="eyebrow">iOS concept · Interactive prototype</div>
     <h1 id="about-title">Cushion, a budget that tells you what's safe to spend</h1>
-    <p>Cushion turns balances, bills and pay day into one number for today, then suggests fixes you can approve with a tap. Every screen reads from the same sample forecast, so a change in one place shows up everywhere.</p>
+    <p>Cushion turns balances, bills and pay day into one number for today, then suggests fixes you can approve with a tap. Every screen reads from the same sample forecast, so a change in one place shows up everywhere. Built for a European launch: euros, European banks and 24-hour time.</p>
     <div>
       <h2>Things to try</h2>
       <ul>
-        <li>Approve “Move $1,200 into savings”, then check The month ahead</li>
+        <li>Approve “Move €1,200 into savings”, then check The month ahead</li>
         <li>Open “Cancel the second Spotify” and let Cushion handle it</li>
         <li>Send the fixes money to the Iceland trip, then change the monthly amount</li>
         <li>Move the car payment to the 6th in The month ahead</li>
-        <li>Ask Chat “Can I afford a $600 flight in March?” or try the voice demo</li>
-        <li>Tap the gear to add a sample Chase account</li>
+        <li>Ask Chat “Can I afford a €600 flight in March?” or try the voice demo</li>
+        <li>Tap the gear to add a sample N26 account</li>
       </ul>
     </div>
     <div>
@@ -590,6 +616,8 @@ button.row[disabled] { cursor: default; }
 
       <div id="pages"></div>
       <div class="layer" id="layer"></div>
+      <div class="sr-only" id="chat-live" aria-live="polite"></div>
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs id="lg-defs"></defs></svg>
       <div class="toast" id="toast" role="status" aria-live="polite"><span class="tick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span class="bang">!</span></span><span id="toast-text"></span></div>
       <div class="home-ind"></div>
     </div>
@@ -616,8 +644,8 @@ const I = {
 /* ---------------- Helpers ---------------- */
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-const fmt = (n, d = 0) => Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
-const usd = (n, d = 0) => (n < 0 ? '−' : '') + '$' + fmt(n, d);
+const fmt = (n, d = 0) => Math.abs(n).toLocaleString('en-IE', { minimumFractionDigits: d, maximumFractionDigits: d });
+const eur = (n, d = 0) => (n < 0 ? '−' : '') + '€' + fmt(n, d);
 const r2 = n => Math.round(n * 100) / 100;
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ord = n => n + ((n % 100 >= 11 && n % 100 <= 13) ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th'));
@@ -633,10 +661,10 @@ const S = {
   actions: ['save', 'spotify'],
   spotifyCancelled: false,
   accounts: [
-    { id: 'chk', name: 'Checking Account', sub: 'Chase', mask: '4659', kind: 'cash', bal: 6200, color: '#1C6DD0', mono: '🏦' },
-    { id: 'stash', name: "Maya's Stash", sub: 'Savings · 4.3%', mask: '6839', kind: 'saved', bal: 9140, color: '#C2381B', mono: '🦋' },
-    { id: 'brk', name: 'Index fund', sub: 'Brokerage', mask: '1120', kind: 'saved', bal: 4395, color: '#6E7F3A', mono: '📈' },
-    { id: 'amex', name: 'Amex Gold', sub: 'Credit card', mask: '9002', kind: 'owed', bal: -612, color: '#B08D3C', mono: '💳' },
+    { id: 'chk', name: 'Current account', sub: 'ING', mask: '4659', kind: 'cash', bal: 6200, color: '#FF6200', mono: '🏦' },
+    { id: 'stash', name: "Lena's Stash", sub: 'Savings · 3.1%', mask: '6839', kind: 'saved', bal: 9140, color: '#C2381B', mono: '🦋' },
+    { id: 'brk', name: 'ETF portfolio', sub: 'Trade Republic', mask: '1120', kind: 'saved', bal: 4395, color: '#6E7F3A', mono: '📈' },
+    { id: 'amex', name: 'Mastercard Gold', sub: 'Credit card', mask: '9002', kind: 'owed', bal: -612, color: '#B08D3C', mono: '💳' },
     { id: 'visa', name: 'Visa Card', sub: 'Credit card', mask: '4088', kind: 'owed', bal: -698, color: '#5856D6', mono: '💳' },
   ],
   linked: [],
@@ -650,39 +678,40 @@ const S = {
   tab: 'today',
 };
 const FLEX_DAILY = 88.05;  // flexible budget per day this pay period
-const SPOTIFY_DAILY = 0.48; // $13.99 a month back in the budget, spread over the 29-day pay period
-const COMFORT = 1000;      // the balance Maya never wants checking to drop below
+const SPOTIFY_DAILY = 0.38; // €10.99 a month back in the budget, spread over the 29-day pay period
+const COMFORT = 1000;      // the balance Lena never wants her current account to drop below
 const BANKS = [
-  { id: 'chase', name: 'Chase Bank', sub: 'Checking Account · USD', mask: '9331', bal: 850, kind: 'cash', color: '#117ACA', mono: '◆', found: true },
-  { id: 'boa', name: 'Bank of America', sub: 'Savings Account · USD', mask: '4862', bal: 1240, kind: 'saved', color: '#C8102E', mono: 'B', found: true },
-  { id: 'wells', name: 'Wells Fargo', sub: 'Checking Account · USD', mask: '2210', bal: 420, kind: 'cash', color: '#D71E28', mono: 'W' },
-  { id: 'amexb', name: 'American Express', sub: 'Savings Account · USD', mask: '7713', bal: 2050, kind: 'saved', color: '#2E77BB', mono: 'A' },
-  { id: 'ally', name: 'Ally Financial', sub: 'Savings Account · USD', mask: '5580', bal: 990, kind: 'saved', color: '#650360', mono: 'a' },
-  { id: 'ss', name: 'State Street Corporation', sub: 'Brokerage · USD', mask: '0402', bal: 3100, kind: 'saved', color: '#0B3D91', mono: 'S' },
+  { id: 'n26', name: 'N26', sub: 'Current account · EUR', mask: '9331', bal: 850, kind: 'cash', color: '#2E8B7A', mono: 'N', found: true },
+  { id: 'revolut', name: 'Revolut', sub: 'Savings vault · EUR', mask: '4862', bal: 1240, kind: 'saved', color: '#191C1F', mono: 'R', found: true },
+  { id: 'db', name: 'Deutsche Bank', sub: 'Current account · EUR', mask: '2210', bal: 420, kind: 'cash', color: '#0018A8', mono: 'D' },
+  { id: 'bnp', name: 'BNP Paribas', sub: 'Savings account · EUR', mask: '7713', bal: 2050, kind: 'saved', color: '#00915A', mono: 'B' },
+  { id: 'santander', name: 'Santander', sub: 'Current account · EUR', mask: '5580', bal: 990, kind: 'cash', color: '#EC0000', mono: 'S' },
+  { id: 'rabo', name: 'Rabobank', sub: 'Savings account · EUR', mask: '0402', bal: 3100, kind: 'saved', color: '#FD6400', mono: 'R' },
 ];
 const TX = [
-  { id: 'bb', emoji: '☕️', name: 'Blue Bottle', note: '14th visit this month · $94 so far', amt: -4.06, cat: 'Eating out', when: 'Today, 8:12 AM', insight: 'Coffee is most of why eating out is $130 over this month. Ten fewer visits would close the gap.' },
-  { id: 'wf', emoji: '🥬', name: 'Whole Foods', note: 'Groceries · normal for a Sunday', amt: -86.40, cat: 'Groceries', when: 'Yesterday, 5:40 PM', insight: 'Right in line with your usual Sunday shop. Groceries are as expected for August.' },
-  { id: 'sp', emoji: '🎧', name: 'Spotify', note: 'Second Individual plan', amt: -13.99, cat: 'Subscriptions', when: 'Aug 21', insight: 'You also pay for Spotify Family on this card. This one looks like a leftover from March.' },
-  { id: 'sh', emoji: '⛽️', name: 'Shell', note: 'Transport · as expected', amt: -52.10, cat: 'Transport', when: 'Aug 20', insight: 'Fuel is steady. Transport is right where it usually sits.' },
+  { id: 'bb', emoji: '☕️', name: 'Bonanza Coffee', note: '14th visit this month · €94 so far', amt: -4.06, cat: 'Eating out', when: 'Today, 08:12', insight: 'Coffee is most of why eating out is €130 over this month. Ten fewer visits would close the gap.' },
+  { id: 'wf', emoji: '🥬', name: 'Lidl', note: 'Groceries · normal for a Saturday', amt: -86.40, cat: 'Groceries', when: 'Saturday, 17:40', insight: 'Right in line with your usual Saturday shop. Groceries are as expected for August.' },
+  { id: 'sp', emoji: '🎧', name: 'Spotify', note: 'Second Individual plan', amt: -10.99, cat: 'Subscriptions', when: '21 Aug', insight: 'You also pay for Spotify Family on this card. This one looks like a leftover from March.' },
+  { id: 'sh', emoji: '⛽️', name: 'Shell', note: 'Transport · as expected', amt: -52.10, cat: 'Transport', when: '20 Aug', insight: 'Fuel is steady. Transport is right where it usually sits.' },
 ];
 const SPEND = [
   { name: 'Rent', tag: 'As expected', amt: 1850, color: 'var(--olive)' },
-  { name: 'Eating out', tag: '$130 over', warn: true, amt: 620, color: 'var(--orange)' },
+  { name: 'Eating out', tag: '€130 over', warn: true, amt: 620, color: 'var(--orange)' },
   { name: 'Groceries', tag: 'As expected', amt: 340, color: 'var(--blue)' },
   { name: 'Transport', tag: 'As expected', amt: 180, color: 'var(--indigo)' },
 ];
 const FIXES = [
-  { id: 'parking', name: 'Duplicate parking charge', note: 'City Parking refund · 19 Aug', amt: 46.01, ready: () => true },
+  { id: 'parking', name: 'Duplicate parking charge', note: 'Q-Park refund · 19 Aug', amt: 46.01, ready: () => true },
 ];
 const fixesTotal = () => FIXES.filter(f => f.ready()).reduce((a, f) => a + f.amt, 0);
 const fixesAvailable = () => r2(fixesTotal() - S.fixesSent);
 const acct = id => S.accounts.find(a => a.id === id);
 const net = () => r2(S.accounts.reduce((a, b) => a + b.bal, 0));
 const sumKind = k => S.accounts.filter(a => a.kind === k).reduce((a, b) => a + b.bal, 0);
-const cashWord = () => S.accounts.filter(a => a.kind === 'cash').length > 1 ? 'your spending accounts' : 'checking';
+const cashWord = () => S.accounts.filter(a => a.kind === 'cash').length > 1 ? 'your spending accounts' : 'your current account';
+const cashStay = () => cashWord() === 'your current account' ? 'stays' : 'stay';
 
-/* ---------------- Forecast: checking, 24 Aug to 30 Sep ---------------- */
+/* ---------------- Forecast: spending accounts, 24 Aug to 30 Sep ---------------- */
 const DAYS = 38;
 const sep = d => 7 + d; // day offset of a September date
 const payIndex = pd => pd > 24 ? pd - 24 : sep(pd); // next pay day on or after tomorrow
@@ -715,7 +744,7 @@ function forecast(over = {}) {
   for (let i = 0; i < payIdx; i++) if (days[i] < pre.bal) pre = { bal: days[i], day: i };
   return { ev, days, low, pre, start, payIdx, st };
 }
-// Safe to spend: the flexible budget per day until pay day, capped by what checking can cover
+// Safe to spend: the flexible budget per day until pay day, capped by what the current account can cover
 // before its thinnest moment while staying above the comfort line.
 function safety(fc = forecast()) {
   const daysToPay = fc.payIdx;
@@ -754,15 +783,15 @@ function renderToday() {
   const sf = safety();
   const n = S.actions.length;
   const lead = n === 2 ? 'Two things need your action' : n === 1 ? 'One thing needs your action' : 'Nothing needs you today.';
-  const tail = n ? (sf.limitedByCash ? ' to secure your spend.' : '.') : sf.limitedByCash ? ` Money runs thin ${onDay(sf.fc.pre.day)}, so today's number is lower.` : ' Your spend is covered.';
+  const tail = n ? (sf.limitedByCash ? ` Money runs thin ${onDay(sf.fc.pre.day)}.` : '.') : sf.limitedByCash ? ` Money runs thin ${onDay(sf.fc.pre.day)}, so today's number is lower.` : ' Your spend is covered.';
   const [whole, cents] = sf.safe.toFixed(2).split('.');
   const saveAfter = safety(forecast({ extra: 1200 })).safe;
-  const saveLine = saveAfter >= sf.safe ? "today's safe-to-spend stays the same" : `today's safe-to-spend drops to ${usd(saveAfter, 2)}`;
+  const saveLine = saveAfter >= sf.safe ? "today's safe-to-spend stays the same" : `today's safe-to-spend drops to ${eur(saveAfter, 2)}`;
   const cards = S.actions.map(id => id === 'save' ? `
       <article class="action glass" data-card="save">
         <div class="emoji" aria-hidden="true">🐣</div>
-        <h3>Move $1,200 into savings</h3>
-        <p>It has sat in checking for 41 days. You'd earn about $52 a year, and ${saveLine}.</p>
+        <h3>Move €1,200 into savings</h3>
+        <p>It has sat in your current account for 41 days. You'd earn about €37 a year, and ${saveLine}.</p>
         <div class="btns"><button class="ok" data-act="approve-save" aria-label="Approve move to savings">${I.check}</button><button class="no" data-act="dismiss" data-id="save" aria-label="Dismiss move to savings">${I.x}</button></div>
       </article>` : `
       <article class="action glass" data-card="spotify">
@@ -775,11 +804,11 @@ function renderToday() {
   $('#tab-today').innerHTML = `${edge}
     <div class="today-hero" aria-hidden="true"></div>
     <div class="content">
-      <p class="greet">Good morning <span class="avatar" aria-hidden="true"></span> Maya.<br><span class="sub">${lead}${tail}</span></p>
+      <p class="greet">Good morning <span class="avatar" aria-hidden="true"></span> Lena.<br><span class="sub">${lead}${tail}</span></p>
       <div class="safe">
-        <div class="num" id="safe-num" aria-label="${usd(sf.safe, 2)} safe to spend today"><span class="cur">USD</span><span class="w">${whole}</span><span class="cents">.${cents}</span></div>
+        <div class="num" id="safe-num" aria-label="${eur(sf.safe, 2)} safe to spend today"><span class="cur">EUR</span><span class="w">${whole}</span><span class="cents">.${cents}</span></div>
         <div class="cap">Safe to spend today</div>
-        <p class="why">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day · ${sf.limitedByCash ? `held back to keep $1,000 in ${cashWord()} ${onDay(sf.fc.pre.day)}` : `${cashWord().replace(/^./, c => c.toUpperCase()) === 'Checking' ? 'checking stays' : 'your spending accounts stay'} above $1,000 until pay day`}</p>
+        <p class="why">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day · ${sf.limitedByCash ? `held back to protect your €1,000 cushion ${onDay(sf.fc.pre.day)}` : 'your €1,000 cushion stays intact'}</p>
       </div>
       <div class="actions" id="actions">${cards || done}</div>
       <div>
@@ -788,7 +817,7 @@ function renderToday() {
           <button class="row" data-act="tx" data-id="${t.id}" style="--inset:64px">
             <span class="merchant" aria-hidden="true">${t.emoji}</span>
             <span class="grow"><div class="t">${t.name}</div><div class="s">${t.id === 'sp' && S.spotifyCancelled ? 'Cancelled · last charge' : t.note}</div></span>
-            <span class="v">${usd(t.amt, 2)}</span>
+            <span class="v">${eur(t.amt, 2)}</span>
           </button>`).join('')}
         </div>
       </div>
@@ -803,35 +832,35 @@ function renderMoney() {
   const avail = fixesAvailable();
   const linkedTotal = S.linked.reduce((a, b) => a + b.bal, 0);
   $('#tab-money').innerHTML = `
-    <div class="nav"><span class="inline" aria-hidden="true">Money</span><button class="pill glass" data-act="fixes">Fixes${avail > 0 ? ` <span style="color:var(--green);font-weight:600">${usd(avail, 2)}</span>` : ''}</button></div>
+    <div class="nav"><span class="inline" aria-hidden="true">Money</span><button class="pill glass" data-act="fixes">Fixes${avail > 0 ? ` <span style="color:var(--green);font-weight:600">${eur(avail, 2)}</span>` : ''}</button></div>
     <div class="content" style="padding-top:0">
       <div>
         <h1 class="large-title">Money <span aria-hidden="true">👾</span></h1>
         <p class="lede">What you have, what's coming and what I think is worth fixing.</p>
       </div>
       <div>
-        <div class="total"><span class="num" id="net-num"><span class="cur">$</span>${fmt(net())}</span><span class="delta">+$412 this month</span></div>
-        ${S.linked.length ? `<p class="lede" style="margin-top:4px;font-size:13px;max-width:none">Includes ${S.linked.map(l => esc(l.name)).join(', ')} (${usd(linkedTotal)}), added today</p>` : ''}
+        <div class="total"><span class="num" id="net-num"><span class="cur">€</span>${fmt(net())}</span><span class="delta">+€412 this month</span></div>
+        ${S.linked.length ? `<p class="lede" style="margin-top:4px;font-size:13px;max-width:none">Includes ${S.linked.map(l => esc(l.name)).join(', ')} (${eur(linkedTotal)}), added today</p>` : ''}
         <div class="split" style="margin-top:14px" aria-hidden="true">
           <i style="flex-grow:${cash};background:var(--olive)"></i>
           <i style="flex-grow:${saved};background:var(--blue)"></i>
           <i style="flex-grow:${owed};background:var(--indigo)"></i>
         </div>
         <div class="legend">
-          <span><i style="background:var(--olive)"></i>Spending money ${usd(cash)}</span>
-          <span><i style="background:var(--blue)"></i>Put away ${usd(saved)}</span>
-          <span><i style="background:var(--indigo)"></i>Owed on card ${usd(owed)}</span>
+          <span><i style="background:var(--olive)"></i>Spending money ${eur(cash)}</span>
+          <span><i style="background:var(--blue)"></i>Put away ${eur(saved)}</span>
+          <span><i style="background:var(--indigo)"></i>Owed on card ${eur(owed)}</span>
         </div>
       </div>
       <div>
         <h2 class="section-h" style="margin:0">Where August went</h2>
-        <p class="lede" style="margin:0 4px 10px;max-width:none">Eating out is $130 ahead of a normal month for you. Everything else is where it usually sits.</p>
+        <p class="lede" style="margin:0 4px 10px;max-width:none">Eating out is €130 ahead of a normal month for you. Everything else is where it usually sits.</p>
         <div class="list">${SPEND.map(r => `
           <div class="row" style="--inset:42px">
             <span class="dot" style="background:${r.color}"></span>
             <span class="grow t">${r.name}</span>
             <span class="tag${r.warn ? ' warn' : ''}">${r.tag}</span>
-            <span class="v" style="min-width:64px;text-align:right">${usd(r.amt)}</span>
+            <span class="v" style="min-width:64px;text-align:right">${eur(r.amt)}</span>
           </div>`).join('')}
         </div>
       </div>
@@ -840,8 +869,8 @@ function renderMoney() {
         <button class="card-media g-month" data-act="open-month">
           <span class="pct">Pay day ${dayLabel(fc.payIdx)}</span>
           <span style="font-size:13px;opacity:.9">The month ahead · thinnest moment</span>
-          <span class="ttl">${usd(fc.pre.bal)} ${onDay(fc.pre.day)}</span>
-          <span style="font-size:13px;opacity:.9">${fc.pre.bal < COMFORT ? 'Under your $1,000 comfort line' : `${usd(fc.pre.bal - COMFORT)} above your $1,000 comfort line`}</span>
+          <span class="ttl">${eur(fc.pre.bal)} ${onDay(fc.pre.day)}</span>
+          <span style="font-size:13px;opacity:.9">${fc.pre.bal < COMFORT ? 'Under your €1,000 comfort line' : `${eur(fc.pre.bal - COMFORT)} above your €1,000 comfort line`}</span>
         </button>
       </div>
       <div>
@@ -850,7 +879,7 @@ function renderMoney() {
           <span class="pct">${pct}%${ic.paused ? ' · Paused' : ''}</span>
           <span style="font-size:28px" aria-hidden="true">🦋</span>
           <span class="ttl">Iceland · February trip</span>
-          <span style="font-size:13px;opacity:.9">${usd(ic.saved)} of ${usd(ic.goal)}</span>
+          <span style="font-size:13px;opacity:.9">${eur(ic.saved)} of ${eur(ic.goal)}</span>
           <span class="meter"><i style="width:${pct}%"></i></span>
         </button>
       </div>
@@ -858,7 +887,7 @@ function renderMoney() {
 }
 
 /* ---------------- Chat ---------------- */
-const SUGGEST = ['Can I afford a $600 flight in March?', 'Why is eating out up this month?', 'When will I reach the Iceland goal?'];
+const SUGGEST = ['Can I afford a €600 flight in March?', 'Why is eating out up this month?', 'When will I reach the Iceland goal?'];
 function renderChat() {
   const c = S.chat;
   const head = c.title
@@ -869,7 +898,7 @@ function renderChat() {
     : `<div class="ai" id="ai-${i}">${m.typing ? '<div class="typing" aria-label="Cushion is typing"><i></i><i></i><i></i></div>' : m.paras.map(p => `<p>${esc(p)}</p>`).join('')}</div>`).join('');
   const sug = c.msgs.length ? '' : `<div class="suggest">${SUGGEST.map(s => `<button class="glass on-media" data-act="ask" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>`;
   keepFocus(() => {
-    $('#tab-chat').innerHTML = `${c.title ? '' : edge}<div class="chat-wrap" aria-live="polite" style="${c.title ? 'padding-top:0' : ''}">${head}${body}${sug}</div>`;
+    $('#tab-chat').innerHTML = `${c.title ? '' : edge}<div class="chat-wrap" style="${c.title ? 'padding-top:0' : ''}">${head}${body}${sug}</div>`;
   });
   $('#composer').querySelectorAll('button').forEach(b => { b.disabled = c.busy; });
   updateChrome();
@@ -883,8 +912,8 @@ function spotifyPage() {
     <div class="detail">
       <h1>Cancel the second Spotify <span aria-hidden="true">👹</span></h1>
       <p class="body">I cancelled the account opened in March and kept the family plan. The last play on it was 7 June.</p>
-      <div class="kv"><div><span>Keeping</span><span>Family · $19.99</span></div><div><span>Cancelled</span><span>Individual · $13.99</span></div></div>
-      <div class="callout glass">${I.check}<span><b>The second Spotify has been cancelled.</b><br>${S.spotifyDelta > 0 ? `Your safe-to-spend went up by ${usd(S.spotifyDelta, 2)} a day.` : `Your safe-to-spend stays at ${usd(sf.safe, 2)} for now, because checking is what limits it until pay day.`} You'll save $13.99 a month from 21 September.</span></div>
+      <div class="kv"><div><span>Keeping</span><span>Family · €17.99</span></div><div><span>Cancelled</span><span>Individual · €10.99</span></div></div>
+      <div class="callout glass">${I.check}<span><b>The second Spotify has been cancelled.</b><br>${S.spotifyDelta > 0 ? `Your safe-to-spend went up by ${eur(S.spotifyDelta, 2)} a day.` : `Your safe-to-spend stays at ${eur(sf.safe, 2)} for now, because ${cashWord()} ${cashWord() === 'your current account' ? 'is' : 'are'} what limits it until pay day.`} You'll save €10.99 a month from 21 September.</span></div>
     </div>
     <div class="dock">
       <p class="foot">Completed in the local demo</p>
@@ -896,8 +925,8 @@ function spotifyPage() {
       <h1>Cancel the second Spotify <span aria-hidden="true">👹</span></h1>
       <p class="body">I'll cancel the account opened in March and keep the family plan. The last play on it was 7 June.</p>
       <div class="kv">
-        <div><span>Keeping</span><span>Family · $19.99</span></div>
-        <div><span>Cancelling</span><span>Individual · $13.99</span></div>
+        <div><span>Keeping</span><span>Family · €17.99</span></div>
+        <div><span>Cancelling</span><span>Individual · €10.99</span></div>
         <div><span>Next charge avoided</span><span>21 September</span></div>
       </div>
       <p class="body" style="font-size:15px">I'll sign in with the passkey you saved, confirm on their site, and screenshot the confirmation. If they push a retention offer I'll bring it back to you instead of accepting.</p>
@@ -917,9 +946,9 @@ function icelandPage() {
   const late = months !== null && months > 6;
   const avail = fixesAvailable();
   const plan = ic.paused
-    ? `Transfers are paused. You're ${usd(rem)} away, and nothing moves until you resume.`
+    ? `Transfers are paused. You're ${eur(rem)} away, and nothing moves until you resume.`
     : rem === 0 ? 'You reached the goal. Enjoy the northern lights.'
-    : `At ${usd(ic.monthly)} a month, you'd reach this goal in about ${months} month${months === 1 ? '' : 's'}, before interest or extra contributions.`;
+    : `At ${eur(ic.monthly)} a month, you'd reach this goal in about ${months} month${months === 1 ? '' : 's'}, before interest or extra contributions.`;
   return `
     <div class="nav">
       <button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button>
@@ -931,22 +960,22 @@ function icelandPage() {
         <p class="body" style="margin-top:6px">Flights, a week of car hire and the northern-lights tour in February.</p>
       </div>
       <div>
-        <div class="big"><span class="num" id="ice-num"><span class="cur">$</span><span class="w">${fmt(ic.saved)}</span></span><span class="of">of ${usd(ic.goal)}</span>${ic.paused ? '<span class="paused-badge">Paused</span>' : ''}</div>
+        <div class="big"><span class="num" id="ice-num"><span class="cur">€</span><span class="w">${fmt(ic.saved)}</span></span><span class="of">of ${eur(ic.goal)}</span>${ic.paused ? '<span class="paused-badge">Paused</span>' : ''}</div>
         <div class="progress" style="margin-top:16px"><i style="width:${pct}%"></i></div>
         <div class="progress-cap"><span>${pct}% there</span><span>${months === null ? 'Paused' : rem === 0 ? 'Done' : `About ${months} month${months === 1 ? '' : 's'} to go`}</span></div>
       </div>
       <p class="body">${plan}</p>
-      ${late ? `<div class="callout glass">${I.info}<span>That lands after the trip. ${usd(needed)} a month gets you there by February.</span></div>` : ''}
+      ${late ? `<div class="callout glass">${I.info}<span>That lands after the trip. ${eur(needed)} a month gets you there by February.</span></div>` : ''}
       <div class="kv">
-        <div><span>Monthly transfer</span><span>${ic.paused ? 'Paused' : `${usd(ic.monthly)} · 23 Sep`}</span></div>
-        <div><span>Round-ups swept in</span><span>$680 since March</span></div>
-        <div><span>Deposit due</span><span>$800 · 12 January</span></div>
-        ${S.fixesSent ? `<div><span>Fixes money added</span><span>${usd(S.fixesSent, 2)}</span></div>` : ''}
+        <div><span>Monthly transfer</span><span>${ic.paused ? 'Paused' : `${eur(ic.monthly)} · 23 Sep`}</span></div>
+        <div><span>Round-ups swept in</span><span>€680 since March</span></div>
+        <div><span>Deposit due</span><span>€800 · 12 January</span></div>
+        ${S.fixesSent ? `<div><span>Fixes money added</span><span>${eur(S.fixesSent, 2)}</span></div>` : ''}
       </div>
-      <p class="foot">Held in Maya's Stash at 4.3%, so it earns while it fills.<br>Nothing here is locked. You can take it back any time.</p>
+      <p class="foot">Held in Lena's Stash at 3.1%, so it earns while it fills.<br>Nothing here is locked. You can take it back any time.</p>
     </div>
     <div class="dock">
-      <button class="btn glass" data-act="send-fixes" ${avail > 0 ? '' : 'disabled'}>${avail > 0 ? `Send the fixes money here · ${usd(avail, 2)}` : S.fixesSent ? '✓ Fixes money sent' : 'No fixes money yet'}</button>
+      <button class="btn glass" data-act="send-fixes" ${avail > 0 ? '' : 'disabled'}>${avail > 0 ? `Send the fixes money here · ${eur(avail, 2)}` : S.fixesSent ? '✓ Fixes money sent' : 'No fixes money yet'}</button>
       <button class="btn plain" data-act="change-monthly">Change the monthly amount</button>
       <p class="foot">Local demo · Sample balances only</p>
     </div>`;
@@ -962,15 +991,15 @@ function chartSVG(fc) {
   fc.days.forEach((v, i) => { d += ` L${x(i).toFixed(1)},${y(i ? fc.days[i - 1] : fc.start).toFixed(1)} L${x(i).toFixed(1)},${y(v).toFixed(1)}`; });
   const area = d + ` L${x(DAYS - 1).toFixed(1)},${y(min).toFixed(1)} L${x(0).toFixed(1)},${y(min).toFixed(1)} Z`;
   const lx = x(fc.pre.day), ly = y(fc.pre.bal), cy = y(COMFORT);
-  const label = usd(fc.pre.bal);
+  const label = eur(fc.pre.bal);
   const lw = label.length * 7 + 14;
-  const below = ly + 30 < H - padB;
+  const below = ly + 30 < H - padB && Math.abs((ly + 20) - cy) > 12;
   const pillY = below ? ly + 10 : ly - 30;
   const pillX = Math.min(W - lw - 2, Math.max(2, lx - lw / 2));
   const ticks = [0, 8, 22, 37].map(i => `<text x="${x(i).toFixed(1)}" y="${H - 4}" font-size="11" fill="rgba(255,255,255,.85)" text-anchor="${i === 0 ? 'start' : i === 37 ? 'end' : 'middle'}">${dayLabel(i)}</text>`).join('');
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Projected balance across spending accounts from 24 August to 30 September. Thinnest moment before pay day: ${label} on ${dayLabel(fc.pre.day)}.">
     <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
-    <text x="${padL}" y="12" font-size="11" fill="rgba(255,255,255,.88)">- - Comfort line $1,000</text>
+    <text x="${padL}" y="12" font-size="11" fill="rgba(255,255,255,.88)">- - Comfort line €1,000</text>
     <line x1="${padL}" x2="${W - padR}" y1="${cy.toFixed(1)}" y2="${cy.toFixed(1)}" stroke="rgba(255,255,255,.6)" stroke-dasharray="3 4" stroke-width="1"/>
     <path d="${area}" fill="url(#ga)"/>
     <path d="${d}" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
@@ -992,22 +1021,22 @@ function monthPage() {
   const tight = spare < sfNow.budget * (fc.pre.day + 1);
   const lowIsRentCar = !S.carLate && (fc.pre.day === sep(1) || fc.pre.day === sep(2)) && fc.payIdx > sep(2);
   let explain;
-  if (lowIsRentCar) explain = tight ? `Rent and car insurance land a day apart. It clears, but there's little room if something unexpected turns up that week.` : `Rent and car insurance land a day apart. It clears with ${usd(spare)} to spare above your comfort line.`;
-  else if (fc.pre.day === 0) explain = `Pay lands ${onDay(fc.payIdx)} before any bill, so checking never dips below where it is today.`;
+  if (lowIsRentCar) explain = tight ? `Rent and car insurance land a day apart. It clears, but there's little room if something unexpected turns up that week.` : `Rent and car insurance land a day apart. It clears with ${eur(spare)} to spare above your comfort line.`;
+  else if (fc.pre.day === 0) explain = `Pay lands ${onDay(fc.payIdx)} before any bill, so your money never dips below where it is today.`;
   else if (lowNames.length) explain = `Your thinnest moment comes after ${joinList(lowNames)} on ${dayLabel(fc.pre.day)}.`;
   else explain = `Your bills are spread out enough that no single week gets tight.`;
-  if (sfNow.limitedByCash) explain += ` Today's safe-to-spend is held to ${usd(sfNow.safe, 2)} so ${cashWord()} ${cashWord() === 'checking' ? 'stays' : 'stay'} above $1,000 then.`;
+  if (sfNow.limitedByCash) explain += ` Today's safe-to-spend is held to ${eur(sfNow.safe, 2)} so ${cashWord()} ${cashStay()} above €1,000 then.`;
   if (S.carLate) {
     const moved = fc.pre.day !== other.pre.day;
-    const where = sep(6) === fc.payIdx ? ' It now lands on pay day, after your salary.' : sep(6) > fc.payIdx ? ' It now lands after pay day.' : (gain > 0 && other.pre.day === sep(2) && fc.pre.day === sep(6)) ? ' Your freelance invoice lands first.' : moved ? ` The low point moves from ${dayLabel(other.pre.day)} to ${dayLabel(fc.pre.day)}.` : '';
-    explain += gain > 0 ? ` Moving car insurance to the 6th raises your thinnest moment by ${usd(gain)}.${where}` : gain < 0 ? ` Moving car insurance to the 6th lowers your thinnest moment by ${usd(-gain)}.${where}` : ` Moving car insurance to the 6th doesn't change your thinnest moment.${where}`;
-    if (sfNow.safe !== sfOther.safe) explain += ` Today's safe-to-spend ${sfNow.safe > sfOther.safe ? 'rises' : 'falls'} from ${usd(sfOther.safe, 2)} to ${usd(sfNow.safe, 2)}.`;
+    const where = sep(2) < fc.payIdx && sep(6) === fc.payIdx ? ' It now lands on pay day, after your salary.' : sep(2) < fc.payIdx && sep(6) > fc.payIdx ? ' It now lands after pay day.' : (gain > 0 && other.pre.day === sep(2) && fc.pre.day === sep(6)) ? ' Your freelance invoice lands first.' : moved ? ` The low point moves from ${dayLabel(other.pre.day)} to ${dayLabel(fc.pre.day)}.` : '';
+    explain += gain > 0 ? ` Moving car insurance to the 6th raises your thinnest moment by ${eur(gain)}.${where}` : gain < 0 ? ` Moving car insurance to the 6th lowers your thinnest moment by ${eur(-gain)}.${where}` : ` Moving car insurance to the 6th doesn't change your thinnest moment.${where}`;
+    if (sfNow.safe !== sfOther.safe) explain += ` Today's safe-to-spend ${sfNow.safe > sfOther.safe ? 'rises' : 'falls'} from ${eur(sfOther.safe, 2)} to ${eur(sfNow.safe, 2)}${sfNow.safe < sfOther.safe && fc.pre.day > other.pre.day ? `, because that low now has to last ${fc.pre.day + 1} days` : ''}.`;
   }
   const bills = fc.ev.map(e => `
     <div class="row${e.car ? ' car-row' : ''}" style="padding-left:0;padding-right:0;--inset:0px">
       <span class="grow t" style="font-size:15px">${e.name}</span>
       <span class="s" style="margin:0;min-width:52px;text-align:right">${dayLabel(e.day).toUpperCase()}</span>
-      <span class="v" style="font-size:15px;min-width:76px;text-align:right">${e.amt > 0 ? '+' : ''}${usd(e.amt)}</span>
+      <span class="v" style="font-size:15px;min-width:76px;text-align:right">${e.amt > 0 ? '+' : ''}${eur(e.amt)}</span>
     </div>`).join('');
   return `
     <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
@@ -1018,13 +1047,13 @@ function monthPage() {
       </div>
       <div>
         <div class="section-h" style="padding:0 0 8px">Your thinnest moment before pay day</div>
-        <div class="big"><span class="num"><span class="cur">$</span>${fmt(fc.pre.bal)}</span><span class="of">${onDay(fc.pre.day)}${S.carLate && gain > 0 && fc.pre.day === sep(6) ? ' with a later payment' : ''}</span></div>
+        <div class="big"><span class="num"><span class="cur">€</span>${fmt(fc.pre.bal)}</span><span class="of">${onDay(fc.pre.day)}${S.carLate && gain > 0 && fc.pre.day === sep(6) ? ' with a later payment' : ''}</span></div>
         <p class="body" style="margin-top:12px;font-size:15px">${explain}</p>
       </div>
       ${chartSVG(fc)}
       <div class="list" style="padding:12px 16px;display:grid;gap:10px;border-radius:24px">
         <label for="payday" style="font-size:15px">Pay day of each month</label>
-        <input id="payday" class="field" type="number" inputmode="numeric" min="1" max="28" value="${S.payDay}">
+        <input id="payday" class="field" type="number" inputmode="numeric" min="1" max="28" value="${S.payDraft != null ? esc(S.payDraft) : S.payDay}">
         <button class="pill glass" data-act="save-payday" style="justify-self:start">Save pay day</button>
       </div>
       <div class="list" style="padding:4px 16px;border-radius:24px">
@@ -1036,7 +1065,7 @@ function monthPage() {
       <div>
         <div class="section-h" style="padding:0 0 4px">Selected sample bills</div>
         <div class="plain-rows">${bills}</div>
-        <p class="foot" style="margin-top:14px">Starts from ${usd(fc.start)} across your spending accounts. Bills and pay only; everyday spending comes out of safe-to-spend. Local forecast only, bank payment dates stay unchanged.</p>
+        <p class="foot" style="margin-top:14px">Starts from ${eur(fc.start)} across your spending accounts. Bills and pay only; everyday spending comes out of safe-to-spend. Local forecast only, bank payment dates stay unchanged.</p>
       </div>
     </div>`;
 }
@@ -1050,10 +1079,10 @@ function accountsPage() {
         <div class="row" data-acct="${a.id}" tabindex="-1" style="--inset:64px;min-height:64px">
           <span class="bank-logo" style="background:${a.color}">${a.mono}</span>
           <span class="grow"><div class="t" style="font-size:16px">${esc(a.name)}</div><div class="s">${esc(a.sub)} ···· ${a.mask}</div></span>
-          <span class="v">${usd(a.bal)}</span>
+          <span class="v">${eur(a.bal)}</span>
         </div>`).join('')}
       </div>
-      <div class="kv"><div><span>Total</span><span>${usd(net())}</span></div></div>
+      <div class="kv"><div><span>Total</span><span>${eur(net())}</span></div></div>
       <button class="btn glass" data-act="add-account">${I.plus} Add new</button>
       <p class="foot">Sample accounts · All balances are fictional</p>
       <button class="btn plain" data-act="about">About this prototype</button>
@@ -1282,40 +1311,40 @@ function reply(q) {
   const preBal = Math.round(fc.pre.bal);
   const room = preBal - COMFORT - spendToLow; // what can go out now and still keep the comfort line
   if (/dental|1,?430|dentist/.test(s)) {
-    if (room >= 1430) return { title: 'The dental bill', emoji: '🦷', paras: [`Yes. Paying $1,430 now and spending your safe-to-spend each day still leaves ${usd(preBal - spendToLow - 1430)} ${onThin}, above your comfort line.`] };
+    if (room > 1430) return { title: 'The dental bill', emoji: '🦷', paras: [`Yes. Paying €1,430 now and spending your safe-to-spend each day still leaves ${eur(preBal - spendToLow - 1430)} ${onThin}, above your comfort line.`] };
     const now = Math.max(0, Math.floor(room / 10) * 10);
     return { title: 'The dental bill', emoji: '🦷', paras: [
-      `Not all at once. The month ahead shows ${usd(fc.pre.bal)} ${onThin} before everyday spending. Take off ${usd(spendToLow)} of spending at your safe-to-spend pace and $1,430 for the bill, and you'd be at ${usd(preBal - spendToLow - 1430)}, under your $1,000 comfort line.`,
-      now > 0 ? `Pay ${usd(now)} now and the other ${usd(1430 - now)} after pay day on the ${pay}. Or take it from Maya's Stash, which has ${usd(acct('stash').bal)}.` : `Ask the office to bill you after pay day on the ${pay}, or take it from Maya's Stash, which has ${usd(acct('stash').bal)}.`] };
+      `Not all at once. The month ahead shows ${eur(fc.pre.bal)} ${onThin} before everyday spending. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €1,430 for the bill, and ${preBal - spendToLow - 1430 < 0 ? `you'd be overdrawn by ${eur(-(preBal - spendToLow - 1430))}` : `you'd be at ${eur(preBal - spendToLow - 1430)}, under your €1,000 comfort line`}.`,
+      now > 0 ? `Pay ${eur(now)} now and the other ${eur(1430 - now)} after pay day on the ${pay}. Or take it from Lena's Stash, which has ${eur(acct('stash').bal)}.` : `Ask the office to bill you after pay day on the ${pay}, or take it from Lena's Stash, which has ${eur(acct('stash').bal)}.`] };
   }
-  if (/flight|\$?600|march|book/.test(s) && !/iceland/.test(s)) {
+  if (/flight|[$€]?600|march|book/.test(s) && !/iceland/.test(s)) {
     const after = preBal - spendToLow - 600;
-    if (room >= 600) return { title: 'The March flight', emoji: '🎟️', paras: [`Yes. Even after $600 and your usual daily spending, you'd keep ${usd(after)} ${onThin}, still above your comfort line.`] };
+    if (room > 600) return { title: 'The March flight', emoji: '🎟️', paras: [`Yes. Even after €600 and your usual daily spending, you'd keep ${eur(after)} ${onThin}, still above your comfort line.`] };
     const hits = fc.ev.filter(e => e.day <= fc.pre.day && e.day > fc.pre.day - 6 && e.amt < 0).map(e => e.phrase);
     const list = hits.length > 1 ? `${hits.slice(0, -1).join(', ')} and ${hits[hits.length - 1]}` : hits[0];
-    const why = hits.length ? `${list.replace(/^./, c => c.toUpperCase())} ${hits.length === 1 ? 'lands' : hits.length === 2 ? 'both land' : 'all land'} by ${thin}.` : `Your checking is lowest ${onThin}.`;
+    const why = hits.length ? `${list.replace(/^./, c => c.toUpperCase())} ${hits.length === 1 ? 'lands' : hits.length === 2 ? 'both land' : 'all land'} by ${thin}.` : `Your money is lowest ${onThin}.`;
     return { title: 'The March flight', emoji: '🎟️', paras: [
-      `Yes, but not before pay day. ${why} The month ahead shows ${usd(fc.pre.bal)} ${onThin}, but that's before everyday spending. Add ${usd(spendToLow)} of that at your safe-to-spend pace and $600 for the flight, and you'd be at ${usd(after)}, under your comfort line.`,
-      sf.limitedByCash ? `Book after pay day on the ${pay}, when the flight no longer competes with this stretch.` : `Book after pay day on the ${pay} and you keep your full ${usd(sf.safe, 2)} a day.`] };
+      `Yes, but not before pay day. ${why} The month ahead shows ${eur(fc.pre.bal)} ${onThin}, but that's before everyday spending. Add ${eur(spendToLow)} of that at your safe-to-spend pace and €600 for the flight, and ${after < 0 ? `you'd be overdrawn by ${eur(-after)}` : `you'd be at ${eur(after)}, under your comfort line`}.`,
+      sf.limitedByCash ? `Book after pay day on the ${pay}, when the flight no longer competes with this stretch.` : `Book after pay day on the ${pay} and you keep your full ${eur(sf.safe, 2)} a day.`] };
   }
-  if (/eat|coffee|blue bottle|restaurant/.test(s)) {
+  if (/eat|coffee|bonanza|café|cafe|restaurant/.test(s)) {
     return { title: 'Eating out', emoji: '☕️', paras: [
-      'Eating out is at $620 for August, $130 more than a normal month for you.',
-      'Most of the gap is Blue Bottle: 14 visits and $94 so far. Everything else in the category looks usual.'] };
+      'Eating out is at €620 for August, €130 more than a normal month for you.',
+      'Most of the gap is Bonanza Coffee: 14 visits and €94 so far. Everything else in the category looks usual.'] };
   }
   if (/iceland|goal|saving/.test(s)) {
     const ic = S.iceland, rem = r2(ic.goal - ic.saved), m = Math.ceil(rem / ic.monthly);
     return { title: 'Iceland goal', emoji: '🦋', paras: ic.paused
-      ? [`Transfers are paused, so the goal is waiting at ${usd(ic.saved)} of ${usd(ic.goal)}.`]
-      : [`At ${usd(ic.monthly)} a month you'll have the remaining ${usd(rem)} in about ${m} month${m === 1 ? '' : 's'}.`,
-         m > 6 ? `That's after February. ${usd(Math.ceil(rem / 6 / 10) * 10)} a month gets you there in time.` : 'That gets you there before the February trip.'] };
+      ? [`Transfers are paused, so the goal is waiting at ${eur(ic.saved)} of ${eur(ic.goal)}.`]
+      : [`At ${eur(ic.monthly)} a month you'll have the remaining ${eur(rem)} in about ${m} month${m === 1 ? '' : 's'}.`,
+         m > 6 ? `That's after February. ${eur(Math.ceil(rem / 6 / 10) * 10)} a month gets you there in time.` : 'That gets you there before the February trip.'] };
   }
   if (/safe|spend|today/.test(s)) {
     return { title: 'Safe to spend', emoji: '💧', paras: [sf.limitedByCash
-      ? `You can spend ${usd(sf.safe, 2)} today. Your budget allows ${usd(sf.budget, 2)}, but I held it back so ${cashWord()} ${cashWord() === 'checking' ? 'stays' : 'stay'} above $1,000 ${onThin}.`
-      : `You can spend ${usd(sf.safe, 2)} today. That's your flexible budget for the day, and ${cashWord()} ${cashWord() === 'checking' ? 'stays' : 'stay'} above $1,000 ${onThin}.`] };
+      ? `You can spend ${eur(sf.safe, 2)} today. Your budget allows ${eur(sf.budget, 2)}, but I held it back so ${cashWord()} ${cashStay()} above €1,000 ${onThin}.`
+      : `You can spend ${eur(sf.safe, 2)} today. That's your flexible budget for the day, and ${cashWord()} ${cashStay()} above €1,000 ${onThin}.`] };
   }
-  return { title: 'Your question', emoji: '💬', paras: ['In this demo I can only see the sample accounts. Try asking about a $600 flight, the dental bill, eating out or the Iceland goal.'] };
+  return { title: 'Your question', emoji: '💬', paras: ['In this demo I can only see the sample accounts. Try asking about a €600 flight, the dental bill, eating out or the Iceland goal.'] };
 }
 async function send(text) {
   text = (text || '').trim();
@@ -1347,6 +1376,7 @@ async function send(text) {
       panel.scrollTop = panel.scrollHeight;
     }
     ai.paras.push(para);
+    $('#chat-live').textContent = para;
     if (!reduced) await wait(220);
   }
   S.chat.busy = false;
@@ -1367,7 +1397,7 @@ function txSheet(t) {
     <div class="sheet-head"><span class="merchant" style="width:48px;height:48px;font-size:26px;border-radius:14px" aria-hidden="true">${t.emoji}</span><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
     <div class="body">
       <div><h2 data-title>${t.name}</h2><p class="sub">${t.when} · ${t.cat}</p></div>
-      <div class="num" style="font-size:44px;letter-spacing:-.02em">${usd(t.amt, 2)}</div>
+      <div class="num" style="font-size:44px;letter-spacing:-.02em">${eur(t.amt, 2)}</div>
       <div class="callout" style="background:var(--fill)">${I.info}<span>${t.id === 'sp' && S.spotifyCancelled ? 'Cancelled today. This was the last charge on this plan.' : t.insight}</span></div>
       <button class="btn gray" data-act="close-sheet">Done</button>
     </div>`);
@@ -1381,16 +1411,16 @@ function fixesSheet() {
       <div class="list" style="background:var(--fill)">${FIXES.map(f => `
         <div class="row">
           <span class="grow"><div class="t" style="font-size:16px">${f.name}</div><div class="s">${f.note}</div></span>
-          <span class="v" style="color:var(--green)">+${usd(f.amt, 2)}</span>
+          <span class="v" style="color:var(--green)">+${eur(f.amt, 2)}</span>
         </div>`).join('')}
         <div class="row">
-          <span class="grow"><div class="t" style="font-size:16px">Second Spotify plan</div><div class="s">${S.spotifyCancelled ? 'Cancelled · $13.99 a month back in your budget' : S.dismissed.includes('spotify') ? 'Dismissed · $13.99 a month' : 'Saves $13.99 a month · needs your go-ahead'}</div></span>
+          <span class="grow"><div class="t" style="font-size:16px">Second Spotify plan</div><div class="s">${S.spotifyCancelled ? 'Cancelled · €10.99 a month back in your budget' : S.dismissed.includes('spotify') ? 'Dismissed · €10.99 a month' : 'Saves €10.99 a month · needs your go-ahead'}</div></span>
           ${S.spotifyCancelled ? `<span class="tag">✓ Cancelled</span>` : `<button class="pill" style="background:var(--blue);color:#fff;height:32px" data-act="fix-review">Review</button>`}
         </div>
       </div>
       <div class="list" style="background:var(--fill)">
-        <div class="row"><span class="grow t" style="font-size:16px">Ready to move</span><span class="v" style="font-weight:600">${usd(avail, 2)}</span></div>
-        ${S.fixesSent ? `<div class="row"><span class="grow t" style="font-size:16px">Already sent to Iceland</span><span class="v">${usd(S.fixesSent, 2)}</span></div>` : ''}
+        <div class="row"><span class="grow t" style="font-size:16px">Ready to move</span><span class="v" style="font-weight:600">${eur(avail, 2)}</span></div>
+        ${S.fixesSent ? `<div class="row"><span class="grow t" style="font-size:16px">Already sent to Iceland</span><span class="v">${eur(S.fixesSent, 2)}</span></div>` : ''}
       </div>
       <button class="btn prominent" data-act="fix-to-iceland" ${avail > 0 ? '' : 'disabled'}>Send to Iceland goal</button>
     </div>`);
@@ -1404,9 +1434,9 @@ function monthlySheet() {
   };
   openSheet(`
     <div class="sheet-head"><h2 data-title>Monthly amount</h2><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
-    <p class="sub">${ic.paused ? 'Transfers are paused. Saving a new amount resumes them on 23 Sep.' : 'Moves from checking to Maya\'s Stash on the 23rd.'}</p>
+    <p class="sub">${ic.paused ? 'Transfers are paused. Saving a new amount resumes them on 23 Sep.' : 'Moves from your current account to Lena\'s Stash on the 23rd.'}</p>
     <div class="body">
-      <div class="num" style="font-size:52px;text-align:center"><span class="cur">$</span><span id="m-val">${ic.monthly}</span></div>
+      <div class="num" style="font-size:52px;text-align:center"><span class="cur">€</span><span id="m-val">${ic.monthly}</span></div>
       <input id="m-slider" class="slider" type="range" min="50" max="400" step="10" value="${ic.monthly}" aria-label="Monthly amount" autofocus>
       <p class="sub" id="m-desc" style="text-align:center;margin:0">${desc(ic.monthly)}</p>
       <button class="btn prominent" data-act="save-monthly">${ic.paused ? 'Save and resume' : 'Save'}</button>
@@ -1437,7 +1467,7 @@ function voiceSheet() {
     <div class="sheet-head"><span><h2 data-title style="font-size:17px">Voice demo</h2><p class="sub" style="margin:2px 0 0;font-size:13px">No microphone used. Review and edit the sample transcript.</p></span><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
     <div class="body">
       <div style="display:flex;gap:4px;align-items:center;justify-content:center;height:36px" aria-hidden="true">${Array.from({ length: 24 }, (_, i) => `<i style="width:3px;border-radius:2px;background:currentColor;opacity:.7;height:${8 + Math.round(Math.abs(Math.sin(i * 1.7)) * 24)}px"></i>`).join('')}</div>
-      <textarea id="voice-text" class="field" rows="3" style="height:auto;padding:12px 14px;resize:none;line-height:1.4" aria-label="Transcript" autofocus>I just got a $1,430 dental bill. Can I actually pay this?</textarea>
+      <textarea id="voice-text" class="field" rows="3" style="height:auto;padding:12px 14px;resize:none;line-height:1.4" aria-label="Transcript" autofocus>I just got a €1,430 dental bill. Can I actually pay this?</textarea>
       <div class="stack">
         <button class="btn gray" data-act="send-voice">Send transcript</button>
         <button class="btn plain" data-act="close-sheet" style="color:inherit;opacity:.8">Cancel voice demo</button>
@@ -1451,13 +1481,13 @@ const H = {
   'approve-save': once(async () => {
     if (!S.actions.includes('save')) return;
     const before = safeNow(), after = forecast({ extra: 1200 }), afterSafe = safety(after).safe;
-    const ok = await alertBox({ title: 'Move $1,200 into savings?', msg: `Moves sample money from checking to Maya's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${usd(before, 2)}` : `drops to ${usd(afterSafe, 2)}`}.`, actions: [{ label: 'Move $1,200 · demo', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
+    const ok = await alertBox({ title: 'Move €1,200 into savings?', msg: `Moves sample money from your current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: 'Move €1,200 · demo', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
     if (!ok || !S.actions.includes('save')) return;
     await removeAction('save');
     acct('chk').bal -= 1200; acct('stash').bal += 1200;
     refresh();
     restoreFocus(null, null, ['.action button.ok', '#all-done']);
-    toast('Moved $1,200 to Maya\'s Stash');
+    toast('Moved €1,200 to Lena\'s Stash');
   }),
   dismiss: once(async el => {
     const id = el.dataset.id;
@@ -1484,7 +1514,7 @@ const H = {
     if (topPage && topPage.kind === 'spotify') { const d = topPage.querySelector('.dock button'); d && d.focus({ preventScroll: true }); }
     const to = safeNow();
     const w = $('#safe-num .w'); if (w) tween(w, Math.floor(from), Math.floor(to));
-    toast(S.spotifyDelta > 0 ? `Safe to spend is now ${usd(to, 2)}` : 'Second Spotify cancelled');
+    toast(S.spotifyDelta > 0 ? `Safe to spend is now ${eur(to, 2)}` : 'Second Spotify cancelled');
   }),
   tx(el) { txSheet(TX.find(t => t.id === el.dataset.id)); },
   fixes() { fixesSheet(); },
@@ -1499,7 +1529,7 @@ const H = {
   'send-fixes': once(async () => {
     const amt = fixesAvailable(); if (amt <= 0) return;
     const before = safeNow(), afterSafe = safety(forecast({ extra: amt })).safe;
-    const ok = await alertBox({ title: `Add ${usd(amt, 2)} to Iceland?`, msg: `Moves sample money from checking to Maya's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${usd(before, 2)}` : `drops to ${usd(afterSafe, 2)}`}.`, actions: [{ label: `Add ${usd(amt, 2)} in demo`, style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
+    const ok = await alertBox({ title: `Add ${eur(amt, 2)} to Iceland?`, msg: `Moves sample money from your current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: `Add ${eur(amt, 2)} in demo`, style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
     const amt2 = fixesAvailable();
     if (!ok || amt2 <= 0) return;
     const from = S.iceland.saved;
@@ -1508,7 +1538,7 @@ const H = {
     refresh();
     tween($('#ice-num .w'), from, S.iceland.saved, 1100);
     restoreFocus(null, null, ['.page:last-child [data-act="change-monthly"]']);
-    toast(`${usd(amt2, 2)} added to Iceland`);
+    toast(`${eur(amt2, 2)} added to Iceland`);
   }),
   'change-monthly'() { monthlySheet(); },
   'save-monthly'() {
@@ -1517,7 +1547,7 @@ const H = {
     S.iceland.monthly = +sl.value; S.iceland.paused = false;
     closeSheet(); refresh();
     restoreFocus(null, null, ['.page:last-child [data-act="change-monthly"]']);
-    toast(`${usd(S.iceland.monthly)} a month${wasPaused ? ', transfers resumed' : ''}`);
+    toast(`${eur(S.iceland.monthly)} a month${wasPaused ? ', transfers resumed' : ''}`);
   },
   'toggle-pause'() { S.iceland.paused = !S.iceland.paused; refresh(); toast(S.iceland.paused ? 'Transfers paused' : 'Transfers resumed'); },
   'toggle-car'(el) {
@@ -1528,7 +1558,7 @@ const H = {
     const inp = $('#payday'); if (!inp) return;
     const v = Number(inp.value);
     if (!Number.isInteger(v) || v < 1 || v > 28) { toast('Pick a whole day from 1 to 28', { error: true }); inp.focus(); return; }
-    S.payDay = v; refresh(); toast(`Pay day saved: the ${ord(v)}`);
+    S.payDay = v; S.payDraft = null; refresh(); toast(`Pay day saved: the ${ord(v)}`);
   },
   accounts() { push(accountsPage, { modal: true, media: 'g-accounts' }); },
   'add-account'() {
@@ -1541,7 +1571,7 @@ const H = {
     } });
   },
   'pick-bank'(el) { bankSheet(BANKS.find(b => b.id === el.dataset.id)); },
-  'link-bank': once(async el => {
+  'link-bank': async el => {
     const b = BANKS.find(x => x.id === el.dataset.id);
     if (!b || S.accounts.some(a => a.id === b.id)) return;
     el.innerHTML = '<span class="spinner"></span> Connecting…'; el.disabled = true;
@@ -1554,8 +1584,8 @@ const H = {
     if (stack.length && stack[stack.length - 1].kind === 'add') pop(true);
     refresh();
     const row = $(`[data-acct="${b.id}"]`); if (row) { row.classList.add('flash'); setTimeout(() => row.focus({ preventScroll: false }), T + 40); }
-    toast(`${b.name} added · ${usd(b.bal)}`);
-  }),
+    toast(`${b.name} added · ${eur(b.bal)}`);
+  },
   back(el) { if (el.closest('.page') !== stack[stack.length - 1]) return; pop(); },
   'close-sheet'() { if (sheetEl && performance.now() - sheetEl.at < 400) return; closeSheet(); },
   ask(el) { send(el.dataset.q); },
@@ -1584,6 +1614,7 @@ app.addEventListener('click', e => {
   const fn = H[el.dataset.act];
   if (fn) fn(el);
 });
+app.addEventListener('input', e => { if (e.target.id === 'payday') S.payDraft = e.target.value; });
 app.addEventListener('change', e => {
   if (e.target.id === 'car-late') H['toggle-car'](e.target);
 });
@@ -1619,6 +1650,106 @@ document.addEventListener('keydown', e => {
 ['#tab-chat', '#tab-money', '#tab-today'].forEach(id => $(id).addEventListener('scroll', e => e.currentTarget.classList.toggle('scrolled', e.currentTarget.scrollTop > 4), { passive: true }));
 renderToday(); renderMoney(); renderChat();
 selectTab('today');
+
+/* ---------------- Liquid Glass refraction ---------------- */
+(function liquidGlass() {
+  const brands = (navigator.userAgentData && navigator.userAgentData.brands) || [];
+  const chromium = brands.some(b => /Chromium|Google Chrome|Microsoft Edge/.test(b.brand));
+  if (!chromium) return; // Safari and Firefox can't use SVG filters as backdrop filters
+  document.documentElement.classList.add('lg-on');
+  const SEL = '.tabbar .tabs, .tabbar .gear, .composer, .circle-btn.glass, .pill.glass, .btn.glass';
+  const defs = $('#lg-defs');
+  const made = new Map();
+  let n = 0;
+
+  // Displacement map for a rounded rectangle: zero in the middle, bending toward the rim
+  function mapURL(w, h, r, bezel) {
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const ctx = c.getContext('2d');
+    const img = ctx.createImageData(w, h);
+    const hw = w / 2, hh = h / 2;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const px = x + .5 - hw, py = y + .5 - hh;
+        const qx = Math.abs(px) - (hw - r), qy = Math.abs(py) - (hh - r);
+        const ox = Math.max(qx, 0), oy = Math.max(qy, 0);
+        const sd = Math.hypot(ox, oy) + Math.min(Math.max(qx, qy), 0) - r; // negative inside
+        let nx, ny;
+        if (qx > 0 && qy > 0) { const l = Math.hypot(qx, qy) || 1; nx = qx / l; ny = qy / l; }
+        else if (qx > qy) { nx = 1; ny = 0; } else { nx = 0; ny = 1; }
+        nx *= Math.sign(px) || 1; ny *= Math.sign(py) || 1;
+        const d = -sd;
+        let m = 0;
+        if (d > 0 && d < bezel) { const t = 1 - d / bezel; m = t * t * (3 - 2 * t); } // smooth convex rim
+        const i = (y * w + x) * 4;
+        // Sample from further out along the edge normal, like light bent by a convex lens
+        img.data[i] = 128 + Math.round(nx * m * 127);
+        img.data[i + 1] = 128 + Math.round(ny * m * 127);
+        img.data[i + 2] = 128;
+        img.data[i + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    return c.toDataURL();
+  }
+
+  function filterFor(w, h, r) {
+    const key = `${w}x${h}r${r}`;
+    if (made.has(key)) return made.get(key);
+    const id = 'lg-' + (++n);
+    const bezel = Math.max(8, Math.min(h / 2, w / 2, 22) * .85);
+    const scale = Math.round(bezel * 1.6);
+    const NS = 'http://www.w3.org/2000/svg';
+    const f = document.createElementNS(NS, 'filter');
+    f.setAttribute('id', id);
+    f.setAttribute('filterUnits', 'userSpaceOnUse');
+    f.setAttribute('x', '0'); f.setAttribute('y', '0'); f.setAttribute('width', w); f.setAttribute('height', h);
+    f.setAttribute('color-interpolation-filters', 'sRGB');
+    f.innerHTML = `
+      <feImage href="${mapURL(w, h, r, bezel)}" x="0" y="0" width="${w}" height="${h}" preserveAspectRatio="none" result="map"/>
+      <feDisplacementMap in="SourceGraphic" in2="map" scale="${scale}" xChannelSelector="R" yChannelSelector="G" result="dr"/>
+      <feDisplacementMap in="SourceGraphic" in2="map" scale="${scale * 1.06}" xChannelSelector="R" yChannelSelector="G" result="dg"/>
+      <feDisplacementMap in="SourceGraphic" in2="map" scale="${scale * 1.12}" xChannelSelector="R" yChannelSelector="G" result="db"/>
+      <feColorMatrix in="dr" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/>
+      <feColorMatrix in="dg" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/>
+      <feColorMatrix in="db" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/>
+      <feBlend in="r" in2="g" mode="screen" result="rg"/>
+      <feBlend in="rg" in2="b" mode="screen"/>`;
+    defs.appendChild(f);
+    made.set(key, id);
+    return id;
+  }
+
+  function apply(el) {
+    const w = Math.round(el.offsetWidth), h = Math.round(el.offsetHeight);
+    if (!w || !h) return;
+    const br = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
+    const r = Math.min(br, h / 2, w / 2);
+    const key = `${w}x${h}r${r}`;
+    if (el.dataset.lg === key) return;
+    el.dataset.lg = key;
+    el.classList.add('lg');
+    const id = filterFor(w, h, r);
+    const v = `url(#${id}) blur(1.5px) saturate(185%) brightness(1.04)`;
+    el.style.backdropFilter = v;
+    el.style.webkitBackdropFilter = v;
+  }
+
+  const ro = new ResizeObserver(entries => entries.forEach(e => apply(e.target)));
+  const seen = new WeakSet();
+  function scan() {
+    $$(SEL, app).forEach(el => {
+      if (!seen.has(el)) { seen.add(el); ro.observe(el); }
+      apply(el);
+    });
+  }
+  let queued = false;
+  new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; scan(); }); } })
+    .observe(app, { childList: true, subtree: true });
+  scan();
+})();
+
 })();
 </script>
 </body>
