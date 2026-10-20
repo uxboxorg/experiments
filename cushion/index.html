@@ -6,7 +6,7 @@
 <title>Cushion Budgeting Prototype</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
 <style>
 /* Layout: a portfolio stage with a short case-study column beside a live iPhone. On phones the app fills the screen and the notes follow below. */
 :root {
@@ -602,6 +602,125 @@ button.row[disabled] { cursor: default; }
 .bank-logo { box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .28); }
 .statusbar { transition: color .3s, opacity .2s; }
 .app.toasting .statusbar { opacity: 0; }
+
+/* ===================== Wise-inspired restyle =====================
+   Calm white surfaces, soft green-grey groups, ink text, lime primary actions with
+   forest-green labels, heavy display type, round icons. Colourful full-bleed pages
+   become light pages, so text and controls keep their contrast. */
+:root {
+  --display: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+  --page: #E9ECE6; --page-ink: #0E0F0C; --page-muted: #4B4E47;
+  --bg: #FFFFFF; --card: #F2F4EF; --label: #0E0F0C; --label2: #4B4E47; --label3: rgba(14, 15, 12, .38);
+  --sep: rgba(14, 15, 12, .10); --fill: rgba(22, 51, 0, .07); --fill2: rgba(22, 51, 0, .14);
+  --lime: #A0E559; --forest: #163300; --accent: #163300; --blue: #163300;
+  --green: #34C759; --green-text: #2B6B00; --orange: #A65200;
+  --on-media: var(--label); --on-media-2: var(--label2); --on-media-3: var(--label3); --media-sep: var(--sep);
+  --glass: rgba(255, 255, 255, .62); --glass-strong: rgba(255, 255, 255, .84);
+  --sheet: rgba(255, 255, 255, .985); --bar-ink: #0E0F0C;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --page: #0A0B09; --page-ink: #F1F4EC; --page-muted: #A9AEA3;
+  --bg: #0B0D0A; --card: #181B16; --label: #F1F4EC; --label2: #AEB3A8; --label3: rgba(241, 244, 236, .38);
+  --sep: rgba(241, 244, 236, .12); --fill: rgba(241, 244, 236, .08); --fill2: rgba(241, 244, 236, .16);
+  --accent: #A0E559; --blue: #A0E559; --green-text: #A0E559; --orange: #FFB35C;
+  --glass: rgba(30, 34, 28, .6); --glass-strong: rgba(30, 34, 28, .84); --sheet: rgba(24, 27, 22, .985); --bar-ink: #F1F4EC;
+} }
+:root[data-theme="dark"] {
+  --page: #0A0B09; --page-ink: #F1F4EC; --page-muted: #A9AEA3;
+  --bg: #0B0D0A; --card: #181B16; --label: #F1F4EC; --label2: #AEB3A8; --label3: rgba(241, 244, 236, .38);
+  --sep: rgba(241, 244, 236, .12); --fill: rgba(241, 244, 236, .08); --fill2: rgba(241, 244, 236, .16);
+  --accent: #A0E559; --blue: #A0E559; --green-text: #A0E559; --orange: #FFB35C;
+  --glass: rgba(30, 34, 28, .6); --glass-strong: rgba(30, 34, 28, .84); --sheet: rgba(24, 27, 22, .985); --bar-ink: #F1F4EC;
+}
+/* Type: heavy, tight display face for titles and figures */
+.large-title, .detail h1, .page-title, .chat-title h1, .sheet h2 { font-family: var(--display); font-weight: 800; letter-spacing: -.03em; }
+.num { font-family: var(--display); font-weight: 700; letter-spacing: -.04em; }
+.greet { font-family: var(--display); font-weight: 700; color: var(--label); letter-spacing: -.02em; }
+.greet .sub { color: var(--label2); opacity: 1; font-weight: 600; }
+.greet .avatar { box-shadow: 0 0 0 2px var(--lime); }
+/* Primary actions: lime with forest labels */
+.btn.prominent, .btn.primary { background: var(--lime); color: var(--forest); box-shadow: none; }
+.btn.secondary { background: var(--fill); color: var(--label); }
+.btn.primary[disabled], .dock .btn.primary[disabled] { opacity: 1; background: var(--card); color: var(--label2); }
+.btn.plain, .media .btn.plain { color: var(--accent); font-weight: 600; }
+.btn.destructive { background: var(--fill); color: var(--red); }
+.action .ok { background: var(--lime); color: var(--forest); }
+.review-pill { height: 44px; padding: 0 18px; border-radius: 99px; background: var(--lime); color: var(--forest); font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; }
+/* Surfaces */
+.today-hero, #chat-bg { display: none !important; }
+#tab-today, #tab-chat { --edge: var(--bg); }
+.safe { background: var(--forest); color: #FFFFFF; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.safe .num { color: var(--lime); font-weight: 800; }
+.safe .num .cur, .safe .num .cents { color: #FFFFFF; opacity: .9; }
+.safe .why { text-shadow: none; color: rgba(255, 255, 255, .92); }
+.action { background: var(--card) !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+.action p { color: var(--label2); }
+.logo-tile { border-radius: 50% !important; }
+.card-media, .card-media.g-iceland { background: var(--card) !important; color: var(--label); }
+.card-media.g-month { background: var(--forest) !important; color: #FFFFFF; }
+.card-media.g-month .ttl { color: var(--lime); }
+.card-media .meter { background: var(--fill2); }
+.card-media .meter i { background: var(--accent); }
+.card-media.g-iceland svg { color: var(--accent); }
+.page.g-iceland, .page.g-month, .page.g-teal, .page.g-accounts { background: var(--bg) !important; --bar-bg: var(--bg); --edge: var(--bg); }
+.media { --edge: var(--bg); }
+.media .glass, .glass.on-media { background: var(--glass-strong); color: var(--label); box-shadow: inset 0 0 0 .5px var(--sep), 0 6px 18px rgba(14, 15, 12, .08); }
+.media .list { background: var(--card); }
+.media .row .s, .media .section-h { color: var(--label2); }
+.media .row .chev { color: var(--label3); }
+.media .field { background: var(--fill); color: var(--label); }
+.media .field:focus { box-shadow: inset 0 0 0 2px var(--accent); }
+.media .switch span { background: var(--fill2); }
+.media .tinted, .tinted { background: var(--fill); color: var(--label); }
+.media .foot, .foot { color: var(--label2); }
+.detail .body { color: var(--label2); }
+.kv div { border-bottom-color: var(--sep); }
+.progress { background: var(--fill2); }
+.progress i { background: var(--accent); }
+.paused-badge { background: var(--fill); color: var(--label); }
+.callout.glass, .media .callout.glass { background: var(--card); box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; color: var(--label); }
+.dock::before { background: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--bg) 34%); -webkit-backdrop-filter: none; backdrop-filter: none; -webkit-mask-image: none; mask-image: none; }
+/* Forecast chart in theme colours */
+.chart text { fill: var(--label2); }
+.chart text[font-weight="600"] { fill: #FFFFFF; }
+.chart line { stroke: var(--label3); }
+.chart path[fill="none"] { stroke: var(--accent); }
+.chart stop { stop-color: var(--accent); }
+.chart circle { fill: var(--bg); stroke: var(--accent); }
+.chart rect { fill: var(--forest); }
+/* Chat on a calm surface */
+#tab-chat, .ai { color: var(--label); }
+#tab-chat .lede { color: var(--label2); }
+.bubble-user { background: var(--lime); color: var(--forest); box-shadow: none; }
+.typing i { background: var(--label3); }
+#tab-chat .suggest button { background: var(--card); color: var(--label); box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.chat-title.pinned { --bar-bg: var(--bg); }
+.composer input { color: var(--label); }
+.composer input::placeholder { color: var(--label2); }
+.composer .mic { background: var(--fill); color: var(--label); }
+.composer .send { background: var(--lime); color: var(--forest); }
+/* Tab bar: one treatment everywhere; selected tab in the accent */
+.app[data-tab="chat"] .tabbar .glass, .app.media-top .tabbar .glass { background: var(--glass-strong); }
+.app[data-tab="chat"] .tabbar .tab, .app.media-top .tabbar .tab { color: var(--label); }
+.app[data-tab="chat"] .tabbar .tab[aria-selected="true"], .app.media-top .tabbar .tab[aria-selected="true"], .tabbar .tab[aria-selected="true"] { color: var(--accent); }
+.app[data-tab="chat"] .tabbar .lens, .app.media-top .tabbar .lens, .tabbar .lens { background: var(--fill2); }
+.media :focus-visible, #tab-chat :focus-visible, .composer :focus-visible { outline-color: var(--accent); }
+.slider::-webkit-slider-runnable-track { background: linear-gradient(var(--accent), var(--accent)) 0 / var(--p, 50%) 100% no-repeat, var(--fill2); }
+.slider::-moz-range-progress { background: var(--accent); }
+.page .nav .inline { left: 112px; right: 112px; }
+/* Sheets: bigger close target, draggable grabber, inline field errors */
+.sheet .close { position: relative; }
+.sheet .close::before { content: ""; position: absolute; inset: -6px; }
+.sheet .grab { display: block; width: 100%; height: 22px; margin: -10px 0 6px; background: none; position: relative; cursor: grab; touch-action: none; }
+.sheet .grab::after { content: ""; position: absolute; left: 50%; top: 10px; width: 36px; height: 5px; border-radius: 3px; background: var(--label3); transform: translateX(-50%); }
+/* Bottom scroll edge clears the tab bar on pushed pages and tab roots */
+.page:not(.modal):not(.in-modal) .edge-btm { height: 132px; margin-top: -132px; background: linear-gradient(to top, var(--bg) 58%, rgba(255, 255, 255, 0)); -webkit-backdrop-filter: none; backdrop-filter: none; -webkit-mask-image: none; mask-image: none; }
+.edge-bottom { background: linear-gradient(to top, var(--bg) 52%, rgba(255, 255, 255, 0)) !important; -webkit-backdrop-filter: none; backdrop-filter: none; -webkit-mask-image: none; mask-image: none; height: 128px; }
+:root[data-theme="dark"] .page:not(.modal):not(.in-modal) .edge-btm, :root[data-theme="dark"] .edge-bottom { background: linear-gradient(to top, var(--bg) 58%, rgba(11, 13, 10, 0)) !important; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .page:not(.modal):not(.in-modal) .edge-btm, :root:not([data-theme="light"]) .edge-bottom { background: linear-gradient(to top, var(--bg) 58%, rgba(11, 13, 10, 0)) !important; } }
+.field-err { margin: -4px 0 0; font-size: 13px; color: var(--red); min-height: 0; }
+.about li::before { background: var(--accent); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
@@ -877,9 +996,9 @@ function renderToday() {
         ${tile({ brand: 'spotify', bg: '#191414', fg: '#1ED760' }, 44)}
         <h3>Cancel the second Spotify</h3>
         <p>Two accounts bill the same card. I have drafted the cancellation and just need your go-ahead.</p>
-        <div class="btns"><button class="ok" data-act="open-spotify" aria-label="Review the Spotify cancellation">${I.check}</button><button class="no" data-act="dismiss" data-id="spotify" aria-label="Dismiss Spotify suggestion">${I.x}</button></div>
+        <div class="btns"><button class="review-pill" data-act="open-spotify">Review</button><button class="no" data-act="dismiss" data-id="spotify" aria-label="Dismiss Spotify suggestion">${I.x}</button></div>
       </article>`).join('');
-  const done = `<article class="action glass done" tabindex="-1" id="all-done"><span class="ok" aria-hidden="true">${I.check}</span><div><h3>All caught up</h3><p>New suggestions show up here when Cushion spots them.</p></div></article>`;
+  const done = `<article class="action glass done" tabindex="-1" id="all-done"><span class="ok" aria-hidden="true">${I.check}</span><div><h3>All caught up</h3><p>New suggestions show up here when I spot them.</p></div></article>`;
   $('#tab-today').innerHTML = `${edge}
     <div class="today-hero" aria-hidden="true"></div>
     <div class="content">
@@ -970,7 +1089,7 @@ const SUGGEST = ['Can I afford a €600 flight in March?', 'Why is eating out up
 function renderChat() {
   const c = S.chat;
   const head = c.title
-    ? `<div class="chat-title pinned"><h1><span aria-hidden="true" style="display:inline-flex">${icon(c.emoji, 22)}</span>${esc(c.title)}</h1><button class="circle-btn glass on-media" data-act="clear-chat" aria-label="Close conversation" ${c.busy ? 'disabled' : ''}>${I.x}</button></div>`
+    ? `<div class="chat-title pinned"><h1><span aria-hidden="true" style="display:inline-flex">${icon(c.emoji, 22)}</span>${esc(c.title)}</h1><button class="circle-btn glass on-media" data-act="clear-chat" ${c.busy ? 'disabled' : ''} style="width:auto;padding:0 14px;border-radius:99px;font-size:15px;font-weight:600">New Chat</button></div>`
     : `<div class="chat-title"><h1 class="large-title">Chat</h1></div><p class="lede" style="margin:-10px 0 0;max-width:30ch">Ask about a purchase, a bill or a goal. I answer from your sample accounts.</p>`;
   const body = c.msgs.map((m, i) => m.role === 'user'
     ? `<div class="bubble-user">${esc(m.text)}</div>`
@@ -984,19 +1103,26 @@ function renderChat() {
 }
 
 /* ---------------- Detail pages ---------------- */
+function spotifyDeltaNow() {
+  if (!S.spotifyCancelled) return 0;
+  const now = safeNow();
+  S.spotifyCancelled = false; const before = safeNow(); S.spotifyCancelled = true;
+  return r2(now - before);
+}
 function spotifyPage() {
   const sf = safety();
+  const spDelta = spotifyDeltaNow();
   if (S.spotifyCancelled) return `
     <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
     <div class="detail">
       <h1>Cancel the second Spotify</h1>
       <p class="body">I cancelled the account opened in March and kept the family plan. The last play on it was 7 June.</p>
       <div class="kv"><div><span>Keeping</span><span>Family · €17.99</span></div><div><span>Cancelled</span><span>Individual · €10.99</span></div></div>
-      <div class="callout glass">${I.check}<span><b>The second Spotify has been cancelled.</b><br>${S.spotifyDelta > 0 ? `Your safe-to-spend went up by ${eur(S.spotifyDelta, 2)} a day.` : sf.limitedByCash ? `Your safe-to-spend stays at ${eur(sf.safe, 2)} for now, because ${cashWord()} ${cashWord() === 'your current account' ? 'is' : 'are'} what limits it until pay day.` : `Your next charge would have come after pay day, so the saving shows up in your next pay period.`} You'll save €10.99 a month from 21 September.</span></div>
+      <div class="callout glass">${I.check}<span><b>The second Spotify has been cancelled.</b><br>${spDelta > 0 ? `Your safe-to-spend went up by ${eur(spDelta, 2)} a day.` : sf.limitedByCash ? `Your safe-to-spend stays at ${eur(sf.safe, 2)} for now, because ${cashWord()} ${cashWord() === 'your current account' ? 'is' : 'are'} what limits it until pay day.` : `Your next charge would have come after pay day, so the saving shows up in your next pay period.`} You'll save €10.99 a month from 21 September.</span></div>
     </div>
     <div class="dock">
       <p class="foot">Completed in the local demo</p>
-      <button class="btn glass" data-act="back">Done</button>
+      <button class="btn primary" data-act="back">Done</button>
     </div>`;
   return `
     <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
@@ -1012,7 +1138,7 @@ function spotifyPage() {
     </div>
     <div class="dock">
       <p class="foot">Local demo · No provider or bank will be contacted</p>
-      <button class="btn glass" data-act="confirm-spotify">Cancel It for Me</button>
+      <button class="btn primary" data-act="confirm-spotify">Cancel It for Me</button>
     </div>`;
 }
 
@@ -1054,7 +1180,7 @@ function icelandPage() {
       </div>
     </div>
     <div class="dock">
-      <button class="btn glass" data-act="send-fixes" ${avail > 0 ? '' : 'disabled'}>${avail > 0 ? `Send Fixes Money Here · ${eur(avail, 2)}` : S.fixesSent ? '✓ Fixes Money Sent' : 'No Fixes Money Yet'}</button>
+      <button class="btn primary" data-act="send-fixes" ${avail > 0 ? '' : 'disabled'}>${avail > 0 ? `Send Fixes Money Here · ${eur(avail, 2)}` : S.fixesSent ? 'Fixes Money Sent' : 'No Fixes Money Yet'}</button>
       <button class="btn plain" data-act="change-monthly">Change Monthly Amount</button>
       <p class="foot">Local demo · Sample balances only</p>
     </div>`;
@@ -1132,7 +1258,8 @@ function monthPage() {
       ${chartSVG(fc)}
       <div class="list" style="padding:12px 16px;display:grid;gap:10px;border-radius:24px">
         <label for="payday" style="font-size:15px">Pay day of each month</label>
-        <input id="payday" class="field" type="number" inputmode="numeric" min="1" max="28" value="${S.payDraft != null ? esc(S.payDraft) : S.payDay}">
+        <input id="payday" class="field" type="number" inputmode="numeric" min="1" max="28" aria-describedby="payday-err" value="${S.payDraft != null ? esc(S.payDraft) : S.payDay}">
+        <p class="field-err" id="payday-err" role="alert"></p>
         <button class="pill tinted" data-act="save-payday" style="justify-self:start">Save Pay Day</button>
       </div>
       <div class="list" style="padding:4px 16px;border-radius:24px">
@@ -1282,7 +1409,7 @@ function updateChrome() {
   const inChat = S.tab === 'chat';
   const convo = inChat && S.chat.msgs.length > 0;
   app.dataset.tab = S.tab;
-  app.dataset.bar = top ? (top.classList.contains('media') ? 'light' : 'dark') : (S.tab === 'today' || inChat ? 'light' : 'dark');
+  app.dataset.bar = 'dark';
   const covered = !!(top && (top.modal || top.inModal));
   $('#tabbar').classList.toggle('away', covered);
   app.classList.toggle('media-top', !!(top && !covered && top.classList.contains('media')));
@@ -1307,6 +1434,7 @@ function refresh() {
 
 /* ---------------- Tabs ---------------- */
 function selectTab(t) {
+  if (pendingFix.length) { pendingFix.forEach(clearTimeout); pendingFix = []; }
   S.tab = t;
   stack = stacks[t];
   allPages().forEach(p => { p.hidden = p.dataset.tab !== t; });
@@ -1329,7 +1457,15 @@ function openSheet(html, { dark = false, onMount } = {}) {
   const scrim = document.createElement('div'); scrim.className = 'scrim'; scrim.dataset.act = 'close-sheet';
   scrim.addEventListener('mousedown', e => e.preventDefault());
   const sh = document.createElement('div'); sh.className = 'sheet' + (dark ? ' dark-sheet' : ''); sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-modal', 'true'); sh.setAttribute('aria-labelledby', id);
-  sh.innerHTML = `<div class="grab"></div>${html.replace('data-title', `id="${id}"`)}`;
+  sh.innerHTML = `<button class="grab" aria-label="Dismiss"></button>${html.replace('data-title', `id="${id}"`)}`;
+  const grab = sh.querySelector('.grab');
+  grab.addEventListener('click', () => { if (!grab.dragged) closeSheet(); grab.dragged = false; });
+  // Drag the grabber (or the sheet header) down to dismiss, like a UISheetPresentationController
+  let y0 = null;
+  const down = e => { y0 = e.clientY; sh.style.transition = 'none'; e.target.setPointerCapture && e.target.setPointerCapture(e.pointerId); };
+  const move = e => { if (y0 === null) return; const dy = Math.max(0, e.clientY - y0); if (dy > 4) grab.dragged = true; sh.style.transform = `translateY(${dy}px)`; };
+  const up = e => { if (y0 === null) return; const dy = e.clientY - y0; y0 = null; sh.style.transition = ''; sh.style.transform = ''; if (dy > 90) closeSheet(); };
+  [grab, sh.querySelector('.sheet-head')].filter(Boolean).forEach(h => { h.addEventListener('pointerdown', down); h.addEventListener('pointermove', move); h.addEventListener('pointerup', up); h.addEventListener('pointercancel', up); });
   layer.append(scrim, sh);
   sheetEl = { scrim, sh, opener: document.activeElement, key: focusKey(document.activeElement), at: performance.now() };
   syncInert();
@@ -1377,6 +1513,7 @@ function alertBox({ title, msg, actions, sheet = false }) {
       resolve(value);
     };
     alertOpen = { cancel: () => finish(false) };
+    if (sheet) scrim.addEventListener('click', () => finish(false));
     syncInert();
     requestAnimationFrame(() => requestAnimationFrame(() => { scrim.classList.add('show'); al.classList.add('show'); al.querySelector('button').focus(); }));
     al.addEventListener('click', e => { const b = e.target.closest('button'); if (b) finish(actions[+b.dataset.i].value); });
@@ -1523,7 +1660,7 @@ function fixesSheet() {
         </div>`).join('')}
         <div class="row">
           <span class="grow"><div class="t" style="font-size:16px">Second Spotify plan</div><div class="s">${S.spotifyCancelled ? 'Cancelled · €10.99 a month back in your budget' : S.dismissed.includes('spotify') ? 'Dismissed · €10.99 a month' : 'Saves €10.99 a month · needs your go-ahead'}</div></span>
-          ${S.spotifyCancelled ? `<span class="tag">✓ Cancelled</span>` : `<button class="pill" style="background:var(--blue);color:#fff;height:32px" data-act="fix-review">Review</button>`}
+          ${S.spotifyCancelled ? `<span class="tag">Cancelled</span>` : `<button class="pill" style="background:var(--blue);color:#fff;height:32px" data-act="fix-review">Review</button>`}
         </div>
       </div>
       <div class="list" style="background:var(--fill)">
@@ -1607,14 +1744,14 @@ const H = {
   'open-spotify'() { push(spotifyPage, { media: 'g-teal', kind: 'spotify' }); },
   'confirm-spotify': once(async el => {
     if (S.spotifyCancelled) return;
-    const ok = await alertBox({ sheet: true, title: 'Cancel your second Spotify plan?', msg: 'Sample data only. This updates the balances and suggestions in this browser.', actions: [{ label: 'Cancel Spotify Plan', style: 'destructive', value: true }, { label: 'Keep Plan', value: false }] });
+    const ok = await alertBox({ sheet: true, title: 'Cancel your second Spotify plan?', msg: 'Sample data only. This updates the balances and suggestions in this browser.', actions: [{ label: 'Cancel Spotify Plan', style: 'destructive', value: true }, { label: 'Cancel', value: false }] });
     if (!ok || S.spotifyCancelled) return;
     el.innerHTML = '<span class="spinner"></span> Cancelling…'; el.disabled = true;
     await wait(reduced ? 0 : 1100);
     const from = safeNow();
     S.spotifyCancelled = true;
     S.actions = S.actions.filter(a => a !== 'spotify');
-    S.spotifyDelta = r2(safeNow() - from);
+    S.spotifyDelta = spotifyDeltaNow();
     refresh();
     const topPage = stack[stack.length - 1];
     if (topPage && topPage.kind === 'spotify') { const d = topPage.querySelector('.dock button'); d && d.focus({ preventScroll: true }); }
@@ -1628,9 +1765,11 @@ const H = {
   'fix-review'() { const o = sheetEl && sheetEl.opener; closeSheet(true); push(spotifyPage, { media: 'g-teal', opener: o, kind: 'spotify' }); },
   'fix-to-iceland'() {
     if (fixesAvailable() <= 0) return;
+    const startTab = S.tab, depth = stack.length;
     closeSheet();
     // Escape cancels this two-step hand-off at any point before the alert appears
     pendingFix = [setTimeout(() => {
+      if (S.tab !== startTab || stack.length !== depth) { pendingFix = []; return; }
       const pg = push(icelandPage, { media: 'g-iceland', kind: 'iceland-fix' });
       if (pg) pendingFix = [setTimeout(() => { pendingFix = []; if (stack[stack.length - 1] === pg) H['send-fixes'](); }, T + 20)];
       else pendingFix = [];
@@ -1669,7 +1808,7 @@ const H = {
   'save-payday'() {
     const inp = $('#payday'); if (!inp) return;
     const v = /^\d{1,2}$/.test(inp.value.trim()) ? Number(inp.value) : NaN;
-    if (!Number.isInteger(v) || v < 1 || v > 28) { toast('Pick a whole day from 1 to 28', { error: true }); inp.focus(); return; }
+    if (!Number.isInteger(v) || v < 1 || v > 28) { const er = $('#payday-err'); if (er) er.textContent = 'Enter a whole day from 1 to 28.'; inp.setAttribute('aria-invalid', 'true'); inp.focus(); return; }
     S.payDay = v; S.payDraft = null; refresh(); toast(`Pay day saved: the ${ord(v)}`);
   },
   accounts() { push(accountsPage, { modal: true, media: 'g-accounts' }); },
