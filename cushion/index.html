@@ -875,6 +875,12 @@ button.row[disabled] { cursor: default; }
 .gs-fallback { background: rgba(255, 255, 255, calc(var(--nav-frost) + .12)) !important; box-shadow: 0 0 0 .5px var(--nav-edge), inset 0 0 2px 1px var(--nav-rim), inset 0 0 12px 3px var(--nav-glow), inset 0 1px 0 var(--nav-rim), var(--nav-shadow) !important; }
 .tabbar .lens, .app[data-tab="chat"] .tabbar .lens, .app.media-top .tabbar .lens { background: var(--nav-lens) !important; }
 @media (prefers-contrast: more) { :root { --nav-edge: rgba(14, 15, 12, .3); --nav-frost: .7; } }
+
+/* Chat is a focused mode: no tab bar, a back button instead */
+.chat-title.pinned .circle-btn[data-act="chat-back"] { flex: none; }
+.chat-title.pinned h1 { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-title.pinned h1 > span { flex: none; }
+.chat-title.chat-top { justify-content: flex-start; padding-bottom: 6px; }
 </style>
 </head>
 <body>
@@ -1249,17 +1255,19 @@ function renderMoney() {
 
 /* ---------------- Chat ---------------- */
 const SUGGEST = ['Can I afford a €600 flight in March?', 'Why is eating out up this month?', 'When will I reach the Iceland goal?'];
+const TAB_NAMES = { today: 'Today', money: 'Money', accounts: 'Accounts' };
+const chatBack = () => `<button class="circle-btn glass" data-act="chat-back" aria-label="Back to ${TAB_NAMES[S.prevTab] || 'Today'}">${I.back}</button>`;
 function renderChat() {
   const c = S.chat;
   const head = c.title
-    ? `<div class="chat-title pinned"><h1><span aria-hidden="true" style="display:inline-flex">${icon(c.emoji, 22)}</span>${esc(c.title)}</h1><button class="circle-btn glass on-media" data-act="clear-chat" ${c.busy ? 'disabled' : ''} style="width:auto;padding:0 14px;border-radius:99px;font-size:15px;font-weight:600">New Chat</button></div>`
-    : `<div class="chat-title"><h1 class="large-title">Chat</h1></div><p class="lede" style="margin:-10px 0 0;max-width:30ch">Ask about a purchase, a bill or a goal. I answer from your connected accounts.</p>`;
+    ? `<div class="chat-title pinned">${chatBack()}<h1><span aria-hidden="true" style="display:inline-flex">${icon(c.emoji, 22)}</span>${esc(c.title)}</h1><button class="circle-btn glass on-media" data-act="clear-chat" ${c.busy ? 'disabled' : ''} style="width:auto;padding:0 14px;border-radius:99px;font-size:15px;font-weight:600">New Chat</button></div>`
+    : `<div class="chat-title pinned chat-top">${chatBack()}</div><div class="chat-title"><h1 class="large-title">Chat</h1></div><p class="lede" style="margin:-10px 0 0;max-width:30ch">Ask about a purchase, a bill or a goal. I answer from your connected accounts.</p>`;
   const body = c.msgs.map((m, i) => m.role === 'user'
     ? `<div class="bubble-user">${esc(m.text)}</div>`
     : `<div class="ai" id="ai-${i}">${m.typing ? '<div class="typing" aria-label="Cushion is typing"><i></i><i></i><i></i></div>' : m.paras.map(p => `<p>${esc(p)}</p>`).join('')}</div>`).join('');
   const sug = c.msgs.length ? '' : `<div class="suggest">${SUGGEST.map(s => `<button class="chip" data-act="ask" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>`;
   keepFocus(() => {
-    $('#tab-chat').innerHTML = `${c.title ? '' : edge}<div class="chat-wrap" style="${c.title ? 'padding-top:0' : ''}">${head}${body}${sug}</div>`;
+    $('#tab-chat').innerHTML = `<div class="chat-wrap" style="padding-top:0">${head}${body}${sug}</div>`;
   });
   $('#composer').querySelectorAll('button').forEach(b => { b.disabled = c.busy || (b.classList.contains('send') && !$('#chat-input').value.trim()); });
   updateChrome();
@@ -1596,7 +1604,8 @@ function updateChrome() {
   app.dataset.tab = S.tab;
   app.dataset.bar = 'dark';
   const covered = !!(top && (top.modal || top.inModal));
-  $('#tabbar').classList.toggle('away', covered);
+  $('#tabbar').classList.toggle('away', covered || inChat);
+  $('#composer').classList.toggle('solo', inChat);
   app.classList.toggle('media-top', !!(top && !covered && top.classList.contains('media')));
   $('#composer').hidden = !!top || !inChat;
   $('#chat-bg').hidden = !inChat;
@@ -1606,7 +1615,7 @@ function syncInert() {
   const overlay = $$('#layer .sheet, #layer .alert').some(x => !x.closing);
   const top = stack[stack.length - 1];
   ['#tab-today', '#tab-money', '#tab-accounts', '#tab-chat', '#composer'].forEach(s => { $(s).inert = overlay || !!top; });
-  $('#tabbar').inert = overlay || !!(top && (top.modal || top.inModal));
+  $('#tabbar').inert = overlay || S.tab === 'chat' || !!(top && (top.modal || top.inModal));
   allPages().forEach(p => { p.inert = overlay || p !== top; });
   const al = $$('#layer .alert').some(a => !a.closing);
   $$('#layer .sheet').forEach(s => { s.inert = !!al || s.closing; });
@@ -1619,6 +1628,7 @@ function refresh() {
 
 /* ---------------- Tabs ---------------- */
 function selectTab(t) {
+  if (t === 'chat' && S.tab !== 'chat') { S.prevTab = S.tab; renderChat(); }
   if (pendingFix.length) { pendingFix.forEach(clearTimeout); pendingFix = []; }
   S.tab = t;
   stack = stacks[t];
@@ -1632,6 +1642,8 @@ function selectTab(t) {
     if (k === t) $('#lens').style.transform = `translateX(${i * 100}%)`;
   });
   updateChrome();
+  // Chat opens ready to type, like Messages: the field takes focus and the keyboard comes up
+  if (t === 'chat' && !stack.length && !S.chat.busy) $('#chat-input').focus({ preventScroll: true });
 }
 
 /* ---------------- Sheets, alerts, toast ---------------- */
@@ -2092,6 +2104,7 @@ const H = {
   'close-sheet'() { if (sheetEl && performance.now() - sheetEl.at < 350) return; requestCloseSheet(); },
   ask(el) { send(el.dataset.q); },
   send() { send($('#chat-input').value); },
+  'chat-back'() { const t = S.prevTab && S.prevTab !== 'chat' ? S.prevTab : 'today'; selectTab(t); const b = $(`.tab[data-tab="${t}"]`); b && b.focus({ preventScroll: true }); },
   voice() { voiceSheet(); },
   about() {
     const a = $('.about');
@@ -2175,13 +2188,14 @@ document.addEventListener('keydown', e => {
     else if (alertOpen) alertOpen.cancel();
     else if (sheetEl) requestCloseSheet();
     else if (stack.length) { if (navBusy) { queuedPops++; setTimeout(drainPops, T); } else pop(); }
+    else if (S.tab === 'chat') H['chat-back']();
   }
   // Arrow keys move between tabs, like a native tab bar
   if (['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key) && e.target.classList && e.target.classList.contains('tab')) {
     e.preventDefault();
     const order = ['today', 'money', 'accounts', 'chat'];
     const i = e.key === 'Home' ? 0 : e.key === 'End' ? 3 : (order.indexOf(S.tab) + (e.key === 'ArrowRight' ? 1 : 3)) % 4;
-    selectTab(order[i]); $(`.tab[data-tab="${order[i]}"]`).focus();
+    selectTab(order[i]); if (order[i] !== 'chat') $(`.tab[data-tab="${order[i]}"]`).focus();
   }
 });
 
