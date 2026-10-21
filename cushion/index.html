@@ -890,6 +890,24 @@ button.row[disabled] { cursor: default; }
 .cat-chart .usual { stroke: var(--label2); stroke-width: 1; }
 .cat-chart .bar-label { fill: var(--label2); }
 .cat-chart .bar-label.now { fill: var(--label); font-weight: 600; }
+
+/* Hidden bars really hide: glass can paint outside the device's rounded clip */
+.tabbar.away { visibility: hidden; opacity: 0; transition: transform .45s cubic-bezier(.32, .72, 0, 1), opacity .2s, visibility 0s .45s; }
+/* iOS keyboard for the web prototype */
+:root { --kb-bg: rgba(209, 211, 217, .94); --kb-key: #FFFFFF; --kb-fn: #ABAFB9; --kb-ink: #000000; }
+:root[data-theme="dark"] { --kb-bg: rgba(44, 44, 46, .96); --kb-key: #6B6B6B; --kb-fn: #464646; --kb-ink: #FFFFFF; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --kb-bg: rgba(44, 44, 46, .96); --kb-key: #6B6B6B; --kb-fn: #464646; --kb-ink: #FFFFFF; } }
+.kb { position: absolute; left: 0; right: 0; bottom: 0; z-index: 32; padding: 9px 3px 40px; display: grid; gap: 11px; background: var(--kb-bg); -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%); border-radius: 26px 26px 0 0; animation: kb-up .35s cubic-bezier(.32, .72, 0, 1); }
+@keyframes kb-up { from { transform: translateY(100%); } }
+.kb-row { display: flex; justify-content: center; gap: 6px; }
+.kb-key { flex: 0 0 calc((100% - 6px * 9 - 6px) / 10); height: 44px; border-radius: 8px; border: 0; background: var(--kb-key); color: var(--kb-ink); font: 400 22px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif; box-shadow: 0 1px 0 rgba(0, 0, 0, .3); display: grid; place-items: center; cursor: pointer; padding: 0; }
+.kb-key:active { background: var(--kb-fn); }
+.kb-key.fn { flex: 0 0 44px; background: var(--kb-fn); font-size: 16px; }
+.kb-row:last-child .kb-key.fn { flex: 0 0 88px; }
+.kb-key.space { flex: 1 1 auto; font-size: 16px; }
+.app.kb-open .composer.solo { bottom: 270px; }
+.app.kb-open #tab-chat { padding-bottom: 440px; }
+@media (prefers-reduced-motion: reduce) { .kb { animation: none; } }
 </style>
 </head>
 <body>
@@ -942,6 +960,8 @@ button.row[disabled] { cursor: default; }
         <input id="chat-input" type="text" placeholder="Ask anything about your finances" autocomplete="off" aria-label="Message">
         <button class="send" data-act="send" aria-label="Send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
       </div>
+
+      <div class="kb" id="kb" aria-hidden="true" hidden></div>
 
       <nav class="tabbar" id="tabbar" aria-label="Tabs">
         <div class="tabs glass" role="tablist">
@@ -1068,7 +1088,8 @@ const SPEND = [
   { id: 'rent', name: 'Rent', tag: 'As expected', amt: 1850, usual: 1850, color: 'var(--olive)', icon: 'house',
     months: [1850, 1850, 1850, 1850, 1850, 1850],
     where: [{ t: 'Hausverwaltung Kramer', s: 'Standing order · 1 Aug', v: 1850 }],
-    note: 'Same as every month. It goes out by standing order on the 1st.' },
+    note: 'Same as every month. It goes out by standing order on the 1st.',
+    ask: 'Is my rent normal this month?' },
   { id: 'eat', name: 'Eating out', tag: '€130 over', warn: true, amt: 620, usual: 490, color: 'var(--orange)', icon: 'utensils',
     months: [470, 510, 480, 500, 490, 620],
     where: [{ t: 'Lieferando', s: '6 orders', v: 182 }, { t: 'Markthalle Neun', s: '3 visits', v: 148 }, { t: 'Bonanza Coffee', s: '14 visits', v: 94 }, { t: "Mustafa's Gemüse Kebap", s: '4 visits', v: 46 }, { t: 'Other places', s: '9 visits', v: 150 }],
@@ -1077,11 +1098,13 @@ const SPEND = [
   { id: 'groc', name: 'Groceries', tag: 'As expected', amt: 340, usual: 345, color: 'var(--cat-blue)', icon: 'shopping-basket',
     months: [330, 355, 340, 350, 345, 340],
     where: [{ t: 'Lidl', s: '6 trips', v: 186 }, { t: 'REWE', s: '4 trips', v: 104 }, { t: 'dm', s: '2 trips', v: 50 }],
-    note: 'Right where it usually sits. Saturday at Lidl is your biggest shop.' },
+    note: 'Right where it usually sits. Saturday at Lidl is your biggest shop.',
+    ask: 'How are my groceries this month?' },
   { id: 'trans', name: 'Transport', tag: 'As expected', amt: 180, usual: 180, color: 'var(--indigo)', icon: 'car',
     months: [175, 180, 185, 180, 180, 180],
     where: [{ t: 'Shell', s: '2 fill-ups', v: 104 }, { t: 'Deutschlandticket', s: 'Monthly pass', v: 58 }, { t: 'SHARE NOW', s: '2 trips', v: 18 }],
-    note: 'Steady. Two fill-ups and your monthly pass, as usual.' },
+    note: 'Steady. Two fill-ups and your monthly pass, as usual.',
+    ask: 'How is my transport this month?' },
 ];
 const MONTHS = ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
 function categoryChart(c) {
@@ -1673,6 +1696,7 @@ function updateChrome() {
   const covered = !!(top && (top.modal || top.inModal));
   $('#tabbar').classList.toggle('away', covered || inChat);
   $('#composer').classList.toggle('solo', inChat);
+  if (!inChat && kbShow) kbShow(false);
   app.classList.toggle('media-top', !!(top && !covered && top.classList.contains('media')));
   $('#composer').hidden = !!top || !inChat;
   $('#chat-bg').hidden = !inChat;
@@ -1757,7 +1781,7 @@ async function requestCloseSheet() {
   }
   closeSheet();
 }
-let shieldUntil = 0, swipeReset = null, closeSwipes = null;
+let shieldUntil = 0, swipeReset = null, closeSwipes = null, kbShow = null;
 function closeSheet(instant) {
   if (!sheetEl) return;
   shieldUntil = performance.now() + 350;
@@ -1867,6 +1891,21 @@ function reply(q) {
     return { title: 'Eating out', emoji: 'coffee', paras: [
       'Eating out is at €620 for August, €130 more than a normal month for you.',
       'The biggest part of the gap is Bonanza Coffee: 14 visits and €94 so far, against about 5 visits in a normal month. Delivery is up a little too, and everything else looks usual.'] };
+  }
+  if (/\brent\b/.test(s)) {
+    return { title: 'Rent', emoji: 'house', paras: [
+      'Yes. Rent is €1,850, the same as every month, and it goes out by standing order on the 1st.',
+      "It's already in your forecast. It's also your biggest bill before pay day, which is why your balance dips at the start of September."] };
+  }
+  if (/\b(groceries|grocery|supermarket|lidl|rewe)\b/.test(s)) {
+    return { title: 'Groceries', emoji: 'shopping-basket', paras: [
+      'Groceries are at €340 for August, right around your usual €345.',
+      'Lidl is your biggest shop with 6 trips and €186. REWE adds €104 and dm €50.'] };
+  }
+  if (/\b(transport|fuel|petrol|shell|commute|deutschlandticket)\b/.test(s)) {
+    return { title: 'Transport', emoji: 'car', paras: [
+      'Transport is at €180 for August, the same as a normal month.',
+      "That's two Shell fill-ups (€104), your Deutschlandticket (€58) and two SHARE NOW trips (€18)."] };
   }
   if (/iceland|goal|saving/.test(s)) {
     const ic = S.iceland, rem = r2(ic.goal - ic.saved), m = Math.ceil(rem / ic.monthly);
@@ -2371,6 +2410,54 @@ selectTab('today');
   new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; scan(); }); } })
     .observe(app, { childList: true, subtree: true });
   scan();
+})();
+
+/* On-screen keyboard. Desktop browsers have no virtual keyboard, so the prototype draws iOS's;
+   real typing still works, and touch devices keep their own keyboard. */
+(() => {
+  const kb = $('#kb'), inp = $('#chat-input');
+  if (matchMedia('(pointer: coarse)').matches) { kbShow = () => {}; return; }
+  const SHIFT = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3 3 12h5v8h8v-8h5z"/></svg>', SHIFT_ON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3 3 12h5v8h8v-8h5z"/></svg>', DEL = '<svg width="24" height="20" viewBox="0 0 28 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M9 2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9l-8-9z"/><path d="m13 7 8 8M21 7l-8 8"/></svg>';
+  const ROWS = {
+    abc: [['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'], ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'], ['shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'del'], ['123', 'space', 'return']],
+    num: [['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'], ['-', '/', ':', ';', '(', ')', '€', '&', '@', '"'], ['.', ',', '?', '!', "'", '%', 'del'], ['ABC', 'space', 'return']],
+  };
+  let mode = 'abc', shift = false;
+  const caps = () => mode === 'abc' && (shift || !inp.value || /[.?!]\s$/.test(inp.value));
+  const label = k => k === 'shift' ? (caps() ? SHIFT_ON : SHIFT) : k === 'del' ? DEL : k === 'space' ? 'space' : k.length === 1 && caps() ? k.toUpperCase() : esc(k);
+  const cls = k => ['shift', 'del', '123', 'ABC', 'return'].includes(k) ? ' fn' : k === 'space' ? ' space' : '';
+  const render = () => { kb.innerHTML = ROWS[mode].map(r => `<div class="kb-row">${r.map(k => `<button type="button" tabindex="-1" class="kb-key${cls(k)}${k === 'return' ? ' ret' : ''}" data-k="${esc(k)}">${label(k)}</button>`).join('')}</div>`).join(''); };
+  kbShow = on => {
+    if (on) { mode = 'abc'; shift = false; render(); }
+    kb.hidden = !on; app.classList.toggle('kb-open', on);
+    if (on) { const pnl = $('#tab-chat'); requestAnimationFrame(() => { pnl.scrollTop = pnl.scrollHeight; }); }
+  };
+  inp.addEventListener('focus', () => { if (S.tab === 'chat' && !stack.length) kbShow(true); });
+  inp.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== inp) kbShow(false); }, 0));
+  inp.addEventListener('input', () => { if (!kb.hidden) render(); });
+  kb.addEventListener('mousedown', e => e.preventDefault()); // keys never take focus from the field
+  const put = t => {
+    const a = inp.selectionStart ?? inp.value.length, z = inp.selectionEnd ?? a;
+    inp.value = inp.value.slice(0, a) + t + inp.value.slice(z);
+    inp.setSelectionRange(a + t.length, a + t.length);
+    inp.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  kb.addEventListener('click', e => {
+    const b = e.target.closest('[data-k]'); if (!b || inp.disabled) return;
+    const k = b.dataset.k;
+    if (k === 'shift') { shift = !shift; render(); return; }
+    if (k === '123') { mode = 'num'; render(); return; }
+    if (k === 'ABC') { mode = 'abc'; render(); return; }
+    if (k === 'del') {
+      const a = inp.selectionStart ?? inp.value.length, z = inp.selectionEnd ?? a;
+      if (a !== z) { inp.value = inp.value.slice(0, a) + inp.value.slice(z); inp.setSelectionRange(a, a); }
+      else if (a > 0) { inp.value = inp.value.slice(0, a - 1) + inp.value.slice(a); inp.setSelectionRange(a - 1, a - 1); }
+      inp.dispatchEvent(new Event('input', { bubbles: true })); return;
+    }
+    if (k === 'return') { mode = 'abc'; send(inp.value); render(); return; }
+    if (k === 'space') { if (mode === 'num') mode = 'abc'; put(' '); render(); return; }
+    put(caps() ? k.toUpperCase() : k); shift = false; render();
+  });
 })();
 
 /* Swipe a row left to remove an account, like a UITableView row */
