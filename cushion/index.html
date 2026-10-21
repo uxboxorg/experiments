@@ -816,6 +816,9 @@ button.row[disabled] { cursor: default; }
 .card-chev { position: absolute; top: 22px; right: 22px; opacity: .7; display: flex; }
 .card-chev.mid { top: auto; bottom: 26px; }
 .slider { height: 44px; }
+:root[data-theme="dark"] { --data: #B5C7A5; --olive: #8E9E72; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --data: #B5C7A5; --olive: #8E9E72; } }
+.sheet::before { content: ""; position: absolute; top: 6px; left: 50%; width: 36px; height: 5px; margin-left: -18px; border-radius: 3px; background: var(--label3); pointer-events: none; }
 .card-chev svg { color: var(--label3) !important; }
 .card-media.g-month .card-chev svg { color: rgba(255, 255, 255, .75) !important; }
 :root[data-theme="dark"] .chart rect { fill: #E9EEE2; }
@@ -959,7 +962,7 @@ const S = {
   actions: ['save', 'spotify'],
   spotifyCancelled: false,
   accounts: [
-    { id: 'chk', name: 'Current account', sub: 'Sparkasse', mask: '4659', kind: 'cash', bal: 6200, logo: { brand: 'sparkasse', bg: '#FF0000' } },
+    { id: 'chk', name: 'Current account', sub: 'Sparkasse', mask: '4659', kind: 'cash', bal: 7400, logo: { brand: 'sparkasse', bg: '#FF0000' } },
     { id: 'stash', name: "Lena's Stash", sub: 'Savings · 3.1%', mask: '6839', kind: 'saved', bal: 9140, logo: { icon: 'piggy-bank', bg: '#2E9E55' } },
     { id: 'brk', name: 'ETF portfolio', sub: 'Trade Republic', mask: '1120', kind: 'saved', bal: 4395, logo: { icon: 'trending-up', bg: '#4B4BC8' } },
     { id: 'amex', name: 'Mastercard Gold', sub: 'Credit card', mask: '9002', kind: 'owed', bal: -612, logo: { mc: true, bg: '#1C1C1E' } },
@@ -1048,8 +1051,11 @@ function safety(fc = forecast()) {
   const daysToPay = fc.payIdx;
   // The avoided 21 Sep charge only helps this pay period if it falls before pay day
   const budget = r2(FLEX_DAILY + (S.spotifyCancelled && sep(21) < daysToPay ? SPOTIFY_MONTHLY / 29 : 0));
-  const cash = Math.floor((fc.pre.bal - COMFORT) / (fc.pre.day + 1) * 100) / 100; // round down so spending it all keeps €1,000
-  return { safe: Math.max(0, Math.min(budget, cash)), budget, cash, limitedByCash: cash < budget, daysToPay, fc };
+  // Every day until pay day has to stay above the comfort line after that many days of spending
+  let per = Infinity, bind = 0;
+  for (let i = 0; i < fc.payIdx; i++) { const v = (fc.days[i] - COMFORT) / (i + 1); if (v < per) { per = v; bind = i; } }
+  const cash = Math.floor(per * 100) / 100; // round down so spending it all keeps €1,000
+  return { safe: Math.max(0, Math.min(budget, cash)), budget, cash, limitedByCash: cash < budget, daysToPay, bind, fc };
 }
 const safeNow = () => safety().safe;
 
@@ -1109,7 +1115,7 @@ function renderToday() {
       <div class="safe">
         <div class="num" id="safe-num" aria-label="${eur(sf.safe, 2)} safe to spend today"><span class="cur">€</span><span class="w">${whole}</span><span class="cents">.${cents}</span></div>
         <div class="cap">Safe to spend today</div>
-        <p class="why">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day · ${sf.limitedByCash ? `held back to keep you above your €1,000 comfort line ${onDay(sf.fc.pre.day)}` : 'you stay above your €1,000 comfort line'}</p>
+        <p class="why">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day · ${sf.limitedByCash ? `held back to keep you above your €1,000 comfort line until then` : 'you stay above your €1,000 comfort line'}</p>
       </div>
       ${undo}<div class="actions" id="actions">${cards || done}</div>
       <div>
@@ -1334,12 +1340,12 @@ function monthPage() {
   else if (fc.pre.day === 0) { const same = fc.ev.filter(e => e.day === fc.payIdx && e.amt < 0).map(e => e.phrase); explain = same.length ? `Pay lands ${onDay(fc.payIdx)}, the same day as ${joinList(same)}, so your money never dips below where it is today.` : `Pay lands ${onDay(fc.payIdx)} before any bill, so your money never dips below where it is today.`; }
   else if (lowNames.length) explain = `Your thinnest moment comes after ${joinList(lowNames)} on ${dayLabel(fc.pre.day)}.`;
   else explain = `Your bills are spread out enough that no single week gets tight.`;
-  if (sfNow.limitedByCash) explain += ` Today's safe-to-spend is held to ${eur(sfNow.safe, 2)} so ${cashWord()} ${cashWord() === 'your current account' ? "doesn't" : "don't"} drop below €1,000 then.`;
+  if (sfNow.limitedByCash) explain += ` Today's safe-to-spend is held to ${eur(sfNow.safe, 2)} so ${cashWord()} ${cashWord() === 'your current account' ? "doesn't" : "don't"} drop below €1,000 before pay day.`;
   if (S.carLate) {
     const moved = fc.pre.day !== other.pre.day;
     const where = sep(2) < fc.payIdx && sep(6) === fc.payIdx ? ' Car insurance now lands on pay day, after your salary.' : sep(2) < fc.payIdx && sep(6) > fc.payIdx ? ' Car insurance now lands after pay day.' : (gain > 0 && other.pre.day === sep(2) && fc.pre.day === sep(6)) ? ' Your freelance invoice lands first.' : moved ? ` The low point moves from ${dayLabel(other.pre.day)} to ${dayLabel(fc.pre.day)}.` : '';
-    explain += gain > 0 ? ` Moving car insurance to the 6th raises your thinnest moment by ${eur(gain)}.${where}` : gain < 0 ? ` Moving car insurance to the 6th lowers your thinnest moment by ${eur(-gain)}.${where}` : ` Moving car insurance to the 6th doesn't change your thinnest moment.${where}`;
-    if (sfNow.safe !== sfOther.safe) explain += ` Today's safe-to-spend ${sfNow.safe > sfOther.safe ? 'rises' : 'falls'} from ${eur(sfOther.safe, 2)} to ${eur(sfNow.safe, 2)}${sfNow.safe < sfOther.safe && fc.pre.day > other.pre.day ? `, because that low now has to last ${fc.pre.day + 1} days` : ''}.`;
+    explain += gain > 0 ? ` Moving car insurance to the 6th lifts that low point by ${eur(gain)}.${where}` : gain < 0 ? ` Moving car insurance to the 6th lowers that low point by ${eur(-gain)}.${where}` : ` Moving car insurance to the 6th doesn't change that low point.${where}`;
+    if (sfNow.safe !== sfOther.safe) explain += ` Today's safe-to-spend ${sfNow.safe > sfOther.safe ? 'rises' : 'falls'} from ${eur(sfOther.safe, 2)} to ${eur(sfNow.safe, 2)}.`;
   }
   const bills = fc.ev.map(e => `
     <div class="row${e.car ? ' car-row' : ''}" style="padding-left:0;padding-right:0;--inset:0px">
@@ -1352,7 +1358,7 @@ function monthPage() {
     <div class="detail">
       <div>
         <h1>The month ahead</h1>
-        <p class="body" style="margin-top:6px">Every bill, in the order it lands, with a little more room to breathe.</p>
+        <p class="body" style="margin-top:6px">Every bill and payment until pay day, in the order it lands.</p>
       </div>
       <div>
         <div class="section-h" style="padding:0 0 8px">Your thinnest moment before pay day</div>
@@ -1373,7 +1379,7 @@ function monthPage() {
         </div>
       </div>
       <div>
-        <div class="section-h" style="padding:0 0 4px">Bills before pay day</div>
+        <div class="section-h" style="padding:0 0 4px">Bills and pay to 30 Sep</div>
         <div class="plain-rows" id="bills-list">${bills}</div>
         <p class="foot" style="margin-top:14px">Starts from ${eur(fc.start)} in ${cashWord()}. Bills and pay only; everyday spending comes out of safe-to-spend. This only changes the forecast, not when your bank pays.</p>
       </div>
@@ -1676,29 +1682,31 @@ function reply(q) {
   const pay = ord(S.payDay);
   const thin = fc.pre.day ? dayLabel(fc.pre.day) : 'today';
   const onThin = fc.pre.day ? `on ${thin}` : `by pay day on the ${ord(S.payDay)}`;
-  // Days of everyday spending to count: through the thinnest moment, or until pay day when that moment is today
-  const spendDays = fc.pre.day === 0 ? fc.payIdx : fc.pre.day + 1;
-  const spendToLow = Math.round(sf.safe * spendDays);
-  const preBal = Math.round(fc.pre.bal);
+  // Spend the safe amount every day until pay day; the tightest day decides what else can go out now
+  let k = 0, worst = Infinity;
+  for (let i = 0; i < fc.payIdx; i++) { const m = fc.days[i] - sf.safe * (i + 1); if (m < worst) { worst = m; k = i; } }
+  const spendToLow = Math.round(sf.safe * (k + 1));
+  const preBal = Math.round(fc.days[k]);
   const room = preBal - COMFORT - spendToLow; // what can go out now and still keep the comfort line
+  const lowDay = k === fc.payIdx - 1 ? `by pay day on the ${pay}` : k === 0 ? 'today' : `on ${dayLabel(k)}`;
   if (/dental|1,?430|dentist/.test(s)) {
-    if (room >= 1430) return { title: 'The dental bill', emoji: 'stethoscope', paras: [`Yes. Paying €1,430 now and spending your safe-to-spend each day still leaves ${eur(preBal - spendToLow - 1430)} ${onThin}, ${room === 1430 ? 'right at' : 'above'} your comfort line.`] };
+    if (room >= 1430) return { title: 'The dental bill', emoji: 'stethoscope', paras: [`Yes. Paying €1,430 now and spending your safe-to-spend each day still leaves ${eur(preBal - spendToLow - 1430)} ${lowDay}, ${room === 1430 ? 'right at' : 'above'} your comfort line.`] };
     const now = Math.max(0, Math.floor(room / 10) * 10);
     const short = 1430 - room;
-    if (short > 0 && short < 50) return { title: 'The dental bill', emoji: 'stethoscope', paras: [`Just about. Paying €1,430 now and spending your safe-to-spend each day leaves ${eur(preBal - spendToLow - 1430)} ${onThin}, only ${eur(short)} under your comfort line. A couple of quieter days and you're there.`] };
+    if (short > 0 && short < 50) return { title: 'The dental bill', emoji: 'stethoscope', paras: [`Just about. Paying €1,430 now and spending your safe-to-spend each day leaves ${eur(preBal - spendToLow - 1430)} ${lowDay}, only ${eur(short)} under your comfort line. A couple of quieter days and you're there.`] };
     return { title: 'The dental bill', emoji: 'stethoscope', paras: [
-      `Not all at once. The month ahead shows ${eur(fc.pre.bal)} ${onThin} before everyday spending. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €1,430 for the bill, and ${preBal - spendToLow - 1430 < 0 ? `you'd be overdrawn by ${eur(-(preBal - spendToLow - 1430))}` : `you'd be at ${eur(preBal - spendToLow - 1430)}, under your €1,000 comfort line`}.`,
+      `Not all at once. The month ahead shows ${eur(preBal)} ${lowDay} before everyday spending. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €1,430 for the bill, and ${preBal - spendToLow - 1430 < 0 ? `you'd be overdrawn by ${eur(-(preBal - spendToLow - 1430))}` : `you'd be at ${eur(preBal - spendToLow - 1430)}, under your €1,000 comfort line`}.`,
       now > 0 ? `Pay ${eur(now)} now and the other ${eur(1430 - now)} after pay day on the ${pay}. Or take it from Lena's Stash, which has ${eur(acct('stash').bal - S.iceland.saved)} outside the Iceland goal.` : `Ask the office to bill you after pay day on the ${pay}, or take it from Lena's Stash, which has ${eur(acct('stash').bal - S.iceland.saved)} outside the Iceland goal.`] };
   }
   if (/flight|[$€]?600|march|book/.test(s) && !/iceland/.test(s)) {
     const after = preBal - spendToLow - 600;
-    if (room >= 600) return { title: 'The March flight', emoji: 'plane', paras: [`Yes. Even if you pay the €600 now, with your usual daily spending you'd keep ${eur(after)} ${onThin}, ${room === 600 ? 'right at' : 'still above'} your comfort line.`] };
+    if (room >= 600) return { title: 'The March flight', emoji: 'plane', paras: [`Yes. Even if you pay the €600 now, with your usual daily spending you'd keep ${eur(after)} ${lowDay}, ${room === 600 ? 'right at' : 'still above'} your comfort line.`] };
     const hits = fc.ev.filter(e => e.day <= fc.pre.day && e.day > fc.pre.day - 6 && e.amt < 0).map(e => e.phrase);
     const list = hits.length > 1 ? `${hits.slice(0, -1).join(', ')} and ${hits[hits.length - 1]}` : hits[0];
     const why = hits.length ? `${list.replace(/^./, c => c.toUpperCase())} ${hits.length === 1 ? 'lands' : hits.length === 2 ? 'both land' : 'all land'} by ${thin}.` : `Your money is lowest ${onThin}.`;
     return { title: 'The March flight', emoji: 'plane', paras: [
-      `Yes, but not before pay day. ${why} The month ahead shows ${eur(fc.pre.bal)} ${onThin}, but that's before everyday spending. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €600 for the flight, and ${after < 0 ? `you'd be overdrawn by ${eur(-after)}` : `you'd be at ${eur(after)}, under your comfort line`}.`,
-      sf.limitedByCash ? `Book after pay day on the ${pay}, when the flight no longer competes with this stretch.` : `Book after pay day on the ${pay} and you keep your full ${eur(sf.safe, 2)} a day.`] };
+      `Yes, if you book it after pay day on the ${pay}. ${why} The month ahead shows ${eur(preBal)} ${lowDay}, but that's before everyday spending. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €600 for the flight, and ${after < 0 ? `you'd be overdrawn by ${eur(-after)}` : `you'd be at ${eur(after)}, under your comfort line`}.`,
+      sf.limitedByCash ? `After pay day the flight no longer competes with this stretch.` : `Wait until then and you keep your full ${eur(sf.safe, 2)} a day.`] };
   }
   if (/eat|coffee|bonanza|café|cafe|restaurant/.test(s)) {
     return { title: 'Eating out', emoji: 'coffee', paras: [
@@ -1714,8 +1722,8 @@ function reply(q) {
   }
   if (/safe|spend|today/.test(s)) {
     return { title: 'Safe to spend', emoji: 'wallet', paras: [sf.limitedByCash
-      ? `You can spend ${eur(sf.safe, 2)} today. Your budget allows ${eur(sf.budget, 2)}, but I held it back so ${cashWord()} ${cashWord() === 'your current account' ? "doesn't" : "don't"} drop below €1,000 ${onThin}.`
-      : `You can spend ${eur(sf.safe, 2)} today. That's your flexible budget for the day, and ${cashWord()} ${cashStay()} above €1,000 ${onThin}.`] };
+      ? `You can spend ${eur(sf.safe, 2)} today. Your budget allows ${eur(sf.budget, 2)}, but I held it back so ${cashWord()} ${cashWord() === 'your current account' ? "doesn't" : "don't"} drop below €1,000 before pay day.`
+      : `You can spend ${eur(sf.safe, 2)} today. That's your flexible budget for the day, and ${cashWord()} ${cashStay()} above €1,000 until pay day.`] };
   }
   return { title: 'Your question', emoji: 'message-circle', paras: ['I can help with purchases, bills and goals. Try asking about a €600 flight, the dental bill, eating out or the Iceland goal.'] };
 }
@@ -1788,7 +1796,7 @@ function fixesSheet() {
           <span class="v" style="color:var(--green-text)">+${eur(f.amt, 2)}</span>
         </div>`).join('')}
         <div class="row">
-          <span class="grow"><div class="t" style="font-size:16px">Second Spotify plan</div><div class="s">${S.spotifyCancelled ? 'Cancelled · €10.99 a month back in your budget' : S.dismissed.includes('spotify') ? 'Dismissed · €10.99 a month' : 'Saves €10.99 a month · needs your go-ahead'}</div></span>
+          <span class="grow"><div class="t" style="font-size:16px">Second Spotify plan</div><div class="s">${S.spotifyCancelled ? '€10.99 a month back in your budget' : S.dismissed.includes('spotify') ? 'Dismissed · €10.99 a month' : 'Saves €10.99 a month · needs your go-ahead'}</div></span>
           ${S.spotifyCancelled ? `<span class="tag">Cancelled</span>` : `<button class="review-pill" data-act="fix-review">Review</button>`}
         </div>
       </div>
@@ -1827,7 +1835,7 @@ function bankPage(b) {
       <p class="lede" style="margin:0;max-width:none">Here's exactly what Cushion would see from this account.</p>
       <div class="perm"><span class="ic ok" style="background:var(--green)">${I.check}</span><b>Balances and transactions</b><p>Balances and history help build a picture of your money.</p></div>
       <div class="perm"><span class="ic ok" style="background:var(--green)">${I.check}</span><b>Merchant names and fees</b><p>Spot duplicate subscriptions, price rises or fees worth checking.</p></div>
-      <div class="perm"><span class="ic no" style="background:var(--label3)">${I.x}</span><b>Moving money out</b><p>Cushion can't move money at your bank.</p></div>
+      <div class="perm"><span class="ic no" style="background:var(--label3)">${I.x}</span><b>Moving money on its own</b><p>Money only moves when you approve each transfer.</p></div>
       <div class="perm"><span class="ic no" style="background:var(--label3)">${I.x}</span><b>Selling or sharing your data</b><p>Your data is never sold or shared.</p></div>
       <div class="stack">
         <button class="btn prominent" data-act="link-bank" data-id="${b.id}">Continue with ${b.name}</button>
