@@ -1350,7 +1350,7 @@ function monthPage() {
   if (sfNow.limitedByCash) explain += ` Today's safe-to-spend is held to ${eur(sfNow.safe, 2)} so ${cashWord()} ${cashWord() === 'your current account' ? "doesn't" : "don't"} drop below €1,000 through ${dayLabel(sfNow.bind)}${fc.ev.some(e => e.day === sfNow.bind && e.amt < 0) ? `, after ${fc.ev.filter(e => e.day === sfNow.bind && e.amt < 0).map(e => e.phrase).join(' and ')}` : ''}.`;
   if (S.carLate) {
     const moved = fc.pre.day !== other.pre.day;
-    const where = sep(2) < fc.payIdx && sep(6) === fc.payIdx ? ' Car insurance now lands on pay day, after your salary.' : sep(2) < fc.payIdx && sep(6) > fc.payIdx ? ' Car insurance now lands after pay day.' : (gain > 0 && other.pre.day === sep(2) && fc.pre.day === sep(6)) ? '' : moved ? ` The low point moves from ${dayLabel(other.pre.day)} to ${dayLabel(fc.pre.day)}.` : '';
+    const where = sep(2) <= fc.payIdx && sep(6) === fc.payIdx ? ' Car insurance now lands on pay day, after your salary.' : sep(2) <= fc.payIdx && sep(6) > fc.payIdx ? ' Car insurance now lands after pay day.' : (gain > 0 && other.pre.day === sep(2) && fc.pre.day === sep(6)) ? '' : moved ? ` The low point moves from ${dayLabel(other.pre.day)} to ${dayLabel(fc.pre.day)}.` : '';
     explain += gain > 0 ? (other.pre.day === sep(2) && fc.pre.day === sep(6) ? ` Your €370 freelance invoice lands before the insurance, so your low point rises by ${eur(gain)}.${where}` : ` Moving car insurance to the 6th lifts that low point by ${eur(gain)}.${where}`) : gain < 0 ? ` Moving car insurance to the 6th lowers that low point by ${eur(-gain)}.${where}` : ` Moving car insurance to the 6th doesn't change that low point.${where}`;
     if (sfNow.safe !== sfOther.safe) explain += ` Today's safe-to-spend would ${sfNow.safe > sfOther.safe ? 'rise' : 'fall'} from ${eur(sfOther.safe, 2)} to ${eur(sfNow.safe, 2)}.`;
   }
@@ -1710,12 +1710,12 @@ function reply(q) {
       `Not all at once. Before everyday spending you'd have ${eur(preBal)} ${lowDay}. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €1,430 for the bill, and ${preBal - spendToLow - 1430 < 0 ? `you'd be overdrawn by ${eur(-(preBal - spendToLow - 1430))}` : `you'd be at ${eur(preBal - spendToLow - 1430)}, under your €1,000 comfort line`}.`,
       now > 0 ? `Pay ${eur(now)} now and the other ${eur(1430 - now)} after pay day on the ${pay}. Or take it from Lena's Stash, which has ${eur(acct('stash').bal - S.iceland.saved)} outside the Iceland goal.` : `Ask the office to bill you after pay day on the ${pay}, or take it from Lena's Stash, which has ${eur(acct('stash').bal - S.iceland.saved)} outside the Iceland goal.`] };
   }
-  if (/\b(flights?|march|book|booking)\b|(?<![\d,.])€?600(?![\d,.]\d)/.test(s) && !/iceland/.test(s)) {
+  if (/\b(flights?|march|book|booking)\b|(?<![\d,.])€?600(?!\d|[,.]\d|[a-z])/.test(s) && !/iceland/.test(s)) {
     const after = preBal - spendToLow - 600;
     if (room >= 600) return { title: 'The March flight', emoji: 'plane', paras: [`Yes. Even if you pay the €600 now, with your usual daily spending you'd keep ${eur(after)} ${lowDay}, ${room === 600 ? 'right at' : 'still above'} your comfort line.`] };
-    const hits = fc.ev.filter(e => e.day <= fc.pre.day && e.day > fc.pre.day - 6 && e.amt < 0).map(e => e.phrase);
+    const hits = fc.ev.filter(e => e.day <= k && e.amt < 0).map(e => e.phrase);
     const list = hits.length > 1 ? `${hits.slice(0, -1).join(', ')} and ${hits[hits.length - 1]}` : hits[0];
-    const why = hits.length ? `${list.replace(/^./, c => c.toUpperCase())} ${hits.length === 1 ? 'lands' : hits.length === 2 ? 'both land' : 'all land'} by ${thin}.` : `Your money is lowest ${onThin}.`;
+    const why = hits.length ? `${list.replace(/^./, c => c.toUpperCase())} ${hits.length === 1 ? 'lands' : hits.length === 2 ? 'both land' : 'all land'} before ${k === fc.payIdx - 1 ? 'pay day' : dayLabel(k)}.` : `Your money is lowest ${onThin}.`;
     return { title: 'The March flight', emoji: 'plane', paras: [
       `Not today, but yes after pay day on the ${pay}. ${why} If you booked today: before everyday spending you'd have ${eur(preBal)} ${lowDay}. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €600 for the flight, and ${after < 0 ? `you'd be overdrawn by ${eur(-after)}` : `you'd be at ${eur(after)}, under your comfort line`}.`,
       sf.limitedByCash ? `After pay day the flight no longer competes with this stretch.` : `Wait until then and you keep your full ${eur(sf.safe, 2)} a day.`] };
@@ -2080,6 +2080,7 @@ document.addEventListener('keydown', e => {
   }
   if (e.key === 'Enter' && e.target.id === 'chat-input') { e.preventDefault(); send(e.target.value); }
   if (e.key === 'Escape') {
+    if (e.target.id === 'bank-search' && e.target.value) { e.preventDefault(); e.target.value = ''; e.target.dispatchEvent(new Event('input')); return; }
     if (pendingFix.length) { pendingFix.forEach(clearTimeout); pendingFix = []; if (stack.length && stack[stack.length - 1].kind === 'iceland-fix') setTimeout(() => pop(true), 0); }
     else if (alertOpen) alertOpen.cancel();
     else if (sheetEl) requestCloseSheet();
