@@ -386,7 +386,7 @@ button.row[disabled] { cursor: default; }
 .page.g-iceland, .page.g-month, .page.g-teal, .page.g-accounts { background-attachment: local; }
 
 /* ---------- Detail pages ---------- */
-.detail { padding: 0 20px; display: grid; gap: 22px; align-content: start; }
+.detail { padding: 0 16px; display: grid; gap: 22px; align-content: start; }
 .detail h1 { margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -.015em; line-height: 1.15; text-wrap: balance; }
 .detail .body { font-size: 16px; line-height: 1.45; color: var(--on-media-2); margin: 0; }
 .big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
@@ -817,6 +817,8 @@ button.row[disabled] { cursor: default; }
 .card-chev { position: absolute; top: 22px; right: 22px; opacity: .7; display: flex; }
 .card-chev.mid { top: auto; bottom: 26px; }
 .slider { height: 44px; }
+.field.search-field { box-shadow: none !important; background: var(--fill2); }
+.field.search-field:focus { box-shadow: inset 0 0 0 2px var(--accent) !important; }
 :root[data-theme="dark"] { --data: #B5C7A5; --olive: #8E9E72; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --data: #B5C7A5; --olive: #8E9E72; } }
 .card-chev svg { color: var(--label3) !important; }
@@ -1019,7 +1021,7 @@ const payIndex = pd => pd > 24 ? pd - 24 : sep(pd); // next pay day on or after 
 const dayLabel = i => i <= 7 ? `${24 + i} Aug` : `${i - 7} Sep`;
 const onDay = i => i === 0 ? 'today' : `on ${dayLabel(i)}`;
 function forecast(over = {}) {
-  const st = Object.assign({ carLate: S.carLate, payDay: S.payDay, start: sumKind('cash'), extra: 0 }, over);
+  const st = Object.assign({ carLate: false, payDay: S.payDay, start: sumKind('cash'), extra: 0 }, over);
   const ev = [
     { day: 4, name: 'Energy bill', phrase: 'the energy bill', amt: -299 },
     { day: sep(1), name: 'Rent', phrase: 'rent', amt: -1850 },
@@ -1281,7 +1283,7 @@ function icelandPage() {
       <p class="body">${plan}</p>
       ${late ? `<div class="callout glass">${I.info}<span>That lands after the trip. ${eur(needed)} a month gets you there by February.</span></div>` : ''}
       <div class="stack ice-actions">
-        ${avail > 0 ? `<button class="btn primary" data-act="send-fixes">Send Fixes Money Here · ${eur(avail, 2)}</button>` : `<p class="foot" style="font-size:15px;text-align:left">${S.fixesSent ? `Fixes money sent · ${eur(S.fixesSent, 2)}` : 'No fixes money yet'}</p>`}
+        ${avail > 0 ? `<button class="btn primary" data-act="send-fixes">Add ${eur(avail, 2)} to Iceland</button>` : `<p class="foot" style="font-size:15px;text-align:left">${S.fixesSent ? `Fixes money sent · ${eur(S.fixesSent, 2)}` : 'No fixes money yet'}</p>`}
         <button class="btn gray" data-act="change-monthly">Change Monthly Amount</button>
       </div>
       <p class="foot" style="text-align:left">Held in Lena's Stash at 3.1%, so it earns while it fills. Nothing here is locked. You can take it back any time.</p>
@@ -1326,7 +1328,8 @@ function chartSVG(fc) {
 }
 
 function monthPage() {
-  const fc = forecast();
+  // The car-insurance switch is a what-if: it only changes this page
+  const fc = forecast({ carLate: S.carLate });
   const other = forecast({ carLate: !S.carLate });
   const gain = r2(fc.pre.bal - other.pre.bal);
   const joinList = a => a.length > 1 ? `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}` : a[0];
@@ -1343,9 +1346,9 @@ function monthPage() {
   if (sfNow.limitedByCash) explain += ` Today's safe-to-spend is held to ${eur(sfNow.safe, 2)} so ${cashWord()} ${cashWord() === 'your current account' ? "doesn't" : "don't"} drop below €1,000 before pay day.`;
   if (S.carLate) {
     const moved = fc.pre.day !== other.pre.day;
-    const where = sep(2) < fc.payIdx && sep(6) === fc.payIdx ? ' Car insurance now lands on pay day, after your salary.' : sep(2) < fc.payIdx && sep(6) > fc.payIdx ? ' Car insurance now lands after pay day.' : (gain > 0 && other.pre.day === sep(2) && fc.pre.day === sep(6)) ? ' Your freelance invoice lands first.' : moved ? ` The low point moves from ${dayLabel(other.pre.day)} to ${dayLabel(fc.pre.day)}.` : '';
-    explain += gain > 0 ? ` Moving car insurance to the 6th lifts that low point by ${eur(gain)}.${where}` : gain < 0 ? ` Moving car insurance to the 6th lowers that low point by ${eur(-gain)}.${where}` : ` Moving car insurance to the 6th doesn't change that low point.${where}`;
-    if (sfNow.safe !== sfOther.safe) explain += ` Today's safe-to-spend ${sfNow.safe > sfOther.safe ? 'rises' : 'falls'} from ${eur(sfOther.safe, 2)} to ${eur(sfNow.safe, 2)}.`;
+    const where = sep(2) < fc.payIdx && sep(6) === fc.payIdx ? ' Car insurance now lands on pay day, after your salary.' : sep(2) < fc.payIdx && sep(6) > fc.payIdx ? ' Car insurance now lands after pay day.' : (gain > 0 && other.pre.day === sep(2) && fc.pre.day === sep(6)) ? '' : moved ? ` The low point moves from ${dayLabel(other.pre.day)} to ${dayLabel(fc.pre.day)}.` : '';
+    explain += gain > 0 ? (other.pre.day === sep(2) && fc.pre.day === sep(6) ? ` With car insurance on the 6th, your €370 freelance invoice lands first, so your low point rises by ${eur(gain)}.${where}` : ` Moving car insurance to the 6th lifts that low point by ${eur(gain)}.${where}`) : gain < 0 ? ` Moving car insurance to the 6th lowers that low point by ${eur(-gain)}.${where}` : ` Moving car insurance to the 6th doesn't change that low point.${where}`;
+    if (sfNow.safe !== sfOther.safe) explain += ` Today's safe-to-spend would ${sfNow.safe > sfOther.safe ? 'rise' : 'fall'} from ${eur(sfOther.safe, 2)} to ${eur(sfNow.safe, 2)}.`;
   }
   const bills = fc.ev.map(e => `
     <div class="row${e.car ? ' car-row' : ''}" style="padding-left:0;padding-right:0;--inset:0px">
@@ -1430,7 +1433,7 @@ function addAccountShell() {
       </div>
       <label style="position:relative;display:block">
         <span style="position:absolute;left:12px;top:13px;color:var(--label2)">${I.search}</span>
-        <input id="bank-search" class="field" type="search" placeholder="Search banks and cards" style="padding-left:38px" aria-label="Search banks and cards">
+        <input id="bank-search" class="field search-field" type="search" placeholder="Search banks and cards" style="padding-left:38px" aria-label="Search banks and cards">
       </label>
       <div id="bank-results"></div>
     </div>`;
@@ -1502,6 +1505,7 @@ function pop(force) {
   if (!force && (alertOpen || sheetEl)) return; // never pull a page out from under a sheet or alert
   const el = stack.pop();
   if (!el) return;
+  if (el.kind === 'month') S.carLate = false; // the what-if ends when you leave the page
   lockNav();
   hideToast();
   el.inert = true;
@@ -1688,7 +1692,7 @@ function reply(q) {
   const spendToLow = Math.round(sf.safe * (k + 1));
   const preBal = Math.round(fc.days[k]);
   const room = preBal - COMFORT - spendToLow; // what can go out now and still keep the comfort line
-  const lowDay = k === fc.payIdx - 1 ? `by pay day on the ${pay}` : k === 0 ? 'today' : `on ${dayLabel(k)}`;
+  const lowDay = k === fc.payIdx - 1 ? 'just before pay day' : k === 0 ? 'today' : `on ${dayLabel(k)}`;
   if (/dental|1,?430|dentist/.test(s)) {
     if (room >= 1430) return { title: 'The dental bill', emoji: 'stethoscope', paras: [`Yes. Paying €1,430 now and spending your safe-to-spend each day still leaves ${eur(preBal - spendToLow - 1430)} ${lowDay}, ${room === 1430 ? 'right at' : 'above'} your comfort line.`] };
     const now = Math.max(0, Math.floor(room / 10) * 10);
@@ -1847,7 +1851,7 @@ function voiceSheet() {
   if (S.chat.busy) return;
   openSheet(`
     <div class="sheet-head"><h2 data-title>Voice</h2><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
-    <p class="sub">Review the transcript before it's sent. No microphone is used here.</p>
+    <p class="sub">Check the transcript before it's sent.</p>
     <div class="body">
       <div style="display:flex;gap:4px;align-items:center;justify-content:center;height:36px" aria-hidden="true">${Array.from({ length: 24 }, (_, i) => `<i style="width:3px;border-radius:2px;background:currentColor;opacity:.7;height:${8 + Math.round(Math.abs(Math.sin(i * 1.7)) * 24)}px"></i>`).join('')}</div>
       <textarea id="voice-text" class="field" rows="3" style="height:auto;padding:12px 14px;resize:none;line-height:1.4" aria-label="Transcript" aria-describedby="voice-err" autofocus>I just got a €1,430 dental bill. Can I actually pay this?</textarea>
@@ -1927,7 +1931,7 @@ const H = {
     }, 260)];
   },
   'open-iceland'() { push(icelandPage, { media: 'g-iceland' }); },
-  'open-month'() { push(monthPage, { media: 'g-month' }); },
+  'open-month'() { push(monthPage, { media: 'g-month', kind: 'month' }); },
   'send-fixes': once(async () => {
     const amt = fixesAvailable(); if (amt <= 0) return;
     const before = safeNow(), afterSafe = safety(forecast({ extra: amt })).safe;
