@@ -320,7 +320,7 @@ button.row[disabled] { cursor: default; }
 .tabbar .tab { flex: 1; display: grid; place-items: center; align-content: center; gap: 2px; font-size: 10px; font-weight: 500; color: var(--label); border-radius: 99px; position: relative; z-index: 1; transition: color .2s; }
 .tabbar .tab[aria-selected="true"] { color: var(--blue); }
 .tabbar .tab svg { width: 26px; height: 26px; }
-.tabbar .lens { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 3); border-radius: 99px; background: var(--fill); transition: transform .45s cubic-bezier(.3, 1.3, .5, 1); }
+.tabbar .lens { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 4); border-radius: 99px; background: var(--fill); transition: transform .45s cubic-bezier(.3, 1.3, .5, 1); }
 .tabbar .gear { width: 62px; height: 62px; }
 .tabbar .gear svg { width: 26px; height: 26px; }
 .app.media-top .tabbar .glass, .app[data-tab="chat"] .tabbar .glass { background: rgba(0, 0, 0, .26); box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .4), inset 0 1px 0 rgba(255, 255, 255, .45), 0 8px 24px rgba(0, 0, 0, .15); }
@@ -860,6 +860,12 @@ button.row[disabled] { cursor: default; }
 .swipe + .swipe > .row::before { content: ""; position: absolute; top: 0; right: 0; left: var(--inset, 16px); height: .5px; background: var(--sep); }
 .swipe-action { position: absolute; top: 0; right: 0; bottom: 0; width: 88px; display: flex; align-items: center; justify-content: center; background: var(--red); color: #FFFFFF; font-size: 15px; font-weight: 600; border: 0; }
 @media (prefers-reduced-motion: reduce) { .swipe > .row { transition: none; } }
+
+/* Accounts tab */
+.tab-panel .nav { justify-content: flex-end; }
+.swipe-action { visibility: hidden; }
+.accounts-content { gap: 22px; }
+.accounts-content .large-title { margin-bottom: -4px; }
 </style>
 </head>
 <body>
@@ -876,7 +882,7 @@ button.row[disabled] { cursor: default; }
         <li>Send the fixes money to the Iceland trip, then change the monthly amount</li>
         <li>Move car insurance to the 6th in The month ahead</li>
         <li>Ask Chat “Can I afford a €600 flight in March?” or try the voice demo</li>
-        <li>Open Accounts on the Money tab to add a sample N26 account</li>
+        <li>Open the Accounts tab to add a sample N26 account or swipe one away</li>
       </ul>
     </div>
     <div>
@@ -903,6 +909,7 @@ button.row[disabled] { cursor: default; }
       <div class="chat-bg g-chat" id="chat-bg" hidden></div>
       <section class="tab-panel" role="tabpanel" id="tab-today" aria-label="Today"></section>
       <section class="tab-panel" role="tabpanel" id="tab-money" aria-label="Money" hidden></section>
+      <section class="tab-panel" role="tabpanel" id="tab-accounts" aria-label="Accounts" hidden></section>
       <section class="tab-panel" role="tabpanel" id="tab-chat" aria-label="Chat" hidden></section>
       <div class="edge-bottom" id="edge-bottom"></div>
 
@@ -922,6 +929,10 @@ button.row[disabled] { cursor: default; }
           <button class="tab" role="tab" data-tab="money" aria-selected="false" aria-controls="tab-money">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /> <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" /></svg>
             Money
+          </button>
+          <button class="tab" role="tab" data-tab="accounts" aria-selected="false" aria-controls="tab-accounts" tabindex="-1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 22h18"/><path d="M6 18v-7"/><path d="M10 18v-7"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M12 2 20 7H4z"/></svg>
+            Accounts
           </button>
           <button class="tab" role="tab" data-tab="chat" aria-selected="false" aria-controls="tab-chat">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /> <path d="M20 2v4" /> <path d="M22 4h-4" /> <circle cx="4" cy="20" r="2" /></svg>
@@ -1173,7 +1184,7 @@ function renderMoney() {
   const avail = fixesAvailable();
   const linkedTotal = S.linked.reduce((a, b) => a + b.bal, 0);
   $('#tab-money').innerHTML = `
-    <div class="nav"><button class="pill glass" data-act="accounts">${icon('landmark', 17)} Accounts</button><span class="inline" aria-hidden="true">Money</span><button class="pill glass" data-act="fixes">Fixes${avail > 0 ? ` <span style="color:var(--green-text);font-weight:600">${eur(avail, 2)}</span>` : ''}</button></div>
+    <div class="nav"><span class="inline" aria-hidden="true">Money</span><button class="pill glass" data-act="fixes">Fixes${avail > 0 ? ` <span style="color:var(--green-text);font-weight:600">${eur(avail, 2)}</span>` : ''}</button></div>
     <div class="content" style="padding-top:0">
       <div>
         <h1 class="large-title">Money</h1>
@@ -1425,12 +1436,12 @@ function monthPage() {
 // These two stay connected: pay lands in one, the Iceland goal lives in the other
 const PROTECTED = { chk: 'Your pay lands here', stash: 'Holds your Iceland goal' };
 const MINUS = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12h10" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>';
-function accountsPage() {
+function renderAccounts() {
   const ed = S.editAccts && S.accounts.some(a => !PROTECTED[a.id]);
-  return `
-    <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Close accounts">${I.x}</button>${S.accounts.some(a => !PROTECTED[a.id]) ? `<button class="pill glass" data-act="edit-accounts" aria-pressed="${ed}">${ed ? 'Done' : 'Edit'}</button>` : ''}</div>
-    <div class="detail">
-      <h1 class="page-title">Accounts</h1>
+  $('#tab-accounts').innerHTML = `
+    <div class="nav"><span class="inline" aria-hidden="true">Accounts</span>${S.accounts.some(a => !PROTECTED[a.id]) ? `<button class="pill glass" data-act="edit-accounts" aria-pressed="${ed}">${ed ? 'Done' : 'Edit'}</button>` : '<span style="height:44px"></span>'}</div>
+    <div class="content accounts-content" style="padding-top:0">
+      <h1 class="large-title">Accounts</h1>
       <div class="list" style="border-radius:28px">${S.accounts.map(a => `
         <div class="swipe${PROTECTED[a.id] ? ' locked' : ''}" style="--inset:${ed ? 98 : 64}px">${!ed && !PROTECTED[a.id] ? `<button class="swipe-action" data-act="remove-account" data-id="${a.id}" tabindex="-1" aria-hidden="true">Remove</button>` : ''}
         <div class="row${ed ? ' editing' : ''}" data-acct="${a.id}" tabindex="-1" style="--inset:${ed ? 98 : 64}px;min-height:64px">
@@ -1489,9 +1500,9 @@ function addAccountShell() {
 
 /* ---------------- Navigation stack ---------------- */
 // Each tab keeps its own navigation stack, like a UITabBarController
-const stacks = { today: [], money: [], chat: [] };
+const stacks = { today: [], money: [], accounts: [], chat: [] };
 let stack = stacks.today;
-const allPages = () => [...stacks.today, ...stacks.money, ...stacks.chat];
+const allPages = () => [...stacks.today, ...stacks.money, ...stacks.accounts, ...stacks.chat];
 let pendingFix = [];
 let queuedPops = 0;
 // Escapes pressed during a transition go back one level each, in order
@@ -1556,7 +1567,6 @@ function pop(force) {
   if (!el) return;
   shieldUntil = performance.now() + 300;
   if (el.kind === 'month') S.carLate = false;
-  if (el.kind === 'accounts') S.editAccts = false; // the what-if ends when you leave the page
   lockNav();
   hideToast();
   el.inert = true;
@@ -1586,14 +1596,14 @@ function updateChrome() {
 function syncInert() {
   const overlay = $$('#layer .sheet, #layer .alert').some(x => !x.closing);
   const top = stack[stack.length - 1];
-  ['#tab-today', '#tab-money', '#tab-chat', '#composer'].forEach(s => { $(s).inert = overlay || !!top; });
+  ['#tab-today', '#tab-money', '#tab-accounts', '#tab-chat', '#composer'].forEach(s => { $(s).inert = overlay || !!top; });
   $('#tabbar').inert = overlay || !!(top && (top.modal || top.inModal));
   allPages().forEach(p => { p.inert = overlay || p !== top; });
   const al = $$('#layer .alert').some(a => !a.closing);
   $$('#layer .sheet').forEach(s => { s.inert = !!al || s.closing; });
 }
 function refresh() {
-  keepFocus(() => { renderToday(); renderMoney(); });
+  keepFocus(() => { renderToday(); renderMoney(); renderAccounts(); });
   allPages().forEach(p => p.render());
   syncInert();
 }
@@ -1604,7 +1614,8 @@ function selectTab(t) {
   S.tab = t;
   stack = stacks[t];
   allPages().forEach(p => { p.hidden = p.dataset.tab !== t; });
-  ['today', 'money', 'chat'].forEach((k, i) => {
+  if (t !== 'accounts') S.editAccts = false;
+  ['today', 'money', 'accounts', 'chat'].forEach((k, i) => {
     $('#tab-' + k).hidden = k !== t;
     const b = $(`.tab[data-tab="${k}"]`);
     b.setAttribute('aria-selected', String(k === t));
@@ -2013,15 +2024,15 @@ const H = {
     const r = stack.length && $('.car-row', stack[stack.length - 1]); r && r.classList.add('flash');
   },
 
-  accounts() { S.editAccts = false; push(accountsPage, { modal: true, media: 'g-accounts', kind: 'accounts' }); },
-  'edit-accounts'() { S.editAccts = !S.editAccts; refresh(); const b = $('.page:last-child [data-act="edit-accounts"]'); b && b.focus({ preventScroll: true }); },
+  accounts() { selectTab('accounts'); },
+  'edit-accounts'() { S.editAccts = !S.editAccts; refresh(); const b = $('#tab-accounts [data-act="edit-accounts"]'); b && b.focus({ preventScroll: true }); },
   'remove-account': once(async el => {
     const a = S.accounts.find(x => x.id === el.dataset.id);
     if (!a || PROTECTED[a.id]) return;
     const what = a.kind === 'cash' ? `Its ${eur(a.bal)} leaves your total and today's safe-to-spend.` : a.kind === 'owed' ? `Its ${eur(-a.bal)} balance leaves your total.` : `Its ${eur(a.bal)} leaves your total.`;
     const ok = await alertBox({ sheet: true, title: `Remove ${a.name}?`, msg: `${what} You can add it back from Add Account.`, actions: [{ label: 'Remove Account', style: 'destructive', value: true }, { label: 'Cancel', value: false }] });
     closeSwipes && closeSwipes();
-    if (!ok || !S.accounts.includes(a)) { const row = $(`.page:last-child [data-acct="${a.id}"]`); if (el.classList.contains('swipe-action') && row) row.focus({ preventScroll: true }); return; }
+    if (!ok || !S.accounts.includes(a)) { const row = $(`#tab-accounts [data-acct="${a.id}"]`); if (el.classList.contains('swipe-action') && row) row.focus({ preventScroll: true }); return; }
     const i = S.accounts.indexOf(a);
     S.accounts.splice(i, 1);
     S.linked = S.linked.filter(l => l.name !== a.name);
@@ -2029,7 +2040,7 @@ const H = {
     if (!S.accounts.some(x => !PROTECTED[x.id])) S.editAccts = false;
     refresh();
     toast(`${a.name} removed`);
-    setTimeout(() => { const n = $$('.page:last-child [data-act="remove-account"]')[Math.min(i - 2, 99)] || $('.page:last-child [data-act="remove-account"]') || $('.page:last-child [data-act="edit-accounts"]') || $('.page:last-child [data-act="add-account"]'); n && n.focus({ preventScroll: true }); }, 30);
+    setTimeout(() => { const n = $$('#tab-accounts [data-act="remove-account"]')[Math.min(i - 2, 99)] || $('.page:last-child [data-act="remove-account"]') || $('#tab-accounts [data-act="edit-accounts"]') || $('.page:last-child [data-act="add-account"]'); n && n.focus({ preventScroll: true }); }, 30);
   }),
   'readd-account'(el) {
     const r = S.removed.find(x => x.acct.id === el.dataset.id); if (!r) return;
@@ -2159,14 +2170,14 @@ document.addEventListener('keydown', e => {
   // Arrow keys move between tabs, like a native tab bar
   if (['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key) && e.target.classList && e.target.classList.contains('tab')) {
     e.preventDefault();
-    const order = ['today', 'money', 'chat'];
-    const i = e.key === 'Home' ? 0 : e.key === 'End' ? 2 : (order.indexOf(S.tab) + (e.key === 'ArrowRight' ? 1 : 2)) % 3;
+    const order = ['today', 'money', 'accounts', 'chat'];
+    const i = e.key === 'Home' ? 0 : e.key === 'End' ? 3 : (order.indexOf(S.tab) + (e.key === 'ArrowRight' ? 1 : 3)) % 4;
     selectTab(order[i]); $(`.tab[data-tab="${order[i]}"]`).focus();
   }
 });
 
-['#tab-chat', '#tab-money', '#tab-today'].forEach(id => $(id).addEventListener('scroll', e => e.currentTarget.classList.toggle('scrolled', e.currentTarget.scrollTop > 4), { passive: true }));
-renderToday(); renderMoney(); renderChat(); syncSend();
+['#tab-chat', '#tab-money', '#tab-accounts', '#tab-today'].forEach(id => $(id).addEventListener('scroll', e => e.currentTarget.classList.toggle('scrolled', e.currentTarget.scrollTop > 4), { passive: true }));
+renderToday(); renderMoney(); renderAccounts(); renderChat(); syncSend();
 selectTab('today');
 
 /* ---------------- Liquid Glass (React Bits GlassSurface, SVG mode) ---------------- */
@@ -2277,14 +2288,13 @@ selectTab('today');
   const set = (row, x, anim) => {
     row.style.transition = anim ? '' : 'none';
     row.style.transform = x ? `translateX(${x}px)` : '';
-    const a = row.parentElement.querySelector('.swipe-action'); if (a) a.style.width = Math.max(W, -x) + 'px';
+    const a = row.parentElement.querySelector('.swipe-action'); if (a) { a.style.width = Math.max(W, -x) + 'px'; if (x) a.style.visibility = 'visible'; else setTimeout(() => { if (!row.style.transform) a.style.visibility = ''; }, anim && !reduced ? 380 : 0); }
   };
   closeSwipes = () => { if (open) { set(open, 0, true); open = null; } };
-  $('#pages').addEventListener('pointerdown', e => {
+  app.addEventListener('pointerdown', e => {
     const row = e.target.closest('.swipe > .row');
     if (open && row !== open && !e.target.closest('.swipe-action')) closeSwipes();
     if (!row || e.button || S.editAccts || e.target.closest('button')) return;
-    if (e.clientX - row.getBoundingClientRect().left < 28) return; // the screen edge belongs to swipe-back
     d = { row, x0: e.clientX, y0: e.clientY, base: open === row ? -W : 0, x: open === row ? -W : 0, on: false, id: e.pointerId, locked: row.parentElement.classList.contains('locked') };
   });
   window.addEventListener('pointermove', e => {
