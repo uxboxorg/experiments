@@ -812,6 +812,7 @@ button.row[disabled] { cursor: default; }
 .split .split-div { width: 2px; background: var(--label3); border-radius: 1px; margin: -3px 2px; }
 .split i.owed, .legend i.owed { background: repeating-linear-gradient(135deg, var(--indigo) 0 3px, transparent 3px 6px); box-shadow: inset 0 0 0 1px var(--indigo); }
 .alert h3 { color: var(--label); }
+.alert h3:focus { outline: none; }
 .card-chev { position: absolute; top: 22px; right: 22px; opacity: .7; display: flex; }
 .card-chev.mid { top: auto; bottom: 26px; }
 .slider { height: 44px; }
@@ -1085,7 +1086,8 @@ function renderToday() {
   const [whole, cents] = sf.safe.toFixed(2).split('.');
   const saveAfter = safety(forecast({ extra: 1200 })).safe;
   const saveLine = saveAfter >= sf.safe ? "today's safe-to-spend stays the same" : `today's safe-to-spend drops to ${eur(saveAfter, 2)}`;
-  const undo = S.lastDismissed ? `<article class="action undo-row"><span>Suggestion dismissed</span><button class="pill neutral" data-act="undo-dismiss">Undo</button></article>` : '';
+  const undoN = S.dismissed.filter(x => !(x === 'spotify' && S.spotifyCancelled)).length;
+  const undo = S.lastDismissed ? `<article class="action undo-row"><span>${undoN > 1 ? `${undoN} suggestions dismissed` : 'Suggestion dismissed'}</span><button class="pill neutral" data-act="undo-dismiss">Undo</button></article>` : '';
   const cards = S.actions.map(id => id === 'save' ? `
       <article class="action glass" data-card="save">
         ${tile({ icon: 'piggy-bank', bg: '#2E9E55' }, 44)}
@@ -1410,7 +1412,7 @@ function addAccountPage(q = '') {
   return `
     ${found.length ? `<h2 class="section-h" style="margin:0">Found on this device</h2><div class="list">${found.map(row).join('')}</div>` : ''}
     ${pop.length ? `<h2 class="section-h" style="margin:22px 0 0">Popular banks</h2><div class="list">${pop.map(row).join('')}</div>` : ''}
-    ${!found.length && !pop.length ? `<p class="lede">No banks match “${esc(q)}”.</p>` : ''}`;
+    ${!found.length && !pop.length ? `<p class="lede" style="overflow-wrap:anywhere">No banks match “${esc(q)}”.</p>` : ''}`;
 }
 function addAccountShell() {
   return `
@@ -1489,6 +1491,7 @@ function push(render, { modal = false, media = '', onMount, opener, kind } = {})
   return el;
 }
 function pop(force) {
+  if (typeof swipeReset === 'function') swipeReset();
   if (navBusy && !force) return;
   if (!force && (alertOpen || sheetEl)) return; // never pull a page out from under a sheet or alert
   const el = stack.pop();
@@ -1594,7 +1597,7 @@ async function requestCloseSheet() {
   }
   closeSheet();
 }
-let shieldUntil = 0;
+let shieldUntil = 0, swipeReset = null;
 function closeSheet(instant) {
   if (!sheetEl) return;
   shieldUntil = performance.now() + 350;
@@ -1719,6 +1722,7 @@ function reply(q) {
 async function send(text) {
   text = (text || '').trim();
   if (!text) return;
+  const ae = document.activeElement; S.chat.refocus = !ae || ae === document.body || ae.id === 'chat-input';
   if (S.chat.busy) { (S.chat.queue = S.chat.queue || []).push(text); $('#chat-input').value = ''; syncSend(); toast('Sending after this answer'); return; }
   S.chat.busy = true;
   hideToast();
@@ -1753,7 +1757,8 @@ async function send(text) {
   renderChat();
   panel.scrollTop = panel.scrollHeight;
   if (S.chat.queue && S.chat.queue.length) return send(S.chat.queue.shift());
-  if (S.tab === 'chat' && !stack.length) $('#chat-input').focus({ preventScroll: true });
+  const ae2 = document.activeElement;
+  if (S.tab === 'chat' && !stack.length && (S.chat.refocus || !ae2 || ae2 === document.body)) $('#chat-input').focus({ preventScroll: true });
 }
 
 /* ---------------- Sheets content ---------------- */
@@ -1874,6 +1879,7 @@ const H = {
     S.lastDismissed = null;
     S.dismissed = S.dismissed.filter(x => x !== id);
     if (!(id === 'spotify' && S.spotifyCancelled)) S.actions = ['save', 'spotify'].filter(x => x === id || S.actions.includes(x));
+    S.lastDismissed = S.dismissed.filter(x => !(x === 'spotify' && S.spotifyCancelled)).slice(-1)[0] || null;
     refresh();
     restoreFocus(null, null, ['.action .review-pill', '#all-done']);
   },
@@ -1886,7 +1892,7 @@ const H = {
     await wait(reduced ? 0 : 1100);
     const from = safeNow();
     S.spotifyCancelled = true;
-    if (S.lastDismissed === 'spotify') S.lastDismissed = null;
+    if (S.lastDismissed === 'spotify') S.lastDismissed = S.dismissed.filter(x => x !== 'spotify').slice(-1)[0] || null;
     S.actions = S.actions.filter(a => a !== 'spotify');
     S.spotifyDelta = spotifyDeltaNow();
     refresh();
@@ -1913,7 +1919,7 @@ const H = {
     }, 260)];
   },
   'open-iceland'() { push(icelandPage, { media: 'g-iceland' }); },
-  'open-month'() { S.payDraft = null; S.payErr = null; push(monthPage, { media: 'g-month' }); },
+  'open-month'() { push(monthPage, { media: 'g-month' }); },
   'send-fixes': once(async () => {
     const amt = fixesAvailable(); if (amt <= 0) return;
     const before = safeNow(), afterSafe = safety(forecast({ extra: amt })).safe;
@@ -1942,12 +1948,7 @@ const H = {
     S.carLate = el.checked; refresh();
     const r = stack.length && $('.car-row', stack[stack.length - 1]); r && r.classList.add('flash');
   },
-  'save-payday'() {
-    const inp = $('#payday'); if (!inp) return;
-    const v = /^\d{1,2}$/.test(inp.value.trim()) ? Number(inp.value) : NaN;
-    if (!Number.isInteger(v) || v < 1 || v > 28) { S.payErr = 'Enter a whole day from 1 to 28.'; const er = $('#payday-err'); if (er) er.textContent = S.payErr; inp.setAttribute('aria-invalid', 'true'); inp.focus(); return; }
-    S.payDay = v; S.payDraft = null; S.payErr = null; refresh(); toast(`Pay day saved: the ${ord(v)}`);
-  },
+
   accounts() { push(accountsPage, { modal: true, media: 'g-accounts' }); },
   'add-account'() {
     push(addAccountShell, { kind: 'add', onMount: el => {
@@ -2004,7 +2005,7 @@ const H = {
 
 // A second tap that lands just after a sheet or alert closes must not hit what was underneath
 ['pointerdown', 'mousedown', 'click'].forEach(t => app.addEventListener(t, e => {
-  if (performance.now() < shieldUntil && !e.target.closest('#layer .sheet:not([inert]), #layer .alert:not(.closing)')) { e.preventDefault(); e.stopPropagation(); }
+  if (performance.now() < shieldUntil && !(e.type === 'click' && e.detail === 0) && !e.target.closest('#layer .sheet:not([inert]), #layer .alert:not(.closing)')) { e.preventDefault(); e.stopPropagation(); }
 }, true));
 app.addEventListener('click', e => {
   const tab = e.target.closest('.tab');
@@ -2024,16 +2025,7 @@ app.addEventListener('change', e => {
   if (e.target.id === 'payday-pick') { const v = +e.target.value; if (v >= 1 && v <= 28 && v !== S.payDay) { S.payDay = v; refresh(); toast(`Pay day set to the ${ord(v)}`); } }
 });
 app.addEventListener('input', e => {
-  if (e.target.id === 'payday') {
-    const inp = e.target, clean = inp.value.replace(/\D/g, '').slice(0, 2);
-    if (clean !== inp.value) inp.value = clean;
-    S.payDraft = clean;
-    const v = +clean, bad = clean !== '' && (v < 1 || v > 28);
-    S.payErr = clean === '' ? '' : bad ? 'Enter a whole day from 1 to 28.' : '';
-    const er = $('#payday-err'); if (er && er.textContent !== S.payErr) er.textContent = S.payErr;
-    inp.toggleAttribute('aria-invalid', bad); if (bad) inp.setAttribute('aria-invalid', 'true');
-    const b = $('[data-act="save-payday"]'); if (b) b.disabled = bad || clean === '';
-  }
+
   if (e.target.id === 'chat-input') syncSend();
 });
 function syncSend() { const b = $('#composer .send'), i = $('#chat-input'); if (b && i) b.disabled = !i.value.trim(); }
@@ -2064,7 +2056,6 @@ document.addEventListener('keydown', e => {
     }
   }
   if (e.key === 'Enter' && e.target.id === 'chat-input') { e.preventDefault(); send(e.target.value); }
-  if (e.key === 'Enter' && e.target.id === 'payday') { e.preventDefault(); H['save-payday'](); }
   if (e.key === 'Escape') {
     if (pendingFix.length) { pendingFix.forEach(clearTimeout); pendingFix = []; if (stack.length && stack[stack.length - 1].kind === 'iceland-fix') setTimeout(() => pop(true), 0); }
     else if (alertOpen) alertOpen.cancel();
@@ -2188,6 +2179,7 @@ selectTab('today');
 /* Swipe from the left edge to go back */
 (() => {
   let g = null;
+  swipeReset = () => { if (g && g.el) { g.el.classList.remove('swiping'); g.el.style.transform = ''; } g = null; };
   $('#pages').addEventListener('pointerdown', e => {
     const el = stack[stack.length - 1];
     if (!el || el.modal || navBusy || sheetEl || alertOpen || e.button) return;
@@ -2208,7 +2200,7 @@ selectTab('today');
     if (!on) return;
     el.classList.remove('swiping');
     el.style.transform = '';
-    if (dx > w * .33) { navBusy = false; pop(); }
+    if (dx > w * .33 && stack[stack.length - 1] === el) pop();
   };
   window.addEventListener('pointerup', end);
   window.addEventListener('pointercancel', end);
