@@ -905,8 +905,9 @@ button.row[disabled] { cursor: default; }
 .kb-key.fn { flex: 0 0 44px; background: var(--kb-fn); font-size: 16px; }
 .kb-row:last-child .kb-key.fn { flex: 0 0 88px; }
 .kb-key.space { flex: 1 1 auto; font-size: 16px; }
-.app.kb-open .composer.solo { bottom: 270px; }
-.app.kb-open #tab-chat { padding-bottom: 440px; }
+.app.kb-chat .composer.solo { bottom: 270px; }
+.app.kb-chat #tab-chat { padding-bottom: 440px; }
+.app.kb-open .page:last-child .wrap { padding-bottom: 300px; }
 @media (prefers-reduced-motion: reduce) { .kb { animation: none; } }
 </style>
 </head>
@@ -975,7 +976,7 @@ button.row[disabled] { cursor: default; }
             Money
           </button>
           <button class="tab" role="tab" data-tab="accounts" aria-selected="false" aria-controls="tab-accounts" tabindex="-1">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 22h18"/><path d="M6 18v-7"/><path d="M10 18v-7"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M12 2 20 7H4z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><path d="M6 15h2"/></svg>
             Accounts
           </button>
           <button class="tab" role="tab" data-tab="chat" aria-selected="false" aria-controls="tab-chat">
@@ -1696,7 +1697,7 @@ function updateChrome() {
   const covered = !!(top && (top.modal || top.inModal));
   $('#tabbar').classList.toggle('away', covered || inChat);
   $('#composer').classList.toggle('solo', inChat);
-  if (!inChat && kbShow) kbShow(false);
+  if (kbShow) kbShow();
   app.classList.toggle('media-top', !!(top && !covered && top.classList.contains('media')));
   $('#composer').hidden = !!top || !inChat;
   $('#chat-bg').hidden = !inChat;
@@ -2412,49 +2413,55 @@ selectTab('today');
   scan();
 })();
 
-/* On-screen keyboard. Desktop browsers have no virtual keyboard, so the prototype draws iOS's;
-   real typing still works, and touch devices keep their own keyboard. */
+/* On-screen keyboard. Desktop browsers have no virtual keyboard, so the prototype draws iOS's for the
+   chat field and the bank search; real typing still works, and touch devices keep their own keyboard. */
 (() => {
-  const kb = $('#kb'), inp = $('#chat-input');
+  const kb = $('#kb');
   if (matchMedia('(pointer: coarse)').matches) { kbShow = () => {}; return; }
   const SHIFT = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3 3 12h5v8h8v-8h5z"/></svg>', SHIFT_ON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3 3 12h5v8h8v-8h5z"/></svg>', DEL = '<svg width="24" height="20" viewBox="0 0 28 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M9 2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9l-8-9z"/><path d="m13 7 8 8M21 7l-8 8"/></svg>';
   const ROWS = {
     abc: [['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'], ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'], ['shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'del'], ['123', 'space', 'return']],
     num: [['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'], ['-', '/', ':', ';', '(', ')', '€', '&', '@', '"'], ['.', ',', '?', '!', "'", '%', 'del'], ['ABC', 'space', 'return']],
   };
-  let mode = 'abc', shift = false;
-  const caps = () => mode === 'abc' && (shift || !inp.value || /[.?!]\s$/.test(inp.value));
-  const label = k => k === 'shift' ? (caps() ? SHIFT_ON : SHIFT) : k === 'del' ? DEL : k === 'space' ? 'space' : k.length === 1 && caps() ? k.toUpperCase() : esc(k);
+  let mode = 'abc', shift = false, target = null;
+  const wants = el => el && ((el.id === 'chat-input' && S.tab === 'chat' && !stack.length) || el.id === 'bank-search');
+  const isChat = () => target && target.id === 'chat-input';
+  const caps = () => mode === 'abc' && (shift || (isChat() && (!target.value || /[.?!]\s$/.test(target.value))));
+  const label = k => k === 'shift' ? (caps() ? SHIFT_ON : SHIFT) : k === 'del' ? DEL : k === 'space' ? 'space' : k === 'return' ? (isChat() ? 'return' : 'search') : k.length === 1 && caps() ? k.toUpperCase() : esc(k);
   const cls = k => ['shift', 'del', '123', 'ABC', 'return'].includes(k) ? ' fn' : k === 'space' ? ' space' : '';
   const render = () => { kb.innerHTML = ROWS[mode].map(r => `<div class="kb-row">${r.map(k => `<button type="button" tabindex="-1" class="kb-key${cls(k)}${k === 'return' ? ' ret' : ''}" data-k="${esc(k)}">${label(k)}</button>`).join('')}</div>`).join(''); };
-  kbShow = on => {
-    if (on) { mode = 'abc'; shift = false; render(); }
-    kb.hidden = !on; app.classList.toggle('kb-open', on);
-    if (on) { const pnl = $('#tab-chat'); requestAnimationFrame(() => { pnl.scrollTop = pnl.scrollHeight; }); }
+  const show = el => {
+    target = el; mode = 'abc'; shift = false; render();
+    kb.hidden = false; app.classList.add('kb-open'); app.classList.toggle('kb-chat', isChat());
+    if (isChat()) { const pnl = $('#tab-chat'); requestAnimationFrame(() => { pnl.scrollTop = pnl.scrollHeight; }); }
   };
-  inp.addEventListener('focus', () => { if (S.tab === 'chat' && !stack.length) kbShow(true); });
-  inp.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== inp) kbShow(false); }, 0));
-  inp.addEventListener('input', () => { if (!kb.hidden) render(); });
+  const hide = () => { target = null; kb.hidden = true; app.classList.remove('kb-open', 'kb-chat'); };
+  // false hides; anything else re-checks that the field is still on screen and focused
+  kbShow = on => { if (on === false) return hide(); if (target && (!target.isConnected || target.closest('[inert]') || document.activeElement !== target || !wants(target))) hide(); };
+  app.addEventListener('focusin', e => { if (wants(e.target)) show(e.target); });
+  app.addEventListener('focusout', e => { if (e.target === target) setTimeout(() => { if (document.activeElement !== target) hide(); }, 0); });
+  app.addEventListener('input', e => { if (e.target === target) render(); });
   kb.addEventListener('mousedown', e => e.preventDefault()); // keys never take focus from the field
+  const changed = () => target.dispatchEvent(new Event('input', { bubbles: true }));
   const put = t => {
-    const a = inp.selectionStart ?? inp.value.length, z = inp.selectionEnd ?? a;
-    inp.value = inp.value.slice(0, a) + t + inp.value.slice(z);
-    inp.setSelectionRange(a + t.length, a + t.length);
-    inp.dispatchEvent(new Event('input', { bubbles: true }));
+    const a = target.selectionStart ?? target.value.length, z = target.selectionEnd ?? a;
+    target.value = target.value.slice(0, a) + t + target.value.slice(z);
+    target.setSelectionRange(a + t.length, a + t.length);
+    changed();
   };
   kb.addEventListener('click', e => {
-    const b = e.target.closest('[data-k]'); if (!b || inp.disabled) return;
+    const b = e.target.closest('[data-k]'); if (!b || !target || target.disabled) return;
     const k = b.dataset.k;
     if (k === 'shift') { shift = !shift; render(); return; }
     if (k === '123') { mode = 'num'; render(); return; }
     if (k === 'ABC') { mode = 'abc'; render(); return; }
     if (k === 'del') {
-      const a = inp.selectionStart ?? inp.value.length, z = inp.selectionEnd ?? a;
-      if (a !== z) { inp.value = inp.value.slice(0, a) + inp.value.slice(z); inp.setSelectionRange(a, a); }
-      else if (a > 0) { inp.value = inp.value.slice(0, a - 1) + inp.value.slice(a); inp.setSelectionRange(a - 1, a - 1); }
-      inp.dispatchEvent(new Event('input', { bubbles: true })); return;
+      const a = target.selectionStart ?? target.value.length, z = target.selectionEnd ?? a;
+      if (a !== z) { target.value = target.value.slice(0, a) + target.value.slice(z); target.setSelectionRange(a, a); }
+      else if (a > 0) { target.value = target.value.slice(0, a - 1) + target.value.slice(a); target.setSelectionRange(a - 1, a - 1); }
+      changed(); return;
     }
-    if (k === 'return') { mode = 'abc'; send(inp.value); render(); return; }
+    if (k === 'return') { mode = 'abc'; if (isChat()) { send(target.value); render(); } else target.blur(); return; }
     if (k === 'space') { if (mode === 'num') mode = 'abc'; put(' '); render(); return; }
     put(caps() ? k.toUpperCase() : k); shift = false; render();
   });
