@@ -845,6 +845,14 @@ button.row[disabled] { cursor: default; }
 .legend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; font-size: 13px; }
 .legend span { display: grid; grid-template-columns: 8px 1fr; column-gap: 6px; row-gap: 2px; align-items: center; }
 .legend b { grid-column: 2; font-size: 15px; font-weight: 600; color: var(--label); font-variant-numeric: tabular-nums; }
+
+/* Remove accounts */
+.row-remove { width: 44px; height: 44px; margin: -10px -10px -10px -12px; display: grid; place-items: center; flex: none; color: var(--red); background: none; border: 0; }
+.rm-spacer { width: 22px; flex: none; }
+.tag.add-back { color: var(--accent); font-weight: 600; }
+/* Liquid Glass stays on navigation; the chat composer is a plain field */
+.composer { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: inset 0 0 0 1px var(--stroke), 0 6px 20px rgba(0, 0, 0, .08); }
+.composer:focus-within { outline: none; box-shadow: inset 0 0 0 2px var(--accent), 0 6px 20px rgba(0, 0, 0, .08); }
 </style>
 </head>
 <body>
@@ -891,7 +899,7 @@ button.row[disabled] { cursor: default; }
       <section class="tab-panel" role="tabpanel" id="tab-chat" aria-label="Chat" hidden></section>
       <div class="edge-bottom" id="edge-bottom"></div>
 
-      <div class="composer glass on-media" id="composer" hidden>
+      <div class="composer" id="composer" hidden>
         <button class="mic" data-act="voice" aria-label="Voice demo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></button>
         <input id="chat-input" type="text" placeholder="Ask anything about your finances" autocomplete="off" aria-label="Message">
         <button class="send" data-act="send" aria-label="Send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
@@ -986,6 +994,8 @@ const S = {
     { id: 'visa', name: 'Visa Card', sub: 'Credit card', mask: '4088', kind: 'owed', bal: -698, logo: { brand: 'visa', bg: '#1A1F71' } },
   ],
   linked: [],
+  removed: [],   // accounts removed by the user, ready to add back
+  editAccts: false,
   iceland: { saved: 1400, goal: 2400, monthly: 140, paused: false },
   fixesSent: 0,
   dismissed: [],
@@ -1220,7 +1230,7 @@ function renderChat() {
   const body = c.msgs.map((m, i) => m.role === 'user'
     ? `<div class="bubble-user">${esc(m.text)}</div>`
     : `<div class="ai" id="ai-${i}">${m.typing ? '<div class="typing" aria-label="Cushion is typing"><i></i><i></i><i></i></div>' : m.paras.map(p => `<p>${esc(p)}</p>`).join('')}</div>`).join('');
-  const sug = c.msgs.length ? '' : `<div class="suggest">${SUGGEST.map(s => `<button class="glass on-media" data-act="ask" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>`;
+  const sug = c.msgs.length ? '' : `<div class="suggest">${SUGGEST.map(s => `<button class="chip" data-act="ask" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>`;
   keepFocus(() => {
     $('#tab-chat').innerHTML = `${c.title ? '' : edge}<div class="chat-wrap" style="${c.title ? 'padding-top:0' : ''}">${head}${body}${sug}</div>`;
   });
@@ -1405,18 +1415,24 @@ function monthPage() {
     </div>`;
 }
 
+// These two stay connected: pay lands in one, the Iceland goal lives in the other
+const PROTECTED = { chk: 'Your pay lands here', stash: 'Holds your Iceland goal' };
+const MINUS = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12h10" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>';
 function accountsPage() {
+  const ed = S.editAccts && S.accounts.some(a => !PROTECTED[a.id]);
   return `
-    <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Close accounts">${I.x}</button></div>
+    <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Close accounts">${I.x}</button>${S.accounts.some(a => !PROTECTED[a.id]) ? `<button class="pill glass" data-act="edit-accounts" aria-pressed="${ed}">${ed ? 'Done' : 'Edit'}</button>` : ''}</div>
     <div class="detail">
       <h1 class="page-title">Accounts</h1>
       <div class="list" style="border-radius:28px">${S.accounts.map(a => `
-        <div class="row" data-acct="${a.id}" tabindex="-1" style="--inset:64px;min-height:64px">
+        <div class="row${ed ? ' editing' : ''}" data-acct="${a.id}" tabindex="-1" style="--inset:${ed ? 98 : 64}px;min-height:64px">
+          ${ed ? (PROTECTED[a.id] ? '<span class="rm-spacer" aria-hidden="true"></span>' : `<button class="row-remove" data-act="remove-account" data-id="${a.id}" aria-label="Remove ${esc(a.name)}">${MINUS}</button>`) : ''}
           ${tile(a.logo, 36)}
-          <span class="grow"><div class="t" style="font-size:16px">${esc(a.name)}</div><div class="s">${esc(a.sub)} ···· ${a.mask}</div></span>
+          <span class="grow"><div class="t" style="font-size:16px">${esc(a.name)}</div><div class="s">${ed && PROTECTED[a.id] ? PROTECTED[a.id] : `${esc(a.sub)} ···· ${a.mask}`}</div></span>
           <span class="v">${eur(a.bal)}</span>
         </div>`).join('')}
       </div>
+      ${ed ? `<p class="foot" style="text-align:left;margin-top:-10px">Your current account and Lena's Stash stay connected, because your pay and the Iceland goal depend on them.</p>` : ''}
       <div class="list accounts-total" style="border-radius:22px"><div class="row"><span class="grow t" style="font-size:16px">Total</span><span class="v" style="font-weight:600">${eur(net())}</span></div></div>
       <button class="btn tinted" data-act="add-account">${I.plus} Add Account</button>
       <p class="foot">Sample accounts · All balances are fictional</p>
@@ -1434,10 +1450,17 @@ function addAccountPage(q = '') {
       ${linked.has(b.id) ? '<span class="tag">Added</span>' : `<span class="chev">${I.chev}</span>`}
     </button>`;
   const found = BANKS.filter(b => b.found && m(b)), pop = BANKS.filter(b => !b.found && m(b));
+  const back = S.removed.filter(r => m(r.acct));
   return `
-    ${found.length ? `<h2 class="section-h" style="margin:0">Found on this device</h2><div class="list">${found.map(row).join('')}</div>` : ''}
+    ${back.length ? `<h2 class="section-h" style="margin:0">Removed</h2><div class="list">${back.map(r => `
+    <button class="row" data-act="readd-account" data-id="${r.acct.id}" style="--inset:64px">
+      ${tile(r.acct.logo, 36)}
+      <span class="grow"><div class="t" style="font-size:16px">${esc(r.acct.name)}</div><div class="s">${esc(r.acct.sub)} ···· ${r.acct.mask}</div></span>
+      <span class="tag add-back">Add Back</span>
+    </button>`).join('')}</div>` : ''}
+    ${found.length ? `<h2 class="section-h" style="margin:${back.length ? '22px' : '0'} 0 0">Found on this device</h2><div class="list">${found.map(row).join('')}</div>` : ''}
     ${pop.length ? `<h2 class="section-h" style="margin:22px 0 0">Popular banks</h2><div class="list">${pop.map(row).join('')}</div>` : ''}
-    ${!found.length && !pop.length ? `<p class="lede" style="overflow-wrap:anywhere">No banks match “${esc(q)}”.</p>` : ''}`;
+    ${!found.length && !pop.length && !back.length ? `<p class="lede" style="overflow-wrap:anywhere">No banks match “${esc(q)}”.</p>` : ''}`;
 }
 function addAccountShell() {
   return `
@@ -1524,7 +1547,8 @@ function pop(force) {
   const el = stack.pop();
   if (!el) return;
   shieldUntil = performance.now() + 300;
-  if (el.kind === 'month') S.carLate = false; // the what-if ends when you leave the page
+  if (el.kind === 'month') S.carLate = false;
+  if (el.kind === 'accounts') S.editAccts = false; // the what-if ends when you leave the page
   lockNav();
   hideToast();
   el.inert = true;
@@ -1981,7 +2005,32 @@ const H = {
     const r = stack.length && $('.car-row', stack[stack.length - 1]); r && r.classList.add('flash');
   },
 
-  accounts() { push(accountsPage, { modal: true, media: 'g-accounts' }); },
+  accounts() { S.editAccts = false; push(accountsPage, { modal: true, media: 'g-accounts', kind: 'accounts' }); },
+  'edit-accounts'() { S.editAccts = !S.editAccts; refresh(); const b = $('.page:last-child [data-act="edit-accounts"]'); b && b.focus({ preventScroll: true }); },
+  'remove-account': once(async el => {
+    const a = S.accounts.find(x => x.id === el.dataset.id);
+    if (!a || PROTECTED[a.id]) return;
+    const what = a.kind === 'cash' ? `Its ${eur(a.bal)} leaves your total and today's safe-to-spend.` : a.kind === 'owed' ? `Its ${eur(-a.bal)} balance leaves your total.` : `Its ${eur(a.bal)} leaves your total.`;
+    const ok = await alertBox({ sheet: true, title: `Remove ${a.name}?`, msg: `${what} You can add it back from Add Account.`, actions: [{ label: 'Remove Account', style: 'destructive', value: true }, { label: 'Cancel', value: false }] });
+    if (!ok || !S.accounts.includes(a)) return;
+    const i = S.accounts.indexOf(a);
+    S.accounts.splice(i, 1);
+    S.linked = S.linked.filter(l => l.name !== a.name);
+    if (!BANKS.some(b => b.id === a.id)) S.removed.push({ acct: a, index: i });
+    if (!S.accounts.some(x => !PROTECTED[x.id])) S.editAccts = false;
+    refresh();
+    toast(`${a.name} removed`);
+    setTimeout(() => { const n = $$('.page:last-child [data-act="remove-account"]')[Math.min(i - 2, 99)] || $('.page:last-child [data-act="remove-account"]') || $('.page:last-child [data-act="edit-accounts"]') || $('.page:last-child [data-act="add-account"]'); n && n.focus({ preventScroll: true }); }, 30);
+  }),
+  'readd-account'(el) {
+    const r = S.removed.find(x => x.acct.id === el.dataset.id); if (!r) return;
+    S.removed = S.removed.filter(x => x !== r);
+    S.accounts.splice(Math.min(r.index, S.accounts.length), 0, r.acct);
+    if (stack.length && stack[stack.length - 1].kind === 'add') pop(true);
+    refresh();
+    const row = $(`[data-acct="${r.acct.id}"]`); if (row) { row.classList.add('flash'); setTimeout(() => row.focus({ preventScroll: false }), T + 40); }
+    toast(`${r.acct.name} added back`);
+  },
   'add-account'() {
     push(addAccountShell, { kind: 'add', onMount: el => {
       const inp = $('#bank-search', el);
@@ -2119,7 +2168,7 @@ selectTab('today');
   const probe = document.createElement('div');
   probe.style.backdropFilter = 'url(#x)';
   const svgOK = !isWebkit && !isFirefox && probe.style.backdropFilter !== '';
-  const SEL = '.tabbar .tabs, .composer, .circle-btn.glass, .pill.glass, .btn.glass';
+  const SEL = '.tabbar .tabs, .nav .circle-btn.glass, .nav .pill.glass, .chat-title .circle-btn.glass'; // Liquid Glass is for navigation only
   const defs = $('#lg-defs');
   const NS = 'http://www.w3.org/2000/svg';
   const made = new Map();
