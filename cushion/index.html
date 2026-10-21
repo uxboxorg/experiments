@@ -881,6 +881,15 @@ button.row[disabled] { cursor: default; }
 .chat-title.pinned h1 { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chat-title.pinned h1 > span { flex: none; }
 .chat-title.chat-top { justify-content: flex-start; padding-bottom: 6px; }
+
+/* Category detail */
+.cat-chart { width: 100%; height: auto; display: block; }
+.cat-chart .bar { fill: var(--fill2); }
+.cat-chart .bar-now { fill: var(--label); }
+.cat-chart .bar-warn { fill: var(--orange); }
+.cat-chart .usual { stroke: var(--label2); stroke-width: 1; }
+.cat-chart .bar-label { fill: var(--label2); }
+.cat-chart .bar-label.now { fill: var(--label); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -1056,11 +1065,68 @@ const TX = [
   { id: 'sh', logo: { brand: 'shell', bg: '#FBCE07', fg: '#DD1D21' }, name: 'Shell', note: 'Transport · as expected', amt: -52.10, cat: 'Transport', when: '20 Aug', insight: 'Fuel is steady. Transport is right where it usually sits.' },
 ];
 const SPEND = [
-  { name: 'Rent', tag: 'As expected', amt: 1850, color: 'var(--olive)', icon: 'house' },
-  { name: 'Eating out', tag: '€130 over', warn: true, amt: 620, color: 'var(--orange)', icon: 'utensils' },
-  { name: 'Groceries', tag: 'As expected', amt: 340, color: 'var(--cat-blue)', icon: 'shopping-basket' },
-  { name: 'Transport', tag: 'As expected', amt: 180, color: 'var(--indigo)', icon: 'car' },
+  { id: 'rent', name: 'Rent', tag: 'As expected', amt: 1850, usual: 1850, color: 'var(--olive)', icon: 'house',
+    months: [1850, 1850, 1850, 1850, 1850, 1850],
+    where: [{ t: 'Hausverwaltung Kramer', s: 'Standing order · 1 Aug', v: 1850 }],
+    note: 'Same as every month. It goes out by standing order on the 1st.' },
+  { id: 'eat', name: 'Eating out', tag: '€130 over', warn: true, amt: 620, usual: 490, color: 'var(--orange)', icon: 'utensils',
+    months: [470, 510, 480, 500, 490, 620],
+    where: [{ t: 'Lieferando', s: '6 orders', v: 182 }, { t: 'Markthalle Neun', s: '3 visits', v: 148 }, { t: 'Bonanza Coffee', s: '14 visits', v: 94 }, { t: "Mustafa's Gemüse Kebap", s: '4 visits', v: 46 }, { t: 'Other places', s: '9 visits', v: 150 }],
+    note: 'Coffee grew the most: 14 Bonanza visits against about 5 in a normal month. Delivery is up a little too.',
+    ask: 'Why is eating out up this month?' },
+  { id: 'groc', name: 'Groceries', tag: 'As expected', amt: 340, usual: 345, color: 'var(--cat-blue)', icon: 'shopping-basket',
+    months: [330, 355, 340, 350, 345, 340],
+    where: [{ t: 'Lidl', s: '6 trips', v: 186 }, { t: 'REWE', s: '4 trips', v: 104 }, { t: 'dm', s: '2 trips', v: 50 }],
+    note: 'Right where it usually sits. Saturday at Lidl is your biggest shop.' },
+  { id: 'trans', name: 'Transport', tag: 'As expected', amt: 180, usual: 180, color: 'var(--indigo)', icon: 'car',
+    months: [175, 180, 185, 180, 180, 180],
+    where: [{ t: 'Shell', s: '2 fill-ups', v: 104 }, { t: 'Deutschlandticket', s: 'Monthly pass', v: 58 }, { t: 'SHARE NOW', s: '2 trips', v: 18 }],
+    note: 'Steady. Two fill-ups and your monthly pass, as usual.' },
 ];
+const MONTHS = ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
+function categoryChart(c) {
+  const W = 350, H = 150, padT = 22, padB = 22, bw = 34;
+  const max = Math.max(...c.months, c.usual) * 1.08;
+  const y = v => padT + (H - padT - padB) * (1 - v / max);
+  const gap = (W - bw * 6) / 6;
+  const bars = c.months.map((v, i) => {
+    const x = gap / 2 + i * (bw + gap), last = i === 5;
+    return `<rect x="${x.toFixed(1)}" y="${y(v).toFixed(1)}" width="${bw}" height="${(H - padB - y(v)).toFixed(1)}" rx="8" class="${last ? (c.warn ? 'bar-warn' : 'bar-now') : 'bar'}"/>
+      <text x="${(x + bw / 2).toFixed(1)}" y="${H - 5}" text-anchor="middle" font-size="11" class="bar-label${last ? ' now' : ''}">${MONTHS[i]}</text>`;
+  }).join('');
+  const uy = y(c.usual).toFixed(1);
+  return `<svg class="cat-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${c.name} by month, March to August: ${c.months.map((v, i) => `${MONTHS[i]} ${eur(v)}`).join(', ')}. Usual ${eur(c.usual)}.">
+    ${bars}
+    <line x1="0" x2="${W}" y1="${uy}" y2="${uy}" class="usual" stroke-dasharray="3 4"/>
+    <text x="0" y="${(+uy - 6).toFixed(1)}" text-anchor="start" font-size="11" class="bar-label">Usual ${eur(c.usual)}</text>
+  </svg>`;
+}
+function categoryPage(c) {
+  const diff = c.amt - c.usual;
+  const vs = Math.abs(diff) < 10 ? `about the same as a normal month (${eur(c.usual)})` : diff > 0 ? `${eur(diff)} more than a normal month (${eur(c.usual)})` : `${eur(-diff)} less than a normal month (${eur(c.usual)})`;
+  return `
+    <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
+    <div class="detail">
+      <div><div style="display:flex;gap:14px;align-items:center">${tile({ icon: c.icon, bg: c.color }, 44)}<h1>${c.name}</h1></div>
+        <p class="body" style="margin-top:10px">${c.note}</p></div>
+      <div>
+        <div class="section-h" style="padding:0 0 4px">August so far</div>
+        <div class="big"><span class="num"><span class="cur">€</span>${fmt(c.amt)}</span>${c.warn ? `<span class="tag warn" style="margin-left:10px">${c.tag}</span>` : ''}</div>
+        <p class="body" style="margin-top:8px">That's ${vs}.</p>
+      </div>
+      ${categoryChart(c)}
+      <div>
+        <div class="section-h" style="padding:0 0 4px">Where it went</div>
+        <div class="list">${c.where.map(w => `
+          <div class="row" style="--inset:16px">
+            <span class="grow"><div class="t" style="font-size:16px">${esc(w.t)}</div><div class="s">${esc(w.s)}</div></span>
+            <span class="v">${eur(w.v)}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+      ${c.ask ? `<button class="btn gray" data-act="ask-chat" data-q="${esc(c.ask)}">${icon('sparkles', 18)} Ask Cushion about this</button>` : ''}
+    </div>`;
+}
 const FIXES = [
   { id: 'parking', name: 'Duplicate parking charge', note: 'Q-Park refund · 19 Aug', amt: 46.01, ready: () => true },
 ];
@@ -1224,12 +1290,13 @@ function renderMoney() {
         <h2 class="section-h" style="margin:0">Where August went</h2>
         <p class="lede" style="margin:0 4px 10px;max-width:none">Eating out is €130 above a normal month. Everything else is on track.</p>
         <div class="list">${SPEND.map(r => `
-          <div class="row" style="--inset:58px">
+          <button class="row" data-act="open-category" data-id="${r.id}" style="--inset:58px">
             ${tile({ icon: r.icon, bg: r.color }, 30)}
             <span class="grow t">${r.name}</span>
             <span class="tag${r.warn ? ' warn' : ''}">${r.tag}</span>
-            <span class="v" style="min-width:64px;text-align:right">${eur(r.amt)}</span>
-          </div>`).join('')}
+            <span class="v" style="min-width:56px;text-align:right">${eur(r.amt)}</span>
+            <span class="chev" aria-hidden="true">${I.chev}</span>
+          </button>`).join('')}
         </div>
       </div>
       <div>
@@ -1799,7 +1866,7 @@ function reply(q) {
   if (/\b(eat|eating|ate|coffee|bonanza|café|cafe|cafes|restaurants?|dining)\b/.test(s)) {
     return { title: 'Eating out', emoji: 'coffee', paras: [
       'Eating out is at €620 for August, €130 more than a normal month for you.',
-      'Most of the gap is Bonanza Coffee: 14 visits and €94 so far. Everything else in the category looks usual.'] };
+      'The biggest part of the gap is Bonanza Coffee: 14 visits and €94 so far, against about 5 visits in a normal month. Delivery is up a little too, and everything else looks usual.'] };
   }
   if (/iceland|goal|saving/.test(s)) {
     const ic = S.iceland, rem = r2(ic.goal - ic.saved), m = Math.ceil(rem / ic.monthly);
@@ -2104,6 +2171,8 @@ const H = {
   'close-sheet'() { if (sheetEl && performance.now() - sheetEl.at < 350) return; requestCloseSheet(); },
   ask(el) { send(el.dataset.q); },
   send() { send($('#chat-input').value); },
+  'open-category'(el) { const c = SPEND.find(x => x.id === el.dataset.id); if (c) push(() => categoryPage(c), { kind: 'category' }); },
+  'ask-chat'(el) { const q = el.dataset.q; selectTab('chat'); send(q); },
   'chat-back'() { const t = S.prevTab && S.prevTab !== 'chat' ? S.prevTab : 'today'; selectTab(t); const b = $(`.tab[data-tab="${t}"]`); b && b.focus({ preventScroll: true }); },
   voice() { voiceSheet(); },
   about() {
