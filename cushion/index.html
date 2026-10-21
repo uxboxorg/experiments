@@ -853,6 +853,13 @@ button.row[disabled] { cursor: default; }
 /* Liquid Glass stays on navigation; the chat composer is a plain field */
 .composer { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: inset 0 0 0 1px var(--stroke), 0 6px 20px rgba(0, 0, 0, .08); }
 .composer:focus-within { outline: none; box-shadow: inset 0 0 0 2px var(--accent), 0 6px 20px rgba(0, 0, 0, .08); }
+
+/* Swipe-to-remove rows */
+.swipe { position: relative; }
+.swipe > .row { background: var(--card); z-index: 1; touch-action: pan-y; transition: transform .35s cubic-bezier(.32, .72, 0, 1); }
+.swipe + .swipe > .row::before { content: ""; position: absolute; top: 0; right: 0; left: var(--inset, 16px); height: .5px; background: var(--sep); }
+.swipe-action { position: absolute; top: 0; right: 0; bottom: 0; width: 88px; display: flex; align-items: center; justify-content: center; background: var(--red); color: #FFFFFF; font-size: 15px; font-weight: 600; border: 0; }
+@media (prefers-reduced-motion: reduce) { .swipe > .row { transition: none; } }
 </style>
 </head>
 <body>
@@ -1425,12 +1432,13 @@ function accountsPage() {
     <div class="detail">
       <h1 class="page-title">Accounts</h1>
       <div class="list" style="border-radius:28px">${S.accounts.map(a => `
+        <div class="swipe${PROTECTED[a.id] ? ' locked' : ''}" style="--inset:${ed ? 98 : 64}px">${!ed && !PROTECTED[a.id] ? `<button class="swipe-action" data-act="remove-account" data-id="${a.id}" tabindex="-1" aria-hidden="true">Remove</button>` : ''}
         <div class="row${ed ? ' editing' : ''}" data-acct="${a.id}" tabindex="-1" style="--inset:${ed ? 98 : 64}px;min-height:64px">
           ${ed ? (PROTECTED[a.id] ? '<span class="rm-spacer" aria-hidden="true"></span>' : `<button class="row-remove" data-act="remove-account" data-id="${a.id}" aria-label="Remove ${esc(a.name)}">${MINUS}</button>`) : ''}
           ${tile(a.logo, 36)}
           <span class="grow"><div class="t" style="font-size:16px">${esc(a.name)}</div><div class="s">${ed && PROTECTED[a.id] ? PROTECTED[a.id] : `${esc(a.sub)} ···· ${a.mask}`}</div></span>
           <span class="v">${eur(a.bal)}</span>
-        </div>`).join('')}
+        </div></div>`).join('')}
       </div>
       ${ed ? `<p class="foot" style="text-align:left;margin-top:-10px">Your current account and Lena's Stash stay connected, because your pay and the Iceland goal depend on them.</p>` : ''}
       <div class="list accounts-total" style="border-radius:22px"><div class="row"><span class="grow t" style="font-size:16px">Total</span><span class="v" style="font-weight:600">${eur(net())}</span></div></div>
@@ -1650,7 +1658,7 @@ async function requestCloseSheet() {
   }
   closeSheet();
 }
-let shieldUntil = 0, swipeReset = null;
+let shieldUntil = 0, swipeReset = null, closeSwipes = null;
 function closeSheet(instant) {
   if (!sheetEl) return;
   shieldUntil = performance.now() + 350;
@@ -2012,7 +2020,8 @@ const H = {
     if (!a || PROTECTED[a.id]) return;
     const what = a.kind === 'cash' ? `Its ${eur(a.bal)} leaves your total and today's safe-to-spend.` : a.kind === 'owed' ? `Its ${eur(-a.bal)} balance leaves your total.` : `Its ${eur(a.bal)} leaves your total.`;
     const ok = await alertBox({ sheet: true, title: `Remove ${a.name}?`, msg: `${what} You can add it back from Add Account.`, actions: [{ label: 'Remove Account', style: 'destructive', value: true }, { label: 'Cancel', value: false }] });
-    if (!ok || !S.accounts.includes(a)) return;
+    closeSwipes && closeSwipes();
+    if (!ok || !S.accounts.includes(a)) { const row = $(`.page:last-child [data-acct="${a.id}"]`); if (el.classList.contains('swipe-action') && row) row.focus({ preventScroll: true }); return; }
     const i = S.accounts.indexOf(a);
     S.accounts.splice(i, 1);
     S.linked = S.linked.filter(l => l.name !== a.name);
@@ -2259,6 +2268,44 @@ selectTab('today');
   new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; scan(); }); } })
     .observe(app, { childList: true, subtree: true });
   scan();
+})();
+
+/* Swipe a row left to remove an account, like a UITableView row */
+(() => {
+  const W = 88;
+  let d = null, open = null;
+  const set = (row, x, anim) => {
+    row.style.transition = anim ? '' : 'none';
+    row.style.transform = x ? `translateX(${x}px)` : '';
+    const a = row.parentElement.querySelector('.swipe-action'); if (a) a.style.width = Math.max(W, -x) + 'px';
+  };
+  closeSwipes = () => { if (open) { set(open, 0, true); open = null; } };
+  $('#pages').addEventListener('pointerdown', e => {
+    const row = e.target.closest('.swipe > .row');
+    if (open && row !== open && !e.target.closest('.swipe-action')) closeSwipes();
+    if (!row || e.button || S.editAccts || e.target.closest('button')) return;
+    if (e.clientX - row.getBoundingClientRect().left < 28) return; // the screen edge belongs to swipe-back
+    d = { row, x0: e.clientX, y0: e.clientY, base: open === row ? -W : 0, x: open === row ? -W : 0, on: false, id: e.pointerId, locked: row.parentElement.classList.contains('locked') };
+  });
+  window.addEventListener('pointermove', e => {
+    if (!d || e.pointerId !== d.id) return;
+    const dx = e.clientX - d.x0, dy = e.clientY - d.y0;
+    if (!d.on) { if (Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx)) { d = null; return; } if (Math.abs(dx) < 8) return; d.on = true; }
+    let x = Math.min(0, d.base + dx);
+    if (d.locked) x = Math.max(-24, x / 3); // protected accounts only give a little
+    d.x = x; set(d.row, x, false);
+  });
+  const end = e => {
+    if (!d || (e && e.pointerId !== d.id)) return;
+    const { row, x, on, locked } = d; d = null;
+    if (!on) return;
+    const w = row.getBoundingClientRect().width;
+    if (locked) { set(row, 0, true); return; }
+    if (x < -w * .55) { set(row, -W, true); open = row; const a = row.parentElement.querySelector('.swipe-action'); if (a) H['remove-account'](a); return; }
+    if (x < -W / 2) { set(row, -W, true); open = row; } else { set(row, 0, true); if (open === row) open = null; }
+  };
+  window.addEventListener('pointerup', end);
+  window.addEventListener('pointercancel', end);
 })();
 
 /* Swipe from the left edge to go back */
