@@ -1313,8 +1313,9 @@ function chartSVG(fc) {
   const label = eur(fc.pre.bal);
   const lw = label.length * 7 + 14;
   const below = ly + 30 < H - padB && Math.abs((ly + 20) - cy) > 12;
-  const pillY = below ? ly + 10 : ly - 30;
-  const pillX = Math.min(W - lw - 2, Math.max(2, lx - lw / 2));
+  // Keep the label off the steps that lead into the low point: below it, or above and to the right
+  const pillY = below ? ly + 10 : ly - 28;
+  const pillX = below ? Math.min(W - lw - 2, Math.max(2, lx - lw / 2)) : (lx + 8 + lw < W - 2 ? lx + 8 : Math.max(2, lx - 8 - lw));
   const mid = (fc.pre.day > 4 && fc.pre.day < 18) ? fc.pre.day : 8;
   const ticks = [0, mid, 22, 37].map(i => `<text x="${x(i).toFixed(1)}" y="${H - 4}" font-size="11" fill="rgba(255,255,255,.85)" text-anchor="${i === 0 ? 'start' : i === 37 ? 'end' : 'middle'}">${dayLabel(i)}</text>`).join('');
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-describedby="bills-list" aria-label="Projected balance in ${cashWord()} from 24 August to 30 September. Thinnest moment before pay day: ${label} on ${dayLabel(fc.pre.day)}.">
@@ -1350,7 +1351,7 @@ function monthPage() {
   if (S.carLate) {
     const moved = fc.pre.day !== other.pre.day;
     const where = sep(2) < fc.payIdx && sep(6) === fc.payIdx ? ' Car insurance now lands on pay day, after your salary.' : sep(2) < fc.payIdx && sep(6) > fc.payIdx ? ' Car insurance now lands after pay day.' : (gain > 0 && other.pre.day === sep(2) && fc.pre.day === sep(6)) ? '' : moved ? ` The low point moves from ${dayLabel(other.pre.day)} to ${dayLabel(fc.pre.day)}.` : '';
-    explain += gain > 0 ? (other.pre.day === sep(2) && fc.pre.day === sep(6) ? ` With car insurance on the 6th, your €370 freelance invoice lands first, so your low point rises by ${eur(gain)}.${where}` : ` Moving car insurance to the 6th lifts that low point by ${eur(gain)}.${where}`) : gain < 0 ? ` Moving car insurance to the 6th lowers that low point by ${eur(-gain)}.${where}` : ` Moving car insurance to the 6th doesn't change that low point.${where}`;
+    explain += gain > 0 ? (other.pre.day === sep(2) && fc.pre.day === sep(6) ? ` Your €370 freelance invoice lands before the insurance, so your low point rises by ${eur(gain)}.${where}` : ` Moving car insurance to the 6th lifts that low point by ${eur(gain)}.${where}`) : gain < 0 ? ` Moving car insurance to the 6th lowers that low point by ${eur(-gain)}.${where}` : ` Moving car insurance to the 6th doesn't change that low point.${where}`;
     if (sfNow.safe !== sfOther.safe) explain += ` Today's safe-to-spend would ${sfNow.safe > sfOther.safe ? 'rise' : 'fall'} from ${eur(sfOther.safe, 2)} to ${eur(sfNow.safe, 2)}.`;
   }
   const bills = fc.ev.map(e => `
@@ -1368,7 +1369,7 @@ function monthPage() {
       </div>
       <div>
         <div class="section-h" style="padding:0 0 8px">Your thinnest moment before pay day</div>
-        <div class="big"><span class="num"><span class="cur">€</span>${fmt(fc.pre.bal)}</span><span class="of">${onDay(fc.pre.day)}${S.carLate && gain > 0 && fc.pre.day === sep(6) ? ' with a later payment' : ''}</span></div>
+        <div class="big"><span class="num"><span class="cur">€</span>${fmt(fc.pre.bal)}</span><span class="of">${onDay(fc.pre.day)}</span></div>
         <p class="body" style="margin-top:12px;font-size:15px">${explain}</p>
       </div>
       ${chartSVG(fc)}
@@ -1715,7 +1716,7 @@ function reply(q) {
     const list = hits.length > 1 ? `${hits.slice(0, -1).join(', ')} and ${hits[hits.length - 1]}` : hits[0];
     const why = hits.length ? `${list.replace(/^./, c => c.toUpperCase())} ${hits.length === 1 ? 'lands' : hits.length === 2 ? 'both land' : 'all land'} by ${thin}.` : `Your money is lowest ${onThin}.`;
     return { title: 'The March flight', emoji: 'plane', paras: [
-      `Yes, if you book it after pay day on the ${pay}. ${why} Before everyday spending you'd have ${eur(preBal)} ${lowDay}. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €600 for the flight, and ${after < 0 ? `you'd be overdrawn by ${eur(-after)}` : `you'd be at ${eur(after)}, under your comfort line`}.`,
+      `Not today, but yes after pay day on the ${pay}. ${why} If you booked today: before everyday spending you'd have ${eur(preBal)} ${lowDay}. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €600 for the flight, and ${after < 0 ? `you'd be overdrawn by ${eur(-after)}` : `you'd be at ${eur(after)}, under your comfort line`}.`,
       sf.limitedByCash ? `After pay day the flight no longer competes with this stretch.` : `Wait until then and you keep your full ${eur(sf.safe, 2)} a day.`] };
   }
   if (/\b(eat|eating|ate|coffee|bonanza|café|cafe|cafes|restaurants?|dining)\b/.test(s)) {
@@ -1814,7 +1815,7 @@ function fixesSheet() {
         <div class="row"><span class="grow t" style="font-size:16px">Ready to move</span><span class="v" style="font-weight:600">${eur(avail, 2)}</span></div>
         ${S.fixesSent ? `<div class="row"><span class="grow t" style="font-size:16px">Already sent to Iceland</span><span class="v">${eur(S.fixesSent, 2)}</span></div>` : ''}
       </div>
-      <button class="btn prominent" data-act="fix-to-iceland" ${avail > 0 ? '' : 'disabled'}>Send to Iceland Goal</button>
+      <button class="btn prominent" data-act="fix-to-iceland" ${avail > 0 ? '' : 'disabled'}>Add to Iceland Goal</button>
     </div>`);
 }
 function monthlySheet() {
