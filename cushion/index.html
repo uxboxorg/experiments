@@ -817,6 +817,9 @@ button.row[disabled] { cursor: default; }
 .card-chev { position: absolute; top: 22px; right: 22px; opacity: .7; display: flex; }
 .card-chev.mid { top: auto; bottom: 26px; }
 .slider { height: 44px; }
+.search-wrap { position: relative; }
+#bank-search::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+.search-clear { position: absolute; right: 0; top: 0; width: 44px; height: 100%; min-height: 44px; display: grid; place-items: center; color: var(--label2); background: none; border: 0; }
 .field.search-field { box-shadow: none !important; background: var(--fill2); }
 .field.search-field:focus { box-shadow: inset 0 0 0 2px var(--accent) !important; }
 :root[data-theme="dark"] { --data: #B5C7A5; --olive: #8E9E72; }
@@ -1431,10 +1434,11 @@ function addAccountShell() {
         <h1 class="large-title" style="font-size:28px" data-short="Add Account">Add an account</h1>
         <p class="lede" style="max-width:none">The more I can see, the better I know what's actually safe to spend. Start with the account your pay lands in.</p>
       </div>
-      <label style="position:relative;display:block">
-        <span style="position:absolute;left:12px;top:13px;color:var(--label2)">${I.search}</span>
-        <input id="bank-search" class="field search-field" type="search" placeholder="Search banks and cards" style="padding-left:38px" aria-label="Search banks and cards">
-      </label>
+      <div class="search-wrap">
+        <span style="position:absolute;left:12px;top:13px;color:var(--label2)" aria-hidden="true">${I.search}</span>
+        <input id="bank-search" class="field search-field" type="search" placeholder="Search banks and cards" style="padding-left:38px;padding-right:44px" aria-label="Search banks and cards">
+        <button class="search-clear" type="button" aria-label="Clear search" hidden><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="var(--bg)" stroke-width="2" stroke-linecap="round"/></svg></button>
+      </div>
       <div id="bank-results"></div>
     </div>`;
 }
@@ -1968,7 +1972,10 @@ const H = {
       const res = $('#bank-results', el);
       inp.value = el.q || '';
       res.innerHTML = addAccountPage(inp.value);
-      inp.oninput = () => { el.q = inp.value; res.innerHTML = addAccountPage(inp.value); };
+      const clr = $('.search-clear', el);
+      const upd = () => { el.q = inp.value; res.innerHTML = addAccountPage(inp.value); clr.hidden = !inp.value; };
+      inp.oninput = upd; clr.hidden = !inp.value;
+      clr.onclick = () => { inp.value = ''; upd(); inp.focus(); };
     } });
   },
   'pick-bank'(el) { const b = BANKS.find(x => x.id === el.dataset.id); if (b) push(() => bankPage(b), { kind: 'bank' }); },
