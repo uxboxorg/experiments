@@ -818,7 +818,6 @@ button.row[disabled] { cursor: default; }
 .slider { height: 44px; }
 :root[data-theme="dark"] { --data: #B5C7A5; --olive: #8E9E72; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --data: #B5C7A5; --olive: #8E9E72; } }
-.sheet::before { content: ""; position: absolute; top: 6px; left: 50%; width: 36px; height: 5px; margin-left: -18px; border-radius: 3px; background: var(--label3); pointer-events: none; }
 .card-chev svg { color: var(--label3) !important; }
 .card-media.g-month .card-chev svg { color: rgba(255, 255, 255, .75) !important; }
 :root[data-theme="dark"] .chart rect { fill: #E9EEE2; }
@@ -1369,7 +1368,7 @@ function monthPage() {
       <div class="list" style="padding:4px 16px;border-radius:24px">
         <div class="row picker-row" style="padding-left:0;padding-right:0">
           <label class="grow t" for="payday-pick" style="font-size:16px">Pay day</label>
-          <span class="picker"><select id="payday-pick" aria-label="Pay day of each month">${Array.from({ length: 28 }, (_, i) => `<option value="${i + 1}" ${i + 1 === S.payDay ? 'selected' : ''}>${ord(i + 1)} of the month</option>`).join('')}</select>${I.chev || ''}</span>
+          <span class="picker"><select id="payday-pick" aria-label="Pay day of each month">${Array.from({ length: 28 }, (_, i) => `<option value="${i + 1}" ${i + 1 === S.payDay ? 'selected' : ''}>${ord(i + 1)} of the month</option>`).join('')}</select><svg width="10" height="16" viewBox="0 0 10 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6l3-3 3 3M2 10l3 3 3-3"/></svg></span>
         </div>
       </div>
       <div class="list" style="padding:4px 16px;border-radius:24px">
@@ -2021,6 +2020,7 @@ app.addEventListener('click', e => {
     if (pendingFix.length) return;
     if (stack.some(p => p.modal)) return;
     // Tapping the current tab again goes back to its first screen
+    if (tab.dataset.tab === S.tab && !stack.length) { const pnl = $(`#tab-${S.tab}`); pnl && pnl.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' }); return; }
     if (tab.dataset.tab === S.tab && stack.length) { while (stack.length > 1) { const x = stack.pop(); x.remove(); } pop(true); return; }
     selectTab(tab.dataset.tab); return;
   }
