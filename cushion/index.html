@@ -833,6 +833,18 @@ button.row[disabled] { cursor: default; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --data: #8DBF63; } }
 :root[data-theme="dark"] .card-media.g-iceland .logo-tile { background: #2F5A1A !important; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .card-media.g-iceland .logo-tile { background: #2F5A1A !important; } }
+
+/* UI review: spacing and type consistency */
+.lede { font-size: 16px; }
+.dock { padding-left: 16px; padding-right: 16px; }
+.action h3 { line-height: 1.25; }
+.action p { line-height: 1.4; }
+.action .btns { align-items: center; }
+.action:not(.undo-row):not(.done) { align-content: start; grid-template-rows: auto auto auto 1fr; }
+.action .btns { align-self: end; }
+.legend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; font-size: 13px; }
+.legend span { display: grid; grid-template-columns: 8px 1fr; column-gap: 6px; row-gap: 2px; align-items: center; }
+.legend b { grid-column: 2; font-size: 15px; font-weight: 600; color: var(--label); font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
@@ -1160,14 +1172,14 @@ function renderMoney() {
           <i class="owed" style="flex-grow:${owed}"></i>
         </div>
         <div class="legend">
-          <span><i style="background:var(--olive)"></i>Spending money ${eur(cash)}</span>
-          <span><i style="background:var(--cat-blue)"></i>Put away ${eur(saved)}</span>
-          <span><i class="owed"></i>Owed on cards −${eur(owed)}</span>
+          <span><i style="background:var(--olive)"></i>Spending<b>${eur(cash)}</b></span>
+          <span><i style="background:var(--cat-blue)"></i>Put away<b>${eur(saved)}</b></span>
+          <span><i class="owed"></i>Owed on cards<b>−${eur(owed)}</b></span>
         </div>
       </div>
       <div>
         <h2 class="section-h" style="margin:0">Where August went</h2>
-        <p class="lede" style="margin:0 4px 10px;max-width:none">Eating out is €130 ahead of a normal month for you. Everything else is where it usually sits.</p>
+        <p class="lede" style="margin:0 4px 10px;max-width:none">Eating out is €130 above a normal month. Everything else is on track.</p>
         <div class="list">${SPEND.map(r => `
           <div class="row" style="--inset:58px">
             ${tile({ icon: r.icon, bg: r.color }, 30)}
@@ -1229,8 +1241,8 @@ function spotifyPage() {
   if (S.spotifyCancelled) return `
     <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
     <div class="detail">
-      <h1 data-short="Spotify Plan">Cancel the second Spotify</h1>
-      <p class="body">I cancelled the account opened in March and kept the family plan. The last play on it was 7 June.</p>
+      <div><h1 data-short="Spotify Plan">Cancel the second Spotify</h1>
+      <p class="body" style="margin-top:6px">I cancelled the account opened in March and kept the family plan. The last play on it was 7 June.</p></div>
       <div class="kv"><div><span>Keeping</span><span>Family · €17.99</span></div><div><span>Cancelled</span><span>Individual · €10.99</span></div></div>
       <div class="callout glass">${I.check}<span><b>The second Spotify has been cancelled.</b><br>${spDelta > 0 ? `Your safe-to-spend went up by ${eur(spDelta, 2)} a day.` : sf.limitedByCash ? `Your safe-to-spend stays at ${eur(sf.safe, 2)} for now, because ${cashWord()} ${cashWord() === 'your current account' ? 'is' : 'are'} what limits it until pay day.` : `Your next charge would have ${sep(21) === sf.daysToPay ? 'landed on' : 'come after'} pay day, so the saving shows up in your next pay period.`} You'll save €10.99 a month from 21 September.</span></div>
     </div>
@@ -1241,14 +1253,14 @@ function spotifyPage() {
   return `
     <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
     <div class="detail">
-      <h1 data-short="Spotify Plan">Cancel the second Spotify</h1>
-      <p class="body">I'll cancel the account opened in March and keep the family plan. The last play on it was 7 June.</p>
+      <div><h1 data-short="Spotify Plan">Cancel the second Spotify</h1>
+      <p class="body" style="margin-top:6px">I'll cancel the account opened in March and keep the family plan. The last play on it was 7 June.</p></div>
       <div class="kv">
         <div><span>Keeping</span><span>Family · €17.99</span></div>
         <div><span>Cancelling</span><span>Individual · €10.99</span></div>
         <div><span>Next charge avoided</span><span>21 September</span></div>
       </div>
-      <p class="body" style="font-size:15px">I'll sign in with the passkey you saved, confirm on their site, and screenshot the confirmation. If they push a retention offer I'll bring it back to you instead of accepting.</p>
+      <p class="body">I'll sign in with the passkey you saved, confirm on their site, and screenshot the confirmation. If they push a retention offer I'll bring it back to you instead of accepting.</p>
     </div>
     <div class="dock">
       <p class="foot">Cushion handles it with Spotify for you</p>
@@ -1286,16 +1298,16 @@ function icelandPage() {
       <p class="body">${plan}</p>
       ${late ? `<div class="callout glass">${I.info}<span>That lands after the trip. ${eur(needed)} a month gets you there by February.</span></div>` : ''}
       <div class="stack ice-actions">
-        ${avail > 0 ? `<button class="btn primary" data-act="send-fixes">Add ${eur(avail, 2)} to Iceland</button>` : `<p class="foot" style="font-size:15px;text-align:left">${S.fixesSent ? `Fixes money sent · ${eur(S.fixesSent, 2)}` : 'No fixes money yet'}</p>`}
+        ${avail > 0 ? `<button class="btn primary" data-act="send-fixes">Add ${eur(avail, 2)} to Iceland</button>` : ''}
         <button class="btn gray" data-act="change-monthly">Change Monthly Amount</button>
       </div>
-      <p class="foot" style="text-align:left">Held in Lena's Stash at 3.1%, so it earns while it fills. Nothing here is locked. You can take it back any time.</p>
       <div class="kv">
         <div><span>Monthly transfer</span><span>${ic.paused ? 'Paused' : `${eur(ic.monthly)} · 23 Sep`}</span></div>
         <div><span>Round-ups swept in</span><span>€680 since March</span></div>
         <div><span>Deposit due</span><span>€800 · 12 January</span></div>
         ${S.fixesSent ? `<div><span>Fixes money added</span><span>${eur(S.fixesSent, 2)}</span></div>` : ''}
       </div>
+      <p class="foot" style="text-align:left;margin-top:-8px">Held in Lena's Stash at 3.1%, so it earns while it fills. Nothing here is locked. You can take it back any time.</p>
     </div>
     `;
 }
@@ -1370,7 +1382,7 @@ function monthPage() {
       <div>
         <div class="section-h" style="padding:0 0 8px">Your thinnest moment before pay day</div>
         <div class="big"><span class="num"><span class="cur">€</span>${fmt(fc.pre.bal)}</span><span class="of">${onDay(fc.pre.day)}</span></div>
-        <p class="body" style="margin-top:12px;font-size:15px">${explain}</p>
+        <p class="body" style="margin-top:12px">${explain}</p>
       </div>
       ${chartSVG(fc)}
       <div class="list" style="padding:4px 16px;border-radius:24px">
@@ -1432,7 +1444,7 @@ function addAccountShell() {
     <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
     <div class="content">
       <div>
-        <h1 class="large-title" style="font-size:28px" data-short="Add Account">Add an account</h1>
+        <h1 class="large-title" style="font-size:26px;margin-top:-8px" data-short="Add Account">Add an account</h1>
         <p class="lede" style="max-width:none">The more I can see, the better I know what's actually safe to spend. Start with the account your pay lands in.</p>
       </div>
       <div class="search-wrap">
@@ -1843,8 +1855,8 @@ function bankPage(b) {
   return `
     <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
     <div class="detail bank-detail" data-bank="${b.id}">
-      <div style="display:flex;gap:14px;align-items:center">${tile(b.logo, 52)}<h1>${b.name}</h1></div>
-      <p class="lede" style="margin:0;max-width:none">Here's exactly what Cushion would see from this account.</p>
+      <div><div style="display:flex;gap:14px;align-items:center">${tile(b.logo, 52)}<h1>${b.name}</h1></div>
+      <p class="body" style="margin-top:10px">Here's exactly what Cushion would see from this account.</p></div>
       <div class="perm"><span class="ic ok" style="background:var(--green)">${I.check}</span><b>Balances and transactions</b><p>Balances and history help build a picture of your money.</p></div>
       <div class="perm"><span class="ic ok" style="background:var(--green)">${I.check}</span><b>Merchant names and fees</b><p>Spot duplicate subscriptions, price rises or fees worth checking.</p></div>
       <div class="perm"><span class="ic no" style="background:var(--label3)">${I.x}</span><b>Moving money on its own</b><p>Money only moves when you approve each transfer.</p></div>
