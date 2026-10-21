@@ -731,8 +731,8 @@ button.row[disabled] { cursor: default; }
 .slider::-webkit-slider-thumb { margin-top: -12px; }
 :root { --cat-blue: #2F6FDE; }
 :root[data-theme="dark"] { --cat-blue: #5B9BFF; --green-text: #63D68A; }
-:root[data-theme="dark"] .safe { background: #1E3A10; box-shadow: inset 0 0 0 1px rgba(160, 229, 89, .28); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --cat-blue: #5B9BFF; --green-text: #63D68A; } :root:not([data-theme="light"]) .safe { background: #1E3A10; box-shadow: inset 0 0 0 1px rgba(160, 229, 89, .28); } }
+:root[data-theme="dark"] .safe { background: #1E3A10; box-shadow: inset 0 0 0 1px rgba(241, 244, 236, .12); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --cat-blue: #5B9BFF; --green-text: #63D68A; } :root:not([data-theme="light"]) .safe { background: #1E3A10; box-shadow: inset 0 0 0 1px rgba(241, 244, 236, .12); } }
 :root { --stroke: rgba(14, 15, 12, .56); --red: #D70015; --green-text: var(--label); }
 :root[data-theme="dark"] { --stroke: rgba(241, 244, 236, .46); --red: #FF6961; --green-text: var(--label); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --stroke: rgba(241, 244, 236, .46); --red: #FF6961; --green-text: var(--label); } }
@@ -796,6 +796,34 @@ button.row[disabled] { cursor: default; }
 .chat-wrap { grid-template-columns: minmax(0, 1fr); }
 
 #tab-today .undo-row { margin: 0; border-radius: 22px; background: var(--card); }
+
+/* Round 16 */
+.ice-actions { gap: 10px; }
+.about-link { font-size: 15px; height: 44px; }
+.sheet-head { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 8px; min-height: 44px; }
+.sheet-head:has(.save) { grid-template-columns: 76px 1fr 76px; }
+.sheet-head .close { grid-column: 1; grid-row: 1; order: 0; }
+.sheet-head h2 { grid-column: 2; grid-row: 1; text-align: center; font-family: inherit; font-size: 17px; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sheet-head .save { grid-column: 3; grid-row: 1; margin-left: 0 !important; justify-self: end; }
+.sheet > .sub { text-align: center; }
+.picker { position: relative; display: inline-flex; align-items: center; gap: 4px; color: var(--label2); }
+.picker select { appearance: none; -webkit-appearance: none; border: 0; background: transparent; font: inherit; font-size: 16px; color: var(--label2); text-align: right; padding: 10px 2px 10px 10px; min-height: 44px; cursor: pointer; }
+.picker select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+.split .split-div { width: 2px; background: var(--label3); border-radius: 1px; margin: -3px 2px; }
+.split i.owed, .legend i.owed { background: repeating-linear-gradient(135deg, var(--indigo) 0 3px, transparent 3px 6px); box-shadow: inset 0 0 0 1px var(--indigo); }
+.alert h3 { color: var(--label); }
+.card-chev { position: absolute; top: 22px; right: 22px; opacity: .7; display: flex; }
+.card-chev.mid { top: auto; bottom: 26px; }
+.slider { height: 44px; }
+.card-chev svg { color: var(--label3) !important; }
+.card-media.g-month .card-chev svg { color: rgba(255, 255, 255, .75) !important; }
+:root[data-theme="dark"] .chart rect { fill: #E9EEE2; }
+:root[data-theme="dark"] .chart text[font-weight="600"] { fill: #0E0F0C; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chart rect { fill: #E9EEE2; } :root:not([data-theme="light"]) .chart text[font-weight="600"] { fill: #0E0F0C; } }
+:root[data-theme="dark"] { --data: #8DBF63; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --data: #8DBF63; } }
+:root[data-theme="dark"] .card-media.g-iceland .logo-tile { background: #2F5A1A !important; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .card-media.g-iceland .logo-tile { background: #2F5A1A !important; } }
 </style>
 </head>
 <body>
@@ -1036,7 +1064,7 @@ function restoreFocus(opener, key, fallbacks = []) {
   if (!n) { const t = stack[stack.length - 1]; n = t ? t.querySelector('.nav button') : $('.tab[aria-selected="true"]'); }
   n && n.focus({ preventScroll: true });
 }
-const FALLBACK = ['.page:last-child .dock button:not([disabled])', '.page:last-child .nav button', '.action .review-pill', '#all-done', '.tab[aria-selected="true"]'];
+const FALLBACK = ['.page:last-child .dock button:not([disabled])', '.page:last-child .ice-actions button', '.page:last-child .nav button', '.action .review-pill', '#all-done', '.tab[aria-selected="true"]'];
 function keepFocus(fn) {
   const a = document.activeElement;
   const key = a && a !== document.body && (a.id ? '#' + a.id : a.dataset && a.dataset.act ? `[data-act="${a.dataset.act}"]${a.dataset.id ? `[data-id="${a.dataset.id}"]` : ''}` : null);
@@ -1115,12 +1143,13 @@ function renderMoney() {
         <div class="split" style="margin-top:14px" aria-hidden="true">
           <i style="flex-grow:${cash};background:var(--olive)"></i>
           <i style="flex-grow:${saved};background:var(--cat-blue)"></i>
-          <i style="flex-grow:${owed};background:var(--indigo)"></i>
+          <b class="split-div"></b>
+          <i class="owed" style="flex-grow:${owed}"></i>
         </div>
         <div class="legend">
           <span><i style="background:var(--olive)"></i>Spending money ${eur(cash)}</span>
           <span><i style="background:var(--cat-blue)"></i>Put away ${eur(saved)}</span>
-          <span><i style="background:var(--indigo)"></i>Owed on cards ${eur(owed)}</span>
+          <span><i class="owed"></i>Owed on cards −${eur(owed)}</span>
         </div>
       </div>
       <div>
@@ -1137,7 +1166,7 @@ function renderMoney() {
       </div>
       <div>
         <h2 class="section-h" style="margin:0">Coming up</h2>
-        <button class="card-media g-month" data-act="open-month">
+        <button class="card-media g-month" data-act="open-month"><span class="card-chev mid" aria-hidden="true">${I.chev}</span>
           <span class="pct">Pay day ${dayLabel(fc.payIdx)}</span>
           <span style="font-size:13px;opacity:.9">The month ahead · thinnest moment</span>
           <span class="ttl">${eur(fc.pre.bal)} ${onDay(fc.pre.day)}</span>
@@ -1146,7 +1175,7 @@ function renderMoney() {
       </div>
       <div>
         <h2 class="section-h" style="margin:0">Savings</h2>
-        <button class="card-media g-iceland" data-act="open-iceland">
+        <button class="card-media g-iceland" data-act="open-iceland"><span class="card-chev" aria-hidden="true">${I.chev}</span>
           <span aria-hidden="true">${tile({ icon: 'mountain-snow', bg: 'var(--forest)' }, 40)}</span>
           <span class="ttl">Iceland · February trip</span>
           <span style="font-size:13px;opacity:.9">${pct}% · ${eur(ic.saved)} of ${eur(ic.goal)}${ic.paused ? ' · Paused' : ''}</span>
@@ -1162,7 +1191,7 @@ function renderChat() {
   const c = S.chat;
   const head = c.title
     ? `<div class="chat-title pinned"><h1><span aria-hidden="true" style="display:inline-flex">${icon(c.emoji, 22)}</span>${esc(c.title)}</h1><button class="circle-btn glass on-media" data-act="clear-chat" ${c.busy ? 'disabled' : ''} style="width:auto;padding:0 14px;border-radius:99px;font-size:15px;font-weight:600">New Chat</button></div>`
-    : `<div class="chat-title"><h1 class="large-title">Chat</h1></div><p class="lede" style="margin:-10px 0 0;max-width:30ch">Ask about a purchase, a bill or a goal. I answer from your sample accounts.</p>`;
+    : `<div class="chat-title"><h1 class="large-title">Chat</h1></div><p class="lede" style="margin:-10px 0 0;max-width:30ch">Ask about a purchase, a bill or a goal. I answer from your connected accounts.</p>`;
   const body = c.msgs.map((m, i) => m.role === 'user'
     ? `<div class="bubble-user">${esc(m.text)}</div>`
     : `<div class="ai" id="ai-${i}">${m.typing ? '<div class="typing" aria-label="Cushion is typing"><i></i><i></i><i></i></div>' : m.paras.map(p => `<p>${esc(p)}</p>`).join('')}</div>`).join('');
@@ -1193,7 +1222,7 @@ function spotifyPage() {
       <div class="callout glass">${I.check}<span><b>The second Spotify has been cancelled.</b><br>${spDelta > 0 ? `Your safe-to-spend went up by ${eur(spDelta, 2)} a day.` : sf.limitedByCash ? `Your safe-to-spend stays at ${eur(sf.safe, 2)} for now, because ${cashWord()} ${cashWord() === 'your current account' ? 'is' : 'are'} what limits it until pay day.` : `Your next charge would have ${sep(21) === sf.daysToPay ? 'landed on' : 'come after'} pay day, so the saving shows up in your next pay period.`} You'll save €10.99 a month from 21 September.</span></div>
     </div>
     <div class="dock">
-      <p class="foot">Completed in the local demo</p>
+      <p class="foot">Spotify confirmed the cancellation</p>
       <button class="btn primary" data-act="back">Done</button>
     </div>`;
   return `
@@ -1209,7 +1238,7 @@ function spotifyPage() {
       <p class="body" style="font-size:15px">I'll sign in with the passkey you saved, confirm on their site, and screenshot the confirmation. If they push a retention offer I'll bring it back to you instead of accepting.</p>
     </div>
     <div class="dock">
-      <p class="foot">Local demo · No provider or bank will be contacted</p>
+      <p class="foot">Cushion handles it with Spotify for you</p>
       <button class="btn primary" data-act="confirm-spotify">End It for Me</button>
     </div>`;
 }
@@ -1243,6 +1272,10 @@ function icelandPage() {
       </div>
       <p class="body">${plan}</p>
       ${late ? `<div class="callout glass">${I.info}<span>That lands after the trip. ${eur(needed)} a month gets you there by February.</span></div>` : ''}
+      <div class="stack ice-actions">
+        ${avail > 0 ? `<button class="btn primary" data-act="send-fixes">Send Fixes Money Here · ${eur(avail, 2)}</button>` : `<p class="foot" style="font-size:15px;text-align:left">${S.fixesSent ? `Fixes money sent · ${eur(S.fixesSent, 2)}` : 'No fixes money yet'}</p>`}
+        <button class="btn gray" data-act="change-monthly">Change Monthly Amount</button>
+      </div>
       <p class="foot" style="text-align:left">Held in Lena's Stash at 3.1%, so it earns while it fills. Nothing here is locked. You can take it back any time.</p>
       <div class="kv">
         <div><span>Monthly transfer</span><span>${ic.paused ? 'Paused' : `${eur(ic.monthly)} · 23 Sep`}</span></div>
@@ -1251,11 +1284,7 @@ function icelandPage() {
         ${S.fixesSent ? `<div><span>Fixes money added</span><span>${eur(S.fixesSent, 2)}</span></div>` : ''}
       </div>
     </div>
-    <div class="dock dock-flow">
-      ${avail > 0 ? `<button class="btn primary" data-act="send-fixes">Send Fixes Money Here · ${eur(avail, 2)}</button>` : `<p class="foot" style="font-size:15px">${S.fixesSent ? `Fixes money sent · ${eur(S.fixesSent, 2)}` : 'No fixes money yet'}</p>`}
-      <button class="btn plain" data-act="change-monthly">Change Monthly Amount</button>
-      <p class="foot">Local demo · Sample balances only</p>
-    </div>`;
+    `;
 }
 
 function chartSVG(fc) {
@@ -1321,7 +1350,7 @@ function monthPage() {
     <div class="detail">
       <div>
         <h1>The month ahead</h1>
-        <p class="body" style="margin-top:6px">Every sample bill, in the order it lands, with a little more room to breathe.</p>
+        <p class="body" style="margin-top:6px">Every bill, in the order it lands, with a little more room to breathe.</p>
       </div>
       <div>
         <div class="section-h" style="padding:0 0 8px">Your thinnest moment before pay day</div>
@@ -1329,22 +1358,22 @@ function monthPage() {
         <p class="body" style="margin-top:12px;font-size:15px">${explain}</p>
       </div>
       ${chartSVG(fc)}
-      <div class="list" style="padding:12px 16px;display:grid;gap:10px;border-radius:24px">
-        <label for="payday" style="font-size:15px">Pay day of each month</label>
-        <input id="payday" class="field" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-describedby="payday-err" ${S.payErr ? 'aria-invalid="true"' : ''} value="${S.payDraft != null ? esc(S.payDraft) : S.payDay}">
-        <p class="field-err" id="payday-err" role="alert">${S.payErr || ''}</p>
-        <button class="pill tinted" data-act="save-payday" style="justify-self:start" ${S.payErr ? 'disabled' : ''}>Save Pay Day</button>
+      <div class="list" style="padding:4px 16px;border-radius:24px">
+        <div class="row picker-row" style="padding-left:0;padding-right:0">
+          <label class="grow t" for="payday-pick" style="font-size:16px">Pay day</label>
+          <span class="picker"><select id="payday-pick" aria-label="Pay day of each month">${Array.from({ length: 28 }, (_, i) => `<option value="${i + 1}" ${i + 1 === S.payDay ? 'selected' : ''}>${ord(i + 1)} of the month</option>`).join('')}</select>${I.chev || ''}</span>
+        </div>
       </div>
       <div class="list" style="padding:4px 16px;border-radius:24px">
         <div class="row" style="padding-left:0;padding-right:0">
-          <label class="grow" for="car-late"><div class="t" style="font-size:16px">Try car insurance on the 6th</div><div class="s">Compare a later sample payment</div></label>
+          <label class="grow" for="car-late"><div class="t" style="font-size:16px">Try car insurance on the 6th</div><div class="s">See how a later payment changes things</div></label>
           <span class="switch"><input id="car-late" type="checkbox" role="switch" ${S.carLate ? 'checked' : ''}><span></span></span>
         </div>
       </div>
       <div>
-        <div class="section-h" style="padding:0 0 4px">Selected sample bills</div>
+        <div class="section-h" style="padding:0 0 4px">Bills before pay day</div>
         <div class="plain-rows" id="bills-list">${bills}</div>
-        <p class="foot" style="margin-top:14px">Starts from ${eur(fc.start)} in ${cashWord()}. Bills and pay only; everyday spending comes out of safe-to-spend. Local forecast only, bank payment dates stay unchanged.</p>
+        <p class="foot" style="margin-top:14px">Starts from ${eur(fc.start)} in ${cashWord()}. Bills and pay only; everyday spending comes out of safe-to-spend. This only changes the forecast, not when your bank pays.</p>
       </div>
     </div>`;
 }
@@ -1364,7 +1393,7 @@ function accountsPage() {
       <div class="list accounts-total" style="border-radius:22px"><div class="row"><span class="grow t" style="font-size:16px">Total</span><span class="v" style="font-weight:600">${eur(net())}</span></div></div>
       <button class="btn tinted" data-act="add-account">${I.plus} Add Account</button>
       <p class="foot">Sample accounts · All balances are fictional</p>
-      <button class="pill tinted" data-act="about" style="justify-self:center">About This Prototype</button>
+      <button class="btn plain about-link" data-act="about">About This Prototype</button>
     </div>`;
 }
 
@@ -1685,7 +1714,7 @@ function reply(q) {
       ? `You can spend ${eur(sf.safe, 2)} today. Your budget allows ${eur(sf.budget, 2)}, but I held it back so ${cashWord()} ${cashWord() === 'your current account' ? "doesn't" : "don't"} drop below €1,000 ${onThin}.`
       : `You can spend ${eur(sf.safe, 2)} today. That's your flexible budget for the day, and ${cashWord()} ${cashStay()} above €1,000 ${onThin}.`] };
   }
-  return { title: 'Your question', emoji: 'message-circle', paras: ['In this demo I can only see the sample accounts. Try asking about a €600 flight, the dental bill, eating out or the Iceland goal.'] };
+  return { title: 'Your question', emoji: 'message-circle', paras: ['I can help with purchases, bills and goals. Try asking about a €600 flight, the dental bill, eating out or the Iceland goal.'] };
 }
 async function send(text) {
   text = (text || '').trim();
@@ -1735,9 +1764,9 @@ async function removeAction(id) {
 }
 function txSheet(t) {
   openSheet(`
-    <div class="sheet-head">${tile(t.logo, 48)}<button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
+    <div class="sheet-head"><h2 data-title>${t.name}</h2><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
     <div class="body">
-      <div><h2 data-title>${t.name}</h2><p class="sub">${t.when} · ${t.cat}</p></div>
+      <div style="display:flex;gap:14px;align-items:center">${tile(t.logo, 48)}<p class="sub" style="margin:0">${t.when} · ${t.cat}</p></div>
       <div class="num" style="font-size:44px;letter-spacing:-.02em">${eur(t.amt, 2)}</div>
       <div class="callout" style="background:var(--fill)">${I.info}<span>${t.id === 'sp' && S.spotifyCancelled ? 'Cancelled today. This was the last charge on this plan.' : t.insight}</span></div>
     </div>`);
@@ -1773,7 +1802,7 @@ function monthlySheet() {
     return `About ${m} month${m === 1 ? '' : 's'} to go${m > 6 ? ', which lands after the February trip.' : ', in time for February.'}`;
   };
   openSheet(`
-    <div class="sheet-head centered"><h2 data-title>Monthly amount</h2><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button><button class="pill save" style="background:var(--lime);color:var(--forest);height:44px" data-act="save-monthly">Save</button></div>
+    <div class="sheet-head"><h2 data-title>Monthly amount</h2><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button><button class="pill save" style="background:var(--lime);color:var(--forest);height:44px" data-act="save-monthly">Save</button></div>
     <p class="sub">${ic.paused ? 'Transfers are paused. Saving a new amount resumes them on 23 Sep.' : 'Moves from your Sparkasse current account to Lena\'s Stash on the 23rd.'}</p>
     <div class="body">
       <div class="num" style="font-size:52px;text-align:center"><span class="cur">€</span><span id="m-val">${ic.monthly}</span></div>
@@ -1790,21 +1819,22 @@ function bankPage(b) {
     <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
     <div class="detail bank-detail" data-bank="${b.id}">
       <div style="display:flex;gap:14px;align-items:center">${tile(b.logo, 52)}<h1>${b.name}</h1></div>
-      <p class="lede" style="margin:0;max-width:none">Here's exactly what I'd see from this account. Sample data only.</p>
-      <div class="perm"><span class="ic ok" style="background:var(--green)">${I.check}</span><b>Balances and transactions</b><p>Sample balances and history help build a picture of your money.</p></div>
+      <p class="lede" style="margin:0;max-width:none">Here's exactly what Cushion would see from this account.</p>
+      <div class="perm"><span class="ic ok" style="background:var(--green)">${I.check}</span><b>Balances and transactions</b><p>Balances and history help build a picture of your money.</p></div>
       <div class="perm"><span class="ic ok" style="background:var(--green)">${I.check}</span><b>Merchant names and fees</b><p>Spot duplicate subscriptions, price rises or fees worth checking.</p></div>
-      <div class="perm"><span class="ic no" style="background:var(--label3)">${I.x}</span><b>Moving money out</b><p>This local preview cannot access or move money at a bank.</p></div>
-      <div class="perm"><span class="ic no" style="background:var(--label3)">${I.x}</span><b>Selling or sharing your data</b><p>No account details or demo changes leave this browser.</p></div>
+      <div class="perm"><span class="ic no" style="background:var(--label3)">${I.x}</span><b>Moving money out</b><p>Cushion can't move money at your bank.</p></div>
+      <div class="perm"><span class="ic no" style="background:var(--label3)">${I.x}</span><b>Selling or sharing your data</b><p>Your data is never sold or shared.</p></div>
       <div class="stack">
         <button class="btn prominent" data-act="link-bank" data-id="${b.id}">Continue with ${b.name}</button>
-        <button class="btn plain" data-act="back">Not Now</button>
+        <button class="btn gray" data-act="back">Not Now</button>
       </div>
     </div>`;
 }
 function voiceSheet() {
   if (S.chat.busy) return;
   openSheet(`
-    <div class="sheet-head"><span><h2 data-title style="font-size:17px">Voice demo</h2><p class="sub" style="margin:2px 0 0;font-size:13px">No microphone used. Review and edit the sample transcript.</p></span><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
+    <div class="sheet-head"><h2 data-title>Voice</h2><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
+    <p class="sub">Review the transcript before it's sent. No microphone is used here.</p>
     <div class="body">
       <div style="display:flex;gap:4px;align-items:center;justify-content:center;height:36px" aria-hidden="true">${Array.from({ length: 24 }, (_, i) => `<i style="width:3px;border-radius:2px;background:currentColor;opacity:.7;height:${8 + Math.round(Math.abs(Math.sin(i * 1.7)) * 24)}px"></i>`).join('')}</div>
       <textarea id="voice-text" class="field" rows="3" style="height:auto;padding:12px 14px;resize:none;line-height:1.4" aria-label="Transcript" aria-describedby="voice-err" autofocus>I just got a €1,430 dental bill. Can I actually pay this?</textarea>
@@ -1821,7 +1851,7 @@ const H = {
   'approve-save': once(async () => {
     if (!S.actions.includes('save')) return;
     const before = safeNow(), after = forecast({ extra: 1200 }), afterSafe = safety(after).safe;
-    const ok = await alertBox({ sheet: true, title: 'Move €1,200 into savings?', msg: `Moves sample money from your Sparkasse current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: 'Move €1,200', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
+    const ok = await alertBox({ sheet: true, title: 'Move €1,200 into savings?', msg: `Moves money from your Sparkasse current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: 'Move €1,200', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
     if (!ok || !S.actions.includes('save')) return;
     await removeAction('save');
     acct('chk').bal -= 1200; acct('stash').bal += 1200;
@@ -1850,7 +1880,7 @@ const H = {
   'open-spotify'() { push(spotifyPage, { media: 'g-teal', kind: 'spotify' }); },
   'confirm-spotify': once(async el => {
     if (S.spotifyCancelled) return;
-    const ok = await alertBox({ sheet: true, title: 'End your second Spotify plan?', msg: 'Sample data only. This updates the balances and suggestions in this browser.', actions: [{ label: 'End Plan', style: 'destructive', value: true }, { label: 'Cancel', value: false }] });
+    const ok = await alertBox({ sheet: true, title: 'End your second Spotify plan?', msg: 'Cushion ends the plan with Spotify and updates your forecast.', actions: [{ label: 'End Plan', style: 'destructive', value: true }, { label: 'Cancel', value: false }] });
     if (!ok || S.spotifyCancelled) return;
     el.innerHTML = '<span class="spinner"></span> Cancelling…'; el.disabled = true;
     await wait(reduced ? 0 : 1100);
@@ -1887,7 +1917,7 @@ const H = {
   'send-fixes': once(async () => {
     const amt = fixesAvailable(); if (amt <= 0) return;
     const before = safeNow(), afterSafe = safety(forecast({ extra: amt })).safe;
-    const ok = await alertBox({ sheet: true, title: `Add ${eur(amt, 2)} to Iceland?`, msg: `Moves sample money from your Sparkasse current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: `Add ${eur(amt, 2)}`, style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
+    const ok = await alertBox({ sheet: true, title: `Add ${eur(amt, 2)} to Iceland?`, msg: `Moves money from your Sparkasse current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: `Add ${eur(amt, 2)}`, style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
     const amt2 = fixesAvailable();
     if (!ok || amt2 <= 0) return;
     const from = S.iceland.saved;
@@ -1989,6 +2019,9 @@ app.addEventListener('click', e => {
   if (!el || el.disabled || el.closest('[inert]')) return;
   const fn = H[el.dataset.act];
   if (fn) fn(el);
+});
+app.addEventListener('change', e => {
+  if (e.target.id === 'payday-pick') { const v = +e.target.value; if (v >= 1 && v <= 28 && v !== S.payDay) { S.payDay = v; refresh(); toast(`Pay day set to the ${ord(v)}`); } }
 });
 app.addEventListener('input', e => {
   if (e.target.id === 'payday') {
