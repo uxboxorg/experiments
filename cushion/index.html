@@ -1346,7 +1346,7 @@ function monthPage() {
   else if (fc.pre.day === 0) { const same = fc.ev.filter(e => e.day === fc.payIdx && e.amt < 0).map(e => e.phrase); explain = same.length ? `Pay lands ${onDay(fc.payIdx)}, the same day as ${joinList(same)}, so your money never dips below where it is today.` : `Pay lands ${onDay(fc.payIdx)} before any bill, so your money never dips below where it is today.`; }
   else if (lowNames.length) explain = `Your thinnest moment comes after ${joinList(lowNames)} on ${dayLabel(fc.pre.day)}.`;
   else explain = `Your bills are spread out enough that no single week gets tight.`;
-  if (sfNow.limitedByCash) explain += ` Today's safe-to-spend is held to ${eur(sfNow.safe, 2)} so ${cashWord()} ${cashWord() === 'your current account' ? "doesn't" : "don't"} drop below €1,000 before pay day.`;
+  if (sfNow.limitedByCash) explain += ` Today's safe-to-spend is held to ${eur(sfNow.safe, 2)} so ${cashWord()} ${cashWord() === 'your current account' ? "doesn't" : "don't"} drop below €1,000 through ${dayLabel(sfNow.bind)}${fc.ev.some(e => e.day === sfNow.bind && e.amt < 0) ? `, after ${fc.ev.filter(e => e.day === sfNow.bind && e.amt < 0).map(e => e.phrase).join(' and ')}` : ''}.`;
   if (S.carLate) {
     const moved = fc.pre.day !== other.pre.day;
     const where = sep(2) < fc.payIdx && sep(6) === fc.payIdx ? ' Car insurance now lands on pay day, after your salary.' : sep(2) < fc.payIdx && sep(6) > fc.payIdx ? ' Car insurance now lands after pay day.' : (gain > 0 && other.pre.day === sep(2) && fc.pre.day === sep(6)) ? '' : moved ? ` The low point moves from ${dayLabel(other.pre.day)} to ${dayLabel(fc.pre.day)}.` : '';
@@ -1364,7 +1364,7 @@ function monthPage() {
     <div class="detail">
       <div>
         <h1>The month ahead</h1>
-        <p class="body" style="margin-top:6px">Every bill and payment until pay day, in the order it lands.</p>
+        <p class="body" style="margin-top:6px">Every bill and payment to 30 Sep, in the order it lands.</p>
       </div>
       <div>
         <div class="section-h" style="padding:0 0 8px">Your thinnest moment before pay day</div>
@@ -1463,6 +1463,7 @@ const lockNav = () => { navBusy = true; setTimeout(() => { navBusy = false; }, M
 function push(render, { modal = false, media = '', onMount, opener, kind } = {}) {
   if (navBusy) return null;
   lockNav();
+  shieldUntil = performance.now() + 300;
   hideToast();
   const el = document.createElement('div');
   // A page pushed from inside a full-screen modal stays inside it, above the tab bar
@@ -1509,6 +1510,7 @@ function pop(force) {
   if (!force && (alertOpen || sheetEl)) return; // never pull a page out from under a sheet or alert
   const el = stack.pop();
   if (!el) return;
+  shieldUntil = performance.now() + 300;
   if (el.kind === 'month') S.carLate = false; // the what-if ends when you leave the page
   lockNav();
   hideToast();
@@ -1706,7 +1708,7 @@ function reply(q) {
       `Not all at once. Before everyday spending you'd have ${eur(preBal)} ${lowDay}. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €1,430 for the bill, and ${preBal - spendToLow - 1430 < 0 ? `you'd be overdrawn by ${eur(-(preBal - spendToLow - 1430))}` : `you'd be at ${eur(preBal - spendToLow - 1430)}, under your €1,000 comfort line`}.`,
       now > 0 ? `Pay ${eur(now)} now and the other ${eur(1430 - now)} after pay day on the ${pay}. Or take it from Lena's Stash, which has ${eur(acct('stash').bal - S.iceland.saved)} outside the Iceland goal.` : `Ask the office to bill you after pay day on the ${pay}, or take it from Lena's Stash, which has ${eur(acct('stash').bal - S.iceland.saved)} outside the Iceland goal.`] };
   }
-  if (/flight|[$€]?600|march|book/.test(s) && !/iceland/.test(s)) {
+  if (/\b(flights?|march|book|booking)\b|(?<![\d,.])€?600(?![\d,.]\d)/.test(s) && !/iceland/.test(s)) {
     const after = preBal - spendToLow - 600;
     if (room >= 600) return { title: 'The March flight', emoji: 'plane', paras: [`Yes. Even if you pay the €600 now, with your usual daily spending you'd keep ${eur(after)} ${lowDay}, ${room === 600 ? 'right at' : 'still above'} your comfort line.`] };
     const hits = fc.ev.filter(e => e.day <= fc.pre.day && e.day > fc.pre.day - 6 && e.amt < 0).map(e => e.phrase);
@@ -1716,7 +1718,7 @@ function reply(q) {
       `Yes, if you book it after pay day on the ${pay}. ${why} Before everyday spending you'd have ${eur(preBal)} ${lowDay}. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €600 for the flight, and ${after < 0 ? `you'd be overdrawn by ${eur(-after)}` : `you'd be at ${eur(after)}, under your comfort line`}.`,
       sf.limitedByCash ? `After pay day the flight no longer competes with this stretch.` : `Wait until then and you keep your full ${eur(sf.safe, 2)} a day.`] };
   }
-  if (/eat|coffee|bonanza|café|cafe|restaurant/.test(s)) {
+  if (/\b(eat|eating|ate|coffee|bonanza|café|cafe|cafes|restaurants?|dining)\b/.test(s)) {
     return { title: 'Eating out', emoji: 'coffee', paras: [
       'Eating out is at €620 for August, €130 more than a normal month for you.',
       'Most of the gap is Bonanza Coffee: 14 visits and €94 so far. Everything else in the category looks usual.'] };
@@ -1995,7 +1997,7 @@ const H = {
     toast(`${b.name} added · ${eur(b.bal)}`);
   },
   back(el) { if (el.closest('.page') !== stack[stack.length - 1]) return; pop(); },
-  'close-sheet'() { if (sheetEl && performance.now() - sheetEl.at < 250) return; requestCloseSheet(); },
+  'close-sheet'() { if (sheetEl && performance.now() - sheetEl.at < 350) return; requestCloseSheet(); },
   ask(el) { send(el.dataset.q); },
   send() { send($('#chat-input').value); },
   voice() { voiceSheet(); },
