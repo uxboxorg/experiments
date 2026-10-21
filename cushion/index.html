@@ -807,7 +807,8 @@ button.row[disabled] { cursor: default; }
 .sheet-head .save { grid-column: 3; grid-row: 1; margin-left: 0 !important; justify-self: end; }
 .sheet > .sub { text-align: center; }
 .picker { position: relative; display: inline-flex; align-items: center; gap: 4px; color: var(--label2); }
-.picker select { appearance: none; -webkit-appearance: none; border: 0; background: transparent; font: inherit; font-size: 16px; color: var(--label2); text-align: right; padding: 10px 2px 10px 10px; min-height: 44px; cursor: pointer; }
+.picker svg { position: absolute; right: 0; pointer-events: none; }
+.picker select { padding-right: 18px !important; appearance: none; -webkit-appearance: none; border: 0; background: transparent; font: inherit; font-size: 16px; color: var(--label2); text-align: right; padding: 10px 2px 10px 10px; min-height: 44px; cursor: pointer; }
 .picker select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
 .split .split-div { width: 2px; background: var(--label3); border-radius: 1px; margin: -3px 2px; }
 .split i.owed, .legend i.owed { background: repeating-linear-gradient(135deg, var(--indigo) 0 3px, transparent 3px 6px); box-shadow: inset 0 0 0 1px var(--indigo); }
@@ -1087,7 +1088,7 @@ function renderToday() {
   const sf = safety();
   const n = S.actions.length;
   const lead = n === 2 ? 'Two things need your action' : n === 1 ? 'One thing needs your action' : 'Nothing needs you today.';
-  const tail = n ? (sf.limitedByCash ? `. Money runs thin ${onDay(sf.fc.pre.day)}.` : '.') : sf.limitedByCash ? ` Money runs thin ${onDay(sf.fc.pre.day)}, so today's number is lower.` : ' Your spend is covered.';
+  const tail = n ? (sf.limitedByCash ? '. Money is tight until pay day.' : '.') : sf.limitedByCash ? " Money is tight until pay day, so today's number is lower." : ' Your spend is covered.';
   const [whole, cents] = sf.safe.toFixed(2).split('.');
   const saveAfter = safety(forecast({ extra: 1200 })).safe;
   const saveLine = saveAfter >= sf.safe ? "today's safe-to-spend stays the same" : `today's safe-to-spend drops to ${eur(saveAfter, 2)}`;
@@ -1451,7 +1452,7 @@ function drainPops() {
   if (queuedPops) setTimeout(drainPops, T);
 }
 let navBusy = false;
-const lockNav = () => { navBusy = true; setTimeout(() => { navBusy = false; }, 350); }; // long enough to swallow a double tap
+const lockNav = () => { navBusy = true; setTimeout(() => { navBusy = false; }, Math.min(350, T + 50)); }; // long enough to swallow a double tap
 function push(render, { modal = false, media = '', onMount, opener, kind } = {}) {
   if (navBusy) return null;
   lockNav();
@@ -1694,7 +1695,7 @@ function reply(q) {
     const short = 1430 - room;
     if (short > 0 && short < 50) return { title: 'The dental bill', emoji: 'stethoscope', paras: [`Just about. Paying €1,430 now and spending your safe-to-spend each day leaves ${eur(preBal - spendToLow - 1430)} ${lowDay}, only ${eur(short)} under your comfort line. A couple of quieter days and you're there.`] };
     return { title: 'The dental bill', emoji: 'stethoscope', paras: [
-      `Not all at once. The month ahead shows ${eur(preBal)} ${lowDay} before everyday spending. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €1,430 for the bill, and ${preBal - spendToLow - 1430 < 0 ? `you'd be overdrawn by ${eur(-(preBal - spendToLow - 1430))}` : `you'd be at ${eur(preBal - spendToLow - 1430)}, under your €1,000 comfort line`}.`,
+      `Not all at once. Before everyday spending you'd have ${eur(preBal)} ${lowDay}. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €1,430 for the bill, and ${preBal - spendToLow - 1430 < 0 ? `you'd be overdrawn by ${eur(-(preBal - spendToLow - 1430))}` : `you'd be at ${eur(preBal - spendToLow - 1430)}, under your €1,000 comfort line`}.`,
       now > 0 ? `Pay ${eur(now)} now and the other ${eur(1430 - now)} after pay day on the ${pay}. Or take it from Lena's Stash, which has ${eur(acct('stash').bal - S.iceland.saved)} outside the Iceland goal.` : `Ask the office to bill you after pay day on the ${pay}, or take it from Lena's Stash, which has ${eur(acct('stash').bal - S.iceland.saved)} outside the Iceland goal.`] };
   }
   if (/flight|[$€]?600|march|book/.test(s) && !/iceland/.test(s)) {
@@ -1704,7 +1705,7 @@ function reply(q) {
     const list = hits.length > 1 ? `${hits.slice(0, -1).join(', ')} and ${hits[hits.length - 1]}` : hits[0];
     const why = hits.length ? `${list.replace(/^./, c => c.toUpperCase())} ${hits.length === 1 ? 'lands' : hits.length === 2 ? 'both land' : 'all land'} by ${thin}.` : `Your money is lowest ${onThin}.`;
     return { title: 'The March flight', emoji: 'plane', paras: [
-      `Yes, if you book it after pay day on the ${pay}. ${why} The month ahead shows ${eur(preBal)} ${lowDay}, but that's before everyday spending. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €600 for the flight, and ${after < 0 ? `you'd be overdrawn by ${eur(-after)}` : `you'd be at ${eur(after)}, under your comfort line`}.`,
+      `Yes, if you book it after pay day on the ${pay}. ${why} Before everyday spending you'd have ${eur(preBal)} ${lowDay}. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €600 for the flight, and ${after < 0 ? `you'd be overdrawn by ${eur(-after)}` : `you'd be at ${eur(after)}, under your comfort line`}.`,
       sf.limitedByCash ? `After pay day the flight no longer competes with this stretch.` : `Wait until then and you keep your full ${eur(sf.safe, 2)} a day.`] };
   }
   if (/eat|coffee|bonanza|café|cafe|restaurant/.test(s)) {
@@ -2017,7 +2018,6 @@ const H = {
 app.addEventListener('click', e => {
   const tab = e.target.closest('.tab');
   if (tab) {
-    if (pendingFix.length) return;
     if (stack.some(p => p.modal)) return;
     // Tapping the current tab again goes back to its first screen
     if (tab.dataset.tab === S.tab && !stack.length) { const pnl = $(`#tab-${S.tab}`); pnl && pnl.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' }); return; }
