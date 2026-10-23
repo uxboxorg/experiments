@@ -1396,7 +1396,6 @@ function renderMoney() {
       </div>
       <div>
         <h2 class="section-h" style="margin:0">Where August went</h2>
-        <p class="lede" style="margin:0 4px 10px;max-width:none">Eating out is €130 above a normal month. Everything else is on track.</p>
         <div class="list">${SPEND.map(r => `
           <button class="row" data-act="open-category" data-id="${r.id}" style="--inset:58px">
             ${tile({ icon: r.icon, bg: r.color }, 30)}
@@ -1597,7 +1596,6 @@ function monthPage() {
     <div class="detail">
       <div>
         <h1>The month ahead</h1>
-        <p class="body" style="margin-top:6px">Every bill and payment to 30 Sep, in the order it lands.</p>
       </div>
       <div>
         <div class="section-h" style="padding:0 0 8px">Your thinnest moment before pay day</div>
@@ -1620,7 +1618,6 @@ function monthPage() {
       <div>
         <div class="section-h" style="padding:0 0 4px">Bills and pay to 30 Sep</div>
         <div class="plain-rows" id="bills-list">${bills}</div>
-        <p class="foot" style="margin-top:14px">Starts from ${eur(fc.start)} in ${cashWord()}. Bills and pay only; everyday spending comes out of safe-to-spend. This only changes the forecast, not when your bank pays.</p>
       </div>
     </div>`;
 }
@@ -1646,7 +1643,6 @@ function renderAccounts() {
       ${ed ? `<p class="foot" style="text-align:left;margin-top:-10px">Your current account and Lena's Stash stay connected, because your pay and the Iceland goal depend on them.</p>` : ''}
       <div class="list accounts-total" style="border-radius:22px"><div class="row"><span class="grow t" style="font-size:16px">Total</span><span class="v" style="font-weight:600">${eur(net())}</span></div></div>
       <button class="btn tinted" data-act="add-account">${I.plus} Add Account</button>
-      <p class="foot">Sample accounts · All balances are fictional</p>
     </div>`;
 }
 
