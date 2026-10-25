@@ -897,7 +897,7 @@ button.row[disabled] { cursor: default; }
 :root { --kb-bg: rgba(209, 211, 217, .94); --kb-key: #FFFFFF; --kb-fn: #ABAFB9; --kb-ink: #000000; }
 :root[data-theme="dark"] { --kb-bg: rgba(44, 44, 46, .96); --kb-key: #6B6B6B; --kb-fn: #464646; --kb-ink: #FFFFFF; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --kb-bg: rgba(44, 44, 46, .96); --kb-key: #6B6B6B; --kb-fn: #464646; --kb-ink: #FFFFFF; } }
-.kb { position: absolute; left: 0; right: 0; bottom: 0; z-index: 32; padding: 9px 3px 40px; display: grid; gap: 11px; background: var(--kb-bg); -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%); border-radius: 26px 26px 0 0; animation: kb-up .35s cubic-bezier(.32, .72, 0, 1); }
+.kb { position: absolute; left: 0; right: 0; bottom: 0; z-index: 45; padding: 9px 3px 40px; display: grid; gap: 11px; background: var(--kb-bg); -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%); border-radius: 26px 26px 0 0; animation: kb-up .35s cubic-bezier(.32, .72, 0, 1); }
 @keyframes kb-up { from { transform: translateY(100%); } }
 .kb-row { display: flex; justify-content: center; gap: 6px; }
 .kb-key { flex: 0 0 calc((100% - 6px * 9 - 6px) / 10); height: 44px; border-radius: 8px; border: 0; background: var(--kb-key); color: var(--kb-ink); font: 400 22px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif; box-shadow: 0 1px 0 rgba(0, 0, 0, .3); display: grid; place-items: center; cursor: pointer; padding: 0; }
@@ -924,6 +924,48 @@ button.row[disabled] { cursor: default; }
 .pref-row .t, .pref-row.t { font-size: 16px; }
 .pref-row .s { font-size: 13px; }
 .sign-out { color: var(--red) !important; }
+
+/* Log in and create an account */
+.page.welcome-page { background: var(--forest) !important; --bar-bg: var(--forest); --edge: var(--forest); }
+.welcome-page .edge-btm { display: none; }
+.welcome { flex: 1; min-height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: calc(var(--top) + 60px) 24px 44px; color: #FFFFFF; box-sizing: border-box; }
+.welcome-page .wrap { padding-bottom: 0; }
+.welcome-hero { display: grid; gap: 14px; }
+.welcome-logo { color: var(--lime); display: block; }
+.welcome-hero h1 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 56px; letter-spacing: -.04em; color: var(--lime); line-height: 1; }
+.welcome-hero p { margin: 0; font-family: var(--display); font-weight: 700; font-size: 30px; line-height: 1.1; letter-spacing: -.02em; max-width: 12ch; }
+.welcome-actions { display: grid; gap: 10px; }
+.welcome-login { background: rgba(255, 255, 255, .14) !important; color: #FFFFFF !important; }
+.welcome-note { margin: 6px 0 0; text-align: center; font-size: 12.5px; color: rgba(255, 255, 255, .7); }
+.auth { padding: 0 16px 24px; display: grid; gap: 18px; }
+.auth h1 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 30px; letter-spacing: -.03em; line-height: 1.1; }
+.auth .body { margin: 8px 0 0; font-size: 16px; color: var(--label2); line-height: 1.45; }
+.auth-fields { display: grid; gap: 12px; }
+.auth-field { display: grid; gap: 6px; }
+.auth-field > span { font-size: 14px; font-weight: 600; color: var(--label2); }
+.auth-field .field { height: 52px; font-size: 17px; }
+.auth-field .field-err { margin: 0; min-height: 0; }
+.field.code-field { height: 68px !important; font-size: 32px !important; letter-spacing: .5em; text-align: center; padding-left: .5em; font-variant-numeric: tabular-nums; }
+.auth-or { display: flex; align-items: center; gap: 12px; color: var(--label2); font-size: 13px; }
+.auth-or::before, .auth-or::after { content: ""; flex: 1; height: 1px; background: var(--sep); }
+.auth .btn.gray, .auth .btn.primary { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.auth-terms { text-align: left !important; margin: -6px 0 0; }
+.auth-art { color: var(--label); padding-top: 12px; }
+.auth-art.ok { color: #1F7A3A; }
+.auth-flow .nav .inline { display: none; }
+.auth-progress { flex: 0 1 140px; height: 6px; border-radius: 3px; background: var(--fill2); overflow: hidden; }
+.auth-progress i { display: block; height: 100%; background: var(--forest); border-radius: 3px; transition: width .4s cubic-bezier(.32, .72, 0, 1); }
+:root[data-theme="dark"] .auth-progress i { background: var(--label); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .auth-progress i { background: var(--label); } }
+.faceid { position: absolute; left: 50%; top: 50%; width: 156px; height: 156px; margin: -78px 0 0 -78px; border-radius: 34px; display: grid; place-items: center; color: #FFFFFF; background: rgba(28, 28, 30, .94); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); opacity: 0; transform: scale(.9); transition: opacity .2s, transform .25s cubic-bezier(.32, .72, 0, 1); z-index: 5; }
+.faceid.show { opacity: 1; transform: none; }
+.faceid:not(.ok) svg { animation: face-scan 1s ease-in-out infinite alternate; }
+.faceid.ok { color: #34C759; }
+@keyframes face-scan { from { opacity: .55; transform: scale(.96); } to { opacity: 1; transform: scale(1.02); } }
+.kb.pad .kb-row { gap: 6px; padding: 0 6px; }
+.kb.pad .kb-key { flex: 1 1 0; height: 48px; font-size: 26px; }
+.kb-key.blank { visibility: hidden; }
+@media (prefers-reduced-motion: reduce) { .faceid:not(.ok) svg { animation: none; } }
 </style>
 </head>
 <body>
@@ -941,6 +983,7 @@ button.row[disabled] { cursor: default; }
         <li>Move car insurance to the 6th in The month ahead</li>
         <li>Ask Chat “Can I afford a €600 flight in March?” or try the voice demo</li>
         <li>Open the Accounts tab to add a sample N26 account or swipe one away</li>
+        <li>Sign out from your profile to try logging in and creating an account</li>
       </ul>
     </div>
     <div>
@@ -1074,6 +1117,8 @@ const S = {
   linked: [],
   removed: [],   // accounts removed by the user, ready to add back
   editAccts: false,
+  user: { first: 'Lena', last: 'Hoffmann', email: 'lena.hoffmann@posteo.de' },
+  auth: {},
   prefs: { theme: 'system', faceId: true, approve: true, bills: true, spending: true, paydayNote: false },
   iceland: { saved: 1400, goal: 2400, monthly: 140, paused: false },
   fixesSent: 0,
@@ -1241,8 +1286,8 @@ function profilePage() {
     <div class="detail profile">
       <div class="profile-head">
         <span class="avatar big" aria-hidden="true"></span>
-        <h1 data-short="Profile">${PROFILE.name}</h1>
-        <p class="body">${PROFILE.email}</p>
+        <h1 data-short="Profile">${esc(S.user.first)} ${esc(S.user.last)}</h1>
+        <p class="body">${esc(S.user.email)}</p>
       </div>
       <div>
         <h2 class="section-h">Your plan</h2>
@@ -1291,6 +1336,190 @@ function profilePage() {
       </div>
       <button class="btn gray sign-out" data-act="sign-out">Sign Out</button>
     </div>`;
+}
+
+/* ---------------- Log in and create an account ---------------- */
+const FACE_SVG = '<svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20V12a6 6 0 0 1 6-6h8M44 6h8a6 6 0 0 1 6 6v8M58 44v8a6 6 0 0 1-6 6h-8M20 58h-8a6 6 0 0 1-6-6v-8"/><path d="M22 24v5M42 24v5M32 24v12h-3M24 44c4.5 4 11.5 4 16 0"/></svg>';
+const FACE_SM = FACE_SVG.replace('width="64" height="64"', 'width="20" height="20"').replace('stroke-width="3"', 'stroke-width="4.5"');
+const CHECK_SVG = '<svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="32" cy="32" r="26"/><path d="m21 33 8 8 15-17"/></svg>';
+const BELL_SVG = '<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg>';
+const COUNTRIES = ['Germany', 'Austria', 'Belgium', 'France', 'Ireland', 'Italy', 'Netherlands', 'Portugal', 'Spain'];
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+// Face ID: the familiar glyph, then a tick
+function faceId() {
+  return new Promise(res => {
+    const d = document.createElement('div'); d.className = 'faceid'; d.setAttribute('role', 'status'); d.setAttribute('aria-label', 'Face ID');
+    d.innerHTML = FACE_SVG; $('#layer').append(d);
+    requestAnimationFrame(() => d.classList.add('show'));
+    setTimeout(() => { d.classList.add('ok'); d.innerHTML = CHECK_SVG; d.setAttribute('aria-label', 'Face ID succeeded'); }, reduced ? 150 : 900);
+    setTimeout(() => { d.classList.remove('show'); setTimeout(() => d.remove(), 250); res(); }, reduced ? 400 : 1500);
+  });
+}
+const authNav = (step, back = true) => `<div class="nav">${back ? `<button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button>` : '<span style="width:44px"></span>'}${step ? `<div class="auth-progress" role="progressbar" aria-label="Step ${step} of 6" aria-valuemin="1" aria-valuemax="6" aria-valuenow="${step}"><i style="width:${step / 6 * 100}%"></i></div>` : ''}<span style="width:44px"></span></div>`;
+const authHead = (title, sub) => `<div><h1>${title}</h1>${sub ? `<p class="body">${sub}</p>` : ''}</div>`;
+function authField(key, label, o = {}) {
+  return `<label class="auth-field"><span>${label}</span>
+    <input class="field${o.cls ? ' ' + o.cls : ''}" id="af-${key}" data-auth="${key}" data-kb="${o.kb || 'name'}" data-kb-return="${o.ret || 'next'}"${o.next ? ` data-kb-next="#af-${o.next}"` : ''} type="${o.type || 'text'}" inputmode="${o.mode || 'text'}" autocomplete="${o.auto || 'off'}" autocapitalize="${o.caps || 'off'}" spellcheck="false"${o.max ? ` maxlength="${o.max}"` : ''} placeholder="${o.ph || ''}" value="${esc(S.auth[key] || '')}" aria-describedby="ae-${key}">
+    <p class="field-err" id="ae-${key}" role="alert"></p></label>`;
+}
+function authErr(key, msg) {
+  const page = stack[stack.length - 1], f = page && $(`#af-${key}`, page), e = page && $(`#ae-${key}`, page);
+  if (e) e.textContent = msg;
+  if (f) { f.setAttribute('aria-invalid', 'true'); f.focus({ preventScroll: true }); }
+  return false;
+}
+const authVal = key => (S.auth[key] || '').trim();
+function authPush(render, kind = 'auth') {
+  return push(render, { kind, onMount: el => {
+    el.classList.add('auth-flow');
+    if (!el.dataset.focused) { el.dataset.focused = '1'; setTimeout(() => { if (stack[stack.length - 1] !== el) return; const f = el.querySelector('input'); f && f.focus({ preventScroll: true }); }, T + 40); }
+  } });
+}
+async function busyButton(el, label, ms) { el.disabled = true; el.innerHTML = `<span class="spinner"></span> ${label}`; await wait(reduced ? 0 : ms); }
+
+function welcomePage() {
+  const logo = $('.tab[data-tab="today"] svg').outerHTML.replace('<svg ', '<svg width="72" height="72" ');
+  return `
+    <div class="welcome">
+      <div class="welcome-hero">
+        <span class="welcome-logo">${logo}</span>
+        <h1>Cushion</h1>
+        <p>Know what's safe to spend, every day.</p>
+      </div>
+      <div class="welcome-actions">
+        <button class="btn primary" data-act="auth-register">Create Account</button>
+        <button class="btn welcome-login" data-act="auth-login">Log In</button>
+        <p class="welcome-note">Prototype · nothing you type leaves this page</p>
+      </div>
+    </div>`;
+}
+function loginPage() {
+  return `${authNav()}
+    <div class="auth">
+      ${authHead('Welcome back', 'Log in with your email, or use your passkey.')}
+      <div class="auth-fields">
+        ${authField('loginEmail', 'Email', { kb: 'email', mode: 'email', auto: 'username', next: 'loginPass', ph: 'you@example.com' })}
+        ${authField('loginPass', 'Password', { kb: 'pass', type: 'password', auto: 'current-password', ret: 'go' })}
+      </div>
+      <button class="btn primary" data-act="auth-login-submit" data-kb-submit>Log In</button>
+      <button class="btn plain" data-act="auth-forgot">Forgot Password?</button>
+      <div class="auth-or" aria-hidden="true"><span>or</span></div>
+      <button class="btn gray" data-act="auth-passkey">${FACE_SM} Sign In with Passkey</button>
+    </div>`;
+}
+function forgotPage() {
+  if (S.auth.resetSent) return `${authNav()}
+    <div class="auth">
+      <div class="auth-art">${CHECK_SVG}</div>
+      ${authHead('Check your inbox', `We sent a reset link to ${esc(authVal('resetEmail'))}. It works for 30 minutes.`)}
+      <button class="btn primary" data-act="back">Back to Log In</button>
+    </div>`;
+  return `${authNav()}
+    <div class="auth">
+      ${authHead('Reset your password', "Enter your email and we'll send you a link.")}
+      ${authField('resetEmail', 'Email', { kb: 'email', mode: 'email', auto: 'username', ret: 'send', ph: 'you@example.com' })}
+      <button class="btn primary" data-act="auth-reset-submit" data-kb-submit>Send Reset Link</button>
+    </div>`;
+}
+function regEmailPage() {
+  return `${authNav(1)}
+    <div class="auth">
+      ${authHead("What's your email?", "We'll send a code to confirm it.")}
+      ${authField('regEmail', 'Email', { kb: 'email', mode: 'email', auto: 'email', ret: 'next', ph: 'you@example.com' })}
+      <p class="foot auth-terms">By continuing you agree to Cushion's Terms and Privacy Policy.</p>
+      <button class="btn primary" data-act="auth-email-submit" data-kb-submit>Continue</button>
+    </div>`;
+}
+function regCodePage() {
+  return `${authNav(2)}
+    <div class="auth">
+      ${authHead('Enter the code', `We sent 6 digits to ${esc(authVal('regEmail'))}. Any 6 digits work here.`)}
+      ${authField('regCode', 'Code', { kb: 'code', mode: 'numeric', auto: 'one-time-code', max: 6, cls: 'code-field', ret: 'done' })}
+      <button class="btn primary" data-act="auth-code-submit" data-kb-submit>Continue</button>
+      <button class="btn plain" data-act="auth-resend">Send a New Code</button>
+    </div>`;
+}
+function regNamePage() {
+  const c = S.auth.country || 'Germany';
+  return `${authNav(3)}
+    <div class="auth">
+      ${authHead("What's your name?", 'As it appears on your bank account.')}
+      <div class="auth-fields">
+        ${authField('regFirst', 'First name', { auto: 'given-name', caps: 'words', next: 'regLast' })}
+        ${authField('regLast', 'Last name', { auto: 'family-name', caps: 'words', ret: 'done' })}
+      </div>
+      <div class="list">
+        <div class="row pref-row">
+          <label class="grow t" for="af-country">Country</label>
+          <span class="picker"><select id="af-country" data-auth-select="country">${COUNTRIES.map(n => `<option ${n === c ? 'selected' : ''}>${n}</option>`).join('')}</select>${UPDOWN}</span>
+        </div>
+      </div>
+      <button class="btn primary" data-act="auth-name-submit" data-kb-submit>Continue</button>
+    </div>`;
+}
+function regSecurityPage() {
+  if (S.auth.usePassword) return `${authNav(4)}
+    <div class="auth">
+      ${authHead('Create a password', 'Use at least 8 characters, including a number.')}
+      ${authField('regPass', 'Password', { kb: 'pass', type: 'password', auto: 'new-password', ret: 'done' })}
+      <button class="btn primary" data-act="auth-pass-submit" data-kb-submit>Continue</button>
+      <button class="btn plain" data-act="auth-use-passkey">Use a Passkey Instead</button>
+    </div>`;
+  return `${authNav(4)}
+    <div class="auth">
+      <div class="auth-art">${FACE_SVG}</div>
+      ${authHead('Secure your account', 'Sign in with Face ID instead of a password. Your passkey stays on this iPhone.')}
+      <button class="btn primary" data-act="auth-passkey-create">Create Passkey</button>
+      <button class="btn plain" data-act="auth-use-password">Use a Password Instead</button>
+    </div>`;
+}
+function regPaydayPage() {
+  return `${authNav(5)}
+    <div class="auth">
+      ${authHead('When does your pay land?', 'Cushion plans your spending around it. You can change this later.')}
+      <div class="list">
+        <div class="row pref-row">
+          <label class="grow t" for="af-payday">Pay day</label>
+          <span class="picker"><select id="af-payday" data-auth-select="payday">${Array.from({ length: 28 }, (_, i) => `<option value="${i + 1}" ${i + 1 === S.payDay ? 'selected' : ''}>${ord(i + 1)} of the month</option>`).join('')}</select>${UPDOWN}</span>
+        </div>
+      </div>
+      <button class="btn primary" data-act="auth-payday-submit">Continue</button>
+    </div>`;
+}
+function regNotifyPage() {
+  return `${authNav(6)}
+    <div class="auth">
+      <div class="auth-art">${BELL_SVG}</div>
+      ${authHead('Get a heads-up before bills land', 'A reminder the day before a bill, and an alert when a category runs ahead of normal.')}
+      <button class="btn primary" data-act="auth-notify">Turn On Notifications</button>
+      <button class="btn plain" data-act="auth-notify-skip">Not Now</button>
+    </div>`;
+}
+function regDonePage() {
+  const first = authVal('regFirst') || S.user.first;
+  return `${authNav(0, false)}
+    <div class="auth">
+      <div class="auth-art ok">${CHECK_SVG}</div>
+      ${authHead(`You're all set, ${esc(first)}`, "We've loaded sample accounts so you can look around. Add your own any time from Accounts.")}
+      <button class="btn primary" data-act="auth-done">Start Using Cushion</button>
+    </div>`;
+}
+function startAuth() {
+  Object.values(stacks).forEach(st => { while (st.length) st.pop().remove(); });
+  S.auth = {};
+  selectTab('today');
+  navBusy = false;
+  const w = push(welcomePage, { modal: true, kind: 'auth', onMount: el => el.classList.add('welcome-page') });
+  if (w) w.locked = true;
+}
+function finishAuth(msg) {
+  while (stack.length > 1) stack.pop().remove();
+  const top = stack[stack.length - 1]; if (top) top.locked = false;
+  navBusy = false; pop(true);
+  S.auth = {};
+  refresh();
+  setTimeout(() => toast(msg), T);
 }
 
 /* ---------------- Rendering helpers ---------------- */
@@ -1345,7 +1574,7 @@ function renderToday() {
   $('#tab-today').innerHTML = `<div class="nav today-nav"><span class="inline" aria-hidden="true">Today</span><button class="profile-btn" data-act="profile" aria-label="Profile and settings"><span class="avatar" aria-hidden="true"></span></button></div>
     <div class="today-hero" aria-hidden="true"></div>
     <div class="content">
-      <p class="greet">Good morning <span class="sun" aria-hidden="true">☀️</span> Lena.<br><span class="sub">${lead}${tail}</span></p>
+      <p class="greet">Good morning <span class="sun" aria-hidden="true">☀️</span> ${esc(S.user.first)}.<br><span class="sub">${lead}${tail}</span></p>
       <div class="safe">
         <div class="num" id="safe-num" aria-label="${eur(sf.safe, 2)} safe to spend today"><span class="cur">€</span><span class="w">${whole}</span><span class="cents">.${cents}</span></div>
         <div class="cap">Safe to spend today</div>
@@ -1750,6 +1979,7 @@ function pop(force) {
   if (typeof swipeReset === 'function') swipeReset();
   if (navBusy && !force) return;
   if (!force && (alertOpen || sheetEl)) return; // never pull a page out from under a sheet or alert
+  if (!force && stack.length && stack[stack.length - 1].locked) return; // signed out: there is nothing behind the welcome screen
   const el = stack.pop();
   if (!el) return;
   shieldUntil = performance.now() + 300;
@@ -1772,7 +2002,7 @@ function updateChrome() {
   const inChat = S.tab === 'chat';
   const convo = inChat && S.chat.msgs.length > 0;
   app.dataset.tab = S.tab;
-  app.dataset.bar = 'dark';
+  app.dataset.bar = top && top.classList.contains('welcome-page') ? 'light' : 'dark';
   const covered = !!(top && (top.modal || top.inModal));
   $('#tabbar').classList.toggle('away', covered || inChat);
   $('#composer').classList.toggle('solo', inChat);
@@ -2294,11 +2524,63 @@ const H = {
   'ask-chat'(el) { const q = el.dataset.q; selectTab('chat'); send(q); },
   profile() { push(profilePage, { kind: 'profile' }); },
   'profile-accounts'() { selectTab('accounts'); const b = $('.tab[data-tab="accounts"]'); b && b.focus({ preventScroll: true }); },
-  'export-data'() { toast(`Your data is on its way to ${PROFILE.email}`); },
+  'export-data'() { toast(`Your data is on its way to ${S.user.email}`); },
   'sign-out': once(async () => {
     const ok = await alertBox({ sheet: true, title: 'Sign out of Cushion?', msg: "You'll need Face ID or your passcode to get back in.", actions: [{ label: 'Sign Out', style: 'destructive', value: true }, { label: 'Cancel', value: false }] });
-    if (ok) toast('Signed out. This prototype signs you straight back in.');
+    if (ok) startAuth();
   }),
+
+  'auth-login'() { authPush(loginPage); },
+  'auth-register'() { authPush(regEmailPage); },
+  'auth-forgot'() { S.auth.resetEmail = S.auth.loginEmail || ''; S.auth.resetSent = false; authPush(forgotPage); },
+  'auth-login-submit': once(async el => {
+    const em = authVal('loginEmail');
+    if (!EMAIL_RE.test(em)) return authErr('loginEmail', em ? 'That email doesn’t look right.' : 'Enter your email.');
+    if (!authVal('loginPass')) return authErr('loginPass', 'Enter your password.');
+    await busyButton(el, 'Logging In…', 800);
+    finishAuth(`Welcome back, ${S.user.first}`);
+  }),
+  'auth-passkey': once(async () => { await faceId(); finishAuth(`Welcome back, ${S.user.first}`); }),
+  'auth-reset-submit': once(async el => {
+    const em = authVal('resetEmail');
+    if (!EMAIL_RE.test(em)) return authErr('resetEmail', em ? 'That email doesn’t look right.' : 'Enter your email.');
+    await busyButton(el, 'Sending…', 700);
+    S.auth.resetSent = true; stack[stack.length - 1].render();
+  }),
+  'auth-email-submit'() {
+    const em = authVal('regEmail');
+    if (!EMAIL_RE.test(em)) return authErr('regEmail', em ? 'That email doesn’t look right.' : 'Enter your email.');
+    S.auth.regCode = ''; authPush(regCodePage);
+  },
+  'auth-code-submit'() {
+    if (!/^\d{6}$/.test(authVal('regCode'))) return authErr('regCode', 'Enter all 6 digits.');
+    authPush(regNamePage);
+  },
+  'auth-resend'() { toast(`New code sent to ${authVal('regEmail')}`); },
+  'auth-name-submit'() {
+    if (!authVal('regFirst')) return authErr('regFirst', 'Enter your first name.');
+    if (!authVal('regLast')) return authErr('regLast', 'Enter your last name.');
+    authPush(regSecurityPage);
+  },
+  'auth-passkey-create': once(async () => { await faceId(); toast('Passkey saved'); authPush(regPaydayPage); }),
+  'auth-use-password'() { S.auth.usePassword = true; const pg = stack[stack.length - 1]; pg.dataset.focused = ''; pg.render(); },
+  'auth-use-passkey'() { S.auth.usePassword = false; stack[stack.length - 1].render(); },
+  'auth-pass-submit'() {
+    const pw = S.auth.regPass || '';
+    if (pw.length < 8 || !/\d/.test(pw)) return authErr('regPass', 'Use at least 8 characters, including a number.');
+    authPush(regPaydayPage);
+  },
+  'auth-payday-submit'() { authPush(regNotifyPage); },
+  'auth-notify': once(async () => {
+    const ok = await alertBox({ title: '“Cushion” Would Like to Send You Notifications', msg: 'Notifications may include alerts, sounds and icon badges. These can be configured in Settings.', actions: [{ label: 'Don’t Allow', value: false }, { label: 'Allow', value: true }] });
+    if (ok === undefined) return;
+    S.prefs.bills = S.prefs.spending = ok; authPush(regDonePage);
+  }),
+  'auth-notify-skip'() { S.prefs.bills = S.prefs.spending = false; authPush(regDonePage); },
+  'auth-done'() {
+    S.user = { first: authVal('regFirst') || 'Lena', last: authVal('regLast') || 'Hoffmann', email: authVal('regEmail') || S.user.email };
+    finishAuth(`Welcome to Cushion, ${S.user.first}`);
+  },
   'chat-back'() { const t = S.prevTab && S.prevTab !== 'chat' ? S.prevTab : 'today'; selectTab(t); const b = $(`.tab[data-tab="${t}"]`); b && b.focus({ preventScroll: true }); },
   voice() { voiceSheet(); },
   about() {
@@ -2344,11 +2626,20 @@ app.addEventListener('click', e => {
 });
 function applyTheme(t) { const r = document.documentElement; if (t === 'system') delete r.dataset.theme; else r.dataset.theme = t; }
 app.addEventListener('change', e => {
+  if (e.target.dataset.authSelect === 'country') { S.auth.country = e.target.value; return; }
+  if (e.target.dataset.authSelect === 'payday') { S.payDay = +e.target.value; refresh(); return; }
   if (e.target.dataset.pref) { S.prefs[e.target.dataset.pref] = e.target.checked; return; }
   if (e.target.dataset.prefSelect === 'theme') { S.prefs.theme = e.target.value; applyTheme(e.target.value); return; }
   if (e.target.id === 'payday-pick' || e.target.dataset.prefSelect === 'payday') { const v = +e.target.value; if (v >= 1 && v <= 28 && v !== S.payDay) { S.payDay = v; refresh(); toast(`Pay day set to the ${ord(v)}`); } }
 });
 app.addEventListener('input', e => {
+  if (e.target.dataset && e.target.dataset.auth) {
+    const k = e.target.dataset.auth;
+    if (k === 'regCode') { const v = e.target.value.replace(/\D/g, '').slice(0, 6); if (v !== e.target.value) e.target.value = v; }
+    S.auth[k] = e.target.value;
+    e.target.removeAttribute('aria-invalid'); const er = $(`#ae-${k}`, e.target.closest('.page') || app); if (er) er.textContent = '';
+    if (k === 'regCode' && e.target.value.length === 6) setTimeout(() => { if (stack[stack.length - 1] && stack[stack.length - 1].contains(e.target)) H['auth-code-submit'](); }, 250);
+  }
 
   if (e.target.id === 'chat-input') syncSend();
 });
@@ -2378,6 +2669,11 @@ document.addEventListener('keydown', e => {
         else if (!e.shiftKey && (i === f.length - 1 || i === -1)) { e.preventDefault(); f[0].focus(); }
       }
     }
+  }
+  if (e.key === 'Enter' && e.target.dataset && e.target.dataset.kb) {
+    e.preventDefault();
+    const next = e.target.dataset.kbNext && $(e.target.dataset.kbNext, e.target.closest('.page') || app);
+    if (next) next.focus(); else { const go = e.target.closest('.page') && e.target.closest('.page').querySelector('[data-kb-submit]'); go && go.click(); }
   }
   if (e.key === 'Enter' && e.target.id === 'chat-input') { e.preventDefault(); send(e.target.value); }
   if (e.key === 'Escape') {
@@ -2511,16 +2807,19 @@ selectTab('today');
   const ROWS = {
     abc: [['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'], ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'], ['shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'del'], ['123', 'space', 'return']],
     num: [['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'], ['-', '/', ':', ';', '(', ')', '€', '&', '@', '"'], ['.', ',', '?', '!', "'", '%', 'del'], ['ABC', 'space', 'return']],
+    pad: [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9'], ['blank', '0', 'del']],
   };
+  const kind = () => target && target.dataset.kb;
+  const rows = () => kind() === 'email' && mode === 'abc' ? [...ROWS.abc.slice(0, 3), ['123', 'space', '@', '.', 'return']] : ROWS[mode];
   let mode = 'abc', shift = false, target = null;
-  const wants = el => el && ((el.id === 'chat-input' && S.tab === 'chat' && !stack.length) || el.id === 'bank-search');
+  const wants = el => el && ((el.id === 'chat-input' && S.tab === 'chat' && !stack.length) || el.id === 'bank-search' || !!(el.dataset && el.dataset.kb));
   const isChat = () => target && target.id === 'chat-input';
-  const caps = () => mode === 'abc' && (shift || (isChat() && (!target.value || /[.?!]\s$/.test(target.value))));
-  const label = k => k === 'shift' ? (caps() ? SHIFT_ON : SHIFT) : k === 'del' ? DEL : k === 'space' ? 'space' : k === 'return' ? (isChat() ? 'return' : 'search') : k.length === 1 && caps() ? k.toUpperCase() : esc(k);
-  const cls = k => ['shift', 'del', '123', 'ABC', 'return'].includes(k) ? ' fn' : k === 'space' ? ' space' : '';
-  const render = () => { kb.innerHTML = ROWS[mode].map(r => `<div class="kb-row">${r.map(k => `<button type="button" tabindex="-1" class="kb-key${cls(k)}${k === 'return' ? ' ret' : ''}" data-k="${esc(k)}">${label(k)}</button>`).join('')}</div>`).join(''); };
+  const caps = () => mode === 'abc' && (shift || (isChat() && (!target.value || /[.?!]\s$/.test(target.value))) || (kind() === 'name' && (!target.value || /\s$/.test(target.value))));
+  const label = k => k === 'shift' ? (caps() ? SHIFT_ON : SHIFT) : k === 'del' ? DEL : k === 'space' ? 'space' : k === 'return' ? (isChat() ? 'return' : (target.dataset.kbReturn || 'search')) : k.length === 1 && caps() ? k.toUpperCase() : esc(k);
+  const cls = k => k === 'blank' ? ' blank' : ['shift', 'del', '123', 'ABC', 'return'].includes(k) ? ' fn' : k === 'space' ? ' space' : '';
+  const render = () => { kb.classList.toggle('pad', mode === 'pad'); kb.innerHTML = rows().map(r => `<div class="kb-row">${r.map(k => `<button type="button" tabindex="-1" class="kb-key${cls(k)}${k === 'return' ? ' ret' : ''}" data-k="${esc(k)}">${label(k)}</button>`).join('')}</div>`).join(''); };
   const show = el => {
-    target = el; mode = 'abc'; shift = false; render();
+    target = el; mode = el.dataset.kb === 'code' ? 'pad' : 'abc'; shift = false; render();
     kb.hidden = false; app.classList.add('kb-open'); app.classList.toggle('kb-chat', isChat());
     if (isChat()) { const pnl = $('#tab-chat'); requestAnimationFrame(() => { pnl.scrollTop = pnl.scrollHeight; }); }
   };
@@ -2550,8 +2849,18 @@ selectTab('today');
       else if (a > 0) { target.value = target.value.slice(0, a - 1) + target.value.slice(a); target.setSelectionRange(a - 1, a - 1); }
       changed(); return;
     }
-    if (k === 'return') { mode = 'abc'; if (isChat()) { send(target.value); render(); } else target.blur(); return; }
+    if (k === 'blank') return;
+    if (k === 'return') {
+      mode = 'abc';
+      if (isChat()) { send(target.value); render(); return; }
+      const next = target.dataset.kbNext && $(target.dataset.kbNext, target.closest('.page') || app);
+      if (next) { next.focus(); return; }
+      const go = target.closest('.page') && target.closest('.page').querySelector('[data-kb-submit]');
+      if (go) { go.click(); return; }
+      target.blur(); return;
+    }
     if (k === 'space') { if (mode === 'num') mode = 'abc'; put(' '); render(); return; }
+    if (mode === 'pad') { if (target.maxLength > 0 && target.value.length >= target.maxLength) return; put(k); return; }
     put(caps() ? k.toUpperCase() : k); shift = false; render();
   });
 })();
