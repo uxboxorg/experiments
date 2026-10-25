@@ -1410,7 +1410,7 @@ function welcomePage() {
       <div class="welcome-hero">
         <span class="welcome-logo">${logo}</span>
         <h1>Cushion</h1>
-        <p>Know what's safe to spend, every day.</p>
+        <p>Know what’s safe to spend, every day.</p>
       </div>
       <div class="welcome-actions">
         <button class="btn primary" data-act="auth-register">Create Account</button>
@@ -1441,7 +1441,7 @@ function forgotPage() {
     </div>`;
   return `${authNav()}
     <div class="auth">
-      ${authHead('Reset your password', "Enter your email and we'll send you a link.")}
+      ${authHead('Reset your password', 'Enter your email and we’ll send you a link.')}
       ${authField('resetEmail', 'Email', { kb: 'email', mode: 'email', auto: 'username', ret: 'send', ph: 'you@example.com' })}
       <button class="btn primary" data-act="auth-reset-submit" data-kb-submit>Send Reset Link</button>
     </div>`;
@@ -1449,7 +1449,7 @@ function forgotPage() {
 function regEmailPage() {
   return `${authNav(1)}
     <div class="auth">
-      ${authHead("What's your email?", "We'll send a code to confirm it.")}
+      ${authHead('What’s your email?', 'We’ll send a code to confirm it.')}
       ${authField('regEmail', 'Email', { kb: 'email', mode: 'email', auto: 'email', ret: 'next', ph: 'you@example.com' })}
       <p class="foot auth-terms">By continuing you agree to Cushion's Terms and Privacy Policy.</p>
       <button class="btn primary" data-act="auth-email-submit" data-kb-submit>Continue</button>
@@ -1468,7 +1468,7 @@ function regNamePage() {
   const c = S.auth.country || 'Germany';
   return `${authNav(3)}
     <div class="auth">
-      ${authHead("What's your name?", 'As it appears on your bank account.')}
+      ${authHead('What’s your name?', 'As it appears on your bank account.')}
       <div class="auth-fields">
         ${authField('regFirst', 'First name', { auto: 'given-name', caps: 'words', next: 'regLast' })}
         ${authField('regLast', 'Last name', { auto: 'family-name', caps: 'words', ret: 'done' })}
@@ -1525,7 +1525,7 @@ function regDonePage() {
   return `${authNav(0, false)}
     <div class="auth">
       <div class="auth-art ok">${CHECK_SVG}</div>
-      ${authHead(`You're all set, ${esc(first)}`, "We've loaded sample accounts so you can look around. Add your own any time from Accounts.")}
+      ${authHead(`You’re all set, ${esc(first)}`, 'We’ve loaded sample accounts so you can look around. Add your own any time from Accounts.')}
       <button class="btn primary" data-act="auth-done">Start Using Cushion</button>
     </div>`;
 }
