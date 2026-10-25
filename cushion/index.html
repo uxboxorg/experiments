@@ -1011,14 +1011,17 @@ button.row[disabled] { cursor: default; }
 .wheel-row.flush { padding-left: 0; padding-right: 0; }
 .wheel-value { padding: 6px 10px; border-radius: 8px; background: var(--fill2); font-size: 16px; color: var(--label); }
 .wheel-value.on { color: var(--accent); font-weight: 600; }
-.wheel-wrap { position: relative; height: 180px; display: flex; justify-content: center; align-items: center; gap: 6px; border-top: .5px solid var(--sep); }
-.wheel-wrap::before { content: ""; position: absolute; left: 10px; right: 10px; top: 72px; height: 36px; border-radius: 9px; background: var(--fill2); pointer-events: none; }
-.wheel { position: relative; z-index: 1; height: 180px; width: 92px; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; padding: 72px 0; box-sizing: border-box; outline-offset: -2px;
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.18), #000 42%, #000 58%, rgba(0,0,0,.18)); mask-image: linear-gradient(to bottom, rgba(0,0,0,.18), #000 42%, #000 58%, rgba(0,0,0,.18)); }
+.wheel-wrap { position: relative; height: 216px; display: flex; justify-content: center; align-items: center; gap: 6px; border-top: .5px solid var(--sep); }
+.wheel-wrap::before { content: ""; position: absolute; left: 10px; right: 10px; top: 90px; height: 36px; border-radius: 9px; background: var(--fill2); pointer-events: none; }
+.wheel { position: relative; z-index: 1; height: 216px; width: 112px; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; padding: 90px 0; box-sizing: border-box; outline-offset: -2px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, rgba(0,0,0,.55) 22%, #000 40%, #000 60%, rgba(0,0,0,.55) 78%, transparent); mask-image: linear-gradient(to bottom, transparent, rgba(0,0,0,.55) 22%, #000 40%, #000 60%, rgba(0,0,0,.55) 78%, transparent); }
 .wheel::-webkit-scrollbar { display: none; }
-.wheel-item { height: 36px; line-height: 36px; scroll-snap-align: center; text-align: right; font-size: 21px; color: var(--label2); cursor: pointer; font-variant-numeric: tabular-nums; }
+/* The mask would cut a focus ring into two stray lines, so ring the selection band instead */
+.wheel:focus-visible { outline: none; }
+.wheel-wrap:has(.wheel:focus-visible)::before { box-shadow: 0 0 0 2px var(--accent); }
+.wheel-item { height: 36px; line-height: 36px; scroll-snap-align: center; text-align: right; font-size: 22px; color: var(--label2); white-space: nowrap; transform-origin: 50% 50%; will-change: transform; cursor: pointer; font-variant-numeric: tabular-nums; }
 .wheel-item.on { color: var(--label); }
-.wheel-suffix { position: relative; z-index: 1; font-size: 21px; color: var(--label); }
+.wheel-suffix { position: relative; z-index: 1; font-size: 22px; color: var(--label); }
 .wheel-wrap + .row::before { content: ""; position: absolute; top: 0; right: 0; left: var(--inset, 16px); height: .5px; background: var(--sep); }
 </style>
 </head>
@@ -1292,7 +1295,7 @@ function forecast(over = {}) {
     { day: sep(1), name: 'Rent', phrase: 'rent', amt: -1850 },
     { day: sep(st.carLate ? 6 : 2), name: 'Car insurance', phrase: 'car insurance', amt: -740, car: true },
     { day: sep(4), name: 'Freelance invoice', phrase: 'your freelance invoice', amt: 370 },
-    { day: sep(st.payDay), name: 'Salary', phrase: 'your salary', amt: 3482 },
+    { day: sep(Math.min(st.payDay, 30)), name: 'Salary', phrase: 'your salary', amt: 3482 },
   ];
   if (st.payDay >= 25) ev.push({ day: st.payDay - 24, name: 'Salary', phrase: 'your salary', amt: 3482 });
   if (!S.iceland.paused) ev.push({ day: sep(23), name: 'Iceland transfer', phrase: 'the Iceland transfer', amt: -S.iceland.monthly });
@@ -1574,45 +1577,98 @@ function finishAuth(msg) {
 
 /* Inline wheel picker for pay day, like an iOS date row that expands into a UIPickerView */
 const WHEEL_ROW = 36;
+const PAY_MAX = 31; // 31 = last day of the month; 29th and 30th fall back to the last day in shorter months
+const payShort = v => v === PAY_MAX ? 'Last day' : ord(v);
+const payLong = v => v === PAY_MAX ? 'Last day of the month' : `${ord(v)} of the month`;
+const payOn = v => v === PAY_MAX ? 'last day of the month' : ord(v); // reads after "on the"
+// Bend the rows round a drum like UIPickerView: tilt and squeeze them with distance from the centre
+function curveWheel(w) {
+  const R = WHEEL_ROW / 0.36; // each row is ~20.6° of the drum
+  const mid = w.scrollTop + w.clientHeight / 2;
+  w.querySelectorAll('.wheel-item').forEach(it => {
+    const a = (it.offsetTop + WHEEL_ROW / 2 - mid) / R;
+    const c = Math.max(-1.55, Math.min(1.55, a));
+    const dy = R * Math.sin(c) - R * a; // pull rows in so spacing shrinks towards the rim
+    it.style.transform = `translateY(${dy.toFixed(1)}px) perspective(600px) rotateX(${(-c * 57.3).toFixed(1)}deg)`;
+    it.style.opacity = Math.abs(a) > 1.55 ? 0 : (0.25 + 0.75 * Math.cos(c)).toFixed(2);
+  });
+}
 function paydayRow(key, flush = false) {
   const open = S.wheel === key;
-  const items = Array.from({ length: 28 }, (_, i) => `<div class="wheel-item${i + 1 === S.payDay ? ' on' : ''}" data-v="${i + 1}">${ord(i + 1)}</div>`).join('');
+  const items = Array.from({ length: PAY_MAX }, (_, i) => `<div class="wheel-item${i + 1 === S.payDay ? ' on' : ''}" data-v="${i + 1}">${payShort(i + 1)}</div>`).join('');
   return `<div class="row pref-row wheel-row${flush ? ' flush' : ''}" data-wheel-toggle="${key}" role="button" tabindex="0" aria-expanded="${open}" aria-controls="wheel-${key}">
-      <span class="grow t">Pay day</span><span class="wheel-value${open ? ' on' : ''}">${ord(S.payDay)} of the month</span>
+      <span class="grow t">Pay day</span><span class="wheel-value${open ? ' on' : ''}">${payLong(S.payDay)}</span>
     </div>
     ${open ? `<div class="wheel-wrap${flush ? ' flush' : ''}" id="wheel-${key}">
-      <div class="wheel" id="wheel-input-${key}" role="slider" tabindex="0" aria-label="Pay day of each month" aria-valuemin="1" aria-valuemax="28" aria-valuenow="${S.payDay}" aria-valuetext="${ord(S.payDay)} of the month">${items}</div>
+      <div class="wheel" id="wheel-input-${key}" role="slider" tabindex="0" aria-label="Pay day of each month" aria-valuemin="1" aria-valuemax="${PAY_MAX}" aria-valuenow="${S.payDay}" aria-valuetext="${payLong(S.payDay)}">${items}</div>
       <span class="wheel-suffix" aria-hidden="true">of the month</span>
     </div>` : ''}`;
 }
 function setPayday(v) {
-  if (v < 1 || v > 28 || v === S.payDay) return;
+  if (v < 1 || v > PAY_MAX || v === S.payDay) return;
   S.payDay = v; refresh();
+}
+// Our own ease-out spin: native smooth scrolling stalls on a snapping list whose rows restyle as it moves
+function spinTo(w, v) {
+  w.goal = v;
+  const to = (v - 1) * WHEEL_ROW, from = w.scrollTop;
+  cancelAnimationFrame(w.spin);
+  if (reduced || Math.abs(to - from) < 1) { w.scrollTop = to; return; }
+  const dur = Math.min(520, 220 + Math.abs(to - from) * 0.4), t0 = performance.now();
+  w.style.scrollSnapType = 'none';
+  const step = now => {
+    const k = Math.min(1, (now - t0) / dur);
+    w.scrollTop = from + (to - from) * (1 - Math.pow(1 - k, 3));
+    if (k < 1) w.spin = requestAnimationFrame(step); else w.style.scrollSnapType = '';
+  };
+  w.spin = requestAnimationFrame(step);
 }
 function syncWheels() {
   $$('.wheel', app).forEach(w => {
     const target = (S.payDay - 1) * WHEEL_ROW;
     if (Math.abs(w.scrollTop - target) > 1 && !w.dragging) w.scrollTop = target;
+    curveWheel(w);
     if (w.wired) return;
     w.wired = true;
-    let t = null;
     w.addEventListener('scroll', () => {
+      if (!w.isConnected) return; // a late scroll from a wheel that was just saved and removed
       w.dragging = true;
+      curveWheel(w);
       const i = Math.round(w.scrollTop / WHEEL_ROW);
       w.querySelectorAll('.wheel-item').forEach((it, k) => it.classList.toggle('on', k === i));
-      clearTimeout(t);
-      t = setTimeout(() => { w.dragging = false; w.goal = null; setPayday(Math.max(1, Math.min(28, i + 1))); }, 160);
+      clearTimeout(w.settleT);
+      const settle = () => {
+        if (!w.isConnected) return;
+        const now = Math.round(w.scrollTop / WHEEL_ROW) + 1;
+        if (w.goal && now !== w.goal) { w.settleT = setTimeout(settle, 120); return; } // a long keyboard jump is still travelling
+        w.dragging = false; w.goal = null; setPayday(Math.max(1, Math.min(PAY_MAX, now)));
+      };
+      w.settleT = setTimeout(settle, 160);
     }, { passive: true });
-    w.addEventListener('click', e => { const it = e.target.closest('.wheel-item'); if (it) w.scrollTo({ top: (+it.dataset.v - 1) * WHEEL_ROW, behavior: reduced ? 'auto' : 'smooth' }); });
+    w.addEventListener('click', e => {
+      const it = e.target.closest('.wheel-item');
+      if (!it) return;
+      // Tapping the row already in the band saves it and folds the wheel away
+      if (+it.dataset.v === Math.round(w.scrollTop / WHEEL_ROW) + 1) commitWheel(w); else spinTo(w, +it.dataset.v);
+    });
     w.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); commitWheel(w); return; }
       const cur = w.goal || Math.round(w.scrollTop / WHEEL_ROW) + 1; // keep counting from where a quick run of presses is heading
-      const nv = e.key === 'ArrowUp' ? cur - 1 : e.key === 'ArrowDown' ? cur + 1 : e.key === 'Home' ? 1 : e.key === 'End' ? 28 : null;
+      const nv = e.key === 'ArrowUp' ? cur - 1 : e.key === 'ArrowDown' ? cur + 1 : e.key === 'Home' ? 1 : e.key === 'End' ? PAY_MAX : null;
       if (nv == null) return;
       e.preventDefault(); e.stopPropagation();
-      w.goal = Math.max(1, Math.min(28, nv));
-      w.scrollTo({ top: (w.goal - 1) * WHEEL_ROW, behavior: reduced ? 'auto' : 'smooth' });
+      w.goal = Math.max(1, Math.min(PAY_MAX, nv));
+      spinTo(w, w.goal);
     });
   });
+}
+function commitWheel(w) {
+  const key = w.id.replace('wheel-input-', '');
+  clearTimeout(w.settleT); cancelAnimationFrame(w.spin);
+  const v = Math.max(1, Math.min(PAY_MAX, w.goal || Math.round(w.scrollTop / WHEEL_ROW) + 1));
+  w.dragging = false; w.goal = null;
+  S.payDay = v;
+  toggleWheel(key); // closes it and re-renders with the saved value
 }
 function toggleWheel(key) {
   S.wheel = S.wheel === key ? null : key;
@@ -2269,9 +2325,9 @@ function reply(q) {
   const s = q.toLowerCase();
   const sf = safety();
   const fc = sf.fc;
-  const pay = ord(S.payDay);
+  const pay = payOn(S.payDay);
   const thin = fc.pre.day ? dayLabel(fc.pre.day) : 'today';
-  const onThin = fc.pre.day ? `on ${thin}` : `by pay day on the ${ord(S.payDay)}`;
+  const onThin = fc.pre.day ? `on ${thin}` : `by pay day on the ${payOn(S.payDay)}`;
   // Spend the safe amount every day until pay day; the tightest day decides what else can go out now
   let k = 0, worst = Infinity;
   for (let i = 0; i < fc.payIdx; i++) { const m = fc.days[i] - sf.safe * (i + 1); if (m < worst) { worst = m; k = i; } }
@@ -2733,7 +2789,7 @@ app.addEventListener('change', e => {
   if (e.target.dataset.authSelect === 'payday') { S.payDay = +e.target.value; refresh(); return; }
   if (e.target.dataset.pref) { S.prefs[e.target.dataset.pref] = e.target.checked; return; }
   if (e.target.dataset.prefSelect === 'theme') { S.prefs.theme = e.target.value; applyTheme(e.target.value); return; }
-  if (e.target.id === 'payday-pick' || e.target.dataset.prefSelect === 'payday') { const v = +e.target.value; if (v >= 1 && v <= 28 && v !== S.payDay) { S.payDay = v; refresh(); toast(`Pay day set to the ${ord(v)}`); } }
+  if (e.target.id === 'payday-pick' || e.target.dataset.prefSelect === 'payday') { const v = +e.target.value; if (v >= 1 && v <= PAY_MAX && v !== S.payDay) { S.payDay = v; refresh(); toast(`Pay day set to the ${payOn(v)}`); } }
 });
 app.addEventListener('input', e => {
   if (e.target.dataset && e.target.dataset.auth) {
