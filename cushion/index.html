@@ -1687,7 +1687,7 @@ const chatBack = () => `<button class="circle-btn glass" data-act="chat-back" ar
 function renderChat() {
   const c = S.chat;
   const head = c.title
-    ? `<div class="chat-title pinned">${chatBack()}<h1><span aria-hidden="true" style="display:inline-flex">${icon(c.emoji, 22)}</span>${esc(c.title)}</h1><button class="circle-btn glass on-media" data-act="clear-chat" ${c.busy ? 'disabled' : ''} style="width:auto;padding:0 14px;border-radius:99px;font-size:15px;font-weight:600">New Chat</button></div>`
+    ? `<div class="chat-title pinned">${chatBack()}<h1><span aria-hidden="true" style="display:inline-flex">${icon(c.emoji, 22)}</span>${esc(c.title)}</h1><button class="circle-btn glass on-media" data-act="clear-chat" ${c.busy ? 'disabled' : ''} aria-label="New chat" title="New chat"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg></button></div>`
     : `<div class="chat-title pinned chat-top">${chatBack()}</div><div class="chat-title"><h1 class="large-title">Chat</h1></div><p class="lede" style="margin:-10px 0 0;max-width:30ch">Ask about a purchase, a bill or a goal. I answer from your connected accounts.</p>`;
   const body = c.msgs.map((m, i) => m.role === 'user'
     ? `<div class="bubble-user">${esc(m.text)}</div>`
