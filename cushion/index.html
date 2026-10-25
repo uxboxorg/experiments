@@ -991,23 +991,35 @@ button.row[disabled] { cursor: default; }
 .welcome .btn.primary { background: var(--forest) !important; color: var(--lime) !important; box-shadow: 0 8px 20px rgba(22, 51, 0, .22), 0 2px 5px rgba(22, 51, 0, .16) !important; }
 .welcome-login { background: rgba(255, 255, 255, .85) !important; color: var(--forest) !important; box-shadow: 0 8px 20px rgba(22, 51, 0, .10), 0 2px 5px rgba(22, 51, 0, .08), inset 0 0 0 .5px rgba(22, 51, 0, .06) !important; }
 
-/* Toasts grow out of the Dynamic Island like an expanded Live Activity: the top band stays clear of the
-   cameras and sensors, and the message sits below them */
-.toast { top: 11px; width: 124px; min-width: 0; max-width: none; height: 36px; padding: 0 18px 14px; border-radius: 20px;
-  align-items: flex-end; gap: 10px; white-space: normal; transform: translateX(-50%); opacity: 0; overflow: hidden;
-  transition: width .5s cubic-bezier(.3, 1.25, .5, 1), height .5s cubic-bezier(.3, 1.25, .5, 1), border-radius .5s, opacity .15s; }
-.toast.show { width: calc(100% - 22px); height: 88px; border-radius: 34px; transform: translateX(-50%); opacity: 1; }
-.toast > * { opacity: 0; transition: opacity .2s; }
-.toast.show > * { opacity: 1; transition-delay: .18s; }
-.toast .tick { margin-bottom: 1px; }
-#toast-text { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; line-height: 1.3; padding-bottom: 4px;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-@media (max-width: 460px) {
-  /* on a real phone the system draws its own island; the safe area already keeps the toast below it */
-  .toast { width: auto; }
-  .toast.show { width: calc(100% - 24px); height: auto; min-height: 52px; padding: 10px 16px; align-items: center; border-radius: 26px; }
-}
-@media (prefers-reduced-motion: reduce) { .toast, .toast > * { transition: opacity .15s; } }
+/* Toasts: a pill inside the safe area, just below the Dynamic Island. Apps can't draw in the island itself */
+.toast { top: calc(var(--top) + 6px); width: auto; min-width: 0; max-width: calc(100% - 32px); height: auto; min-height: 44px;
+  padding: 8px 18px 8px 9px; border-radius: 22px; align-items: center; gap: 10px; white-space: normal;
+  background: var(--bg); color: var(--label); box-shadow: 0 10px 30px rgba(17, 17, 26, .16), 0 2px 6px rgba(17, 17, 26, .10), inset 0 0 0 .5px var(--sep);
+  transform: translate(-50%, -14px) scale(.96); opacity: 0; overflow: visible;
+  transition: transform .45s cubic-bezier(.3, 1.25, .5, 1), opacity .2s; }
+.toast.show { transform: translate(-50%, 0) scale(1); opacity: 1; height: auto; border-radius: 22px; }
+:root[data-theme="dark"] .toast { background: #26282A; box-shadow: 0 10px 30px rgba(0, 0, 0, .5), inset 0 0 0 .5px rgba(255, 255, 255, .12); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .toast { background: #26282A; box-shadow: 0 10px 30px rgba(0, 0, 0, .5), inset 0 0 0 .5px rgba(255, 255, 255, .12); } }
+#toast-text { font-size: 15px; font-weight: 600; line-height: 1.3; }
+.toast { width: max-content; }
+.app.toasting .statusbar { opacity: 1; }
+@media (max-width: 460px) { .toast { top: calc(max(8px, env(safe-area-inset-top, 0px)) + 6px); } }
+@media (prefers-reduced-motion: reduce) { .toast { transition: opacity .15s; transform: translate(-50%, 0); } }
+
+/* Inline wheel picker */
+.wheel-row { cursor: pointer; }
+.wheel-row.flush { padding-left: 0; padding-right: 0; }
+.wheel-value { padding: 6px 10px; border-radius: 8px; background: var(--fill2); font-size: 16px; color: var(--label); }
+.wheel-value.on { color: var(--accent); font-weight: 600; }
+.wheel-wrap { position: relative; height: 180px; display: flex; justify-content: center; align-items: center; gap: 6px; border-top: .5px solid var(--sep); }
+.wheel-wrap::before { content: ""; position: absolute; left: 10px; right: 10px; top: 72px; height: 36px; border-radius: 9px; background: var(--fill2); pointer-events: none; }
+.wheel { position: relative; z-index: 1; height: 180px; width: 92px; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; padding: 72px 0; box-sizing: border-box; outline-offset: -2px;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.18), #000 42%, #000 58%, rgba(0,0,0,.18)); mask-image: linear-gradient(to bottom, rgba(0,0,0,.18), #000 42%, #000 58%, rgba(0,0,0,.18)); }
+.wheel::-webkit-scrollbar { display: none; }
+.wheel-item { height: 36px; line-height: 36px; scroll-snap-align: center; text-align: right; font-size: 21px; color: var(--label2); cursor: pointer; font-variant-numeric: tabular-nums; }
+.wheel-item.on { color: var(--label); }
+.wheel-suffix { position: relative; z-index: 1; font-size: 21px; color: var(--label); }
+.wheel-wrap + .row::before { content: ""; position: absolute; top: 0; right: 0; left: var(--inset, 16px); height: .5px; background: var(--sep); }
 </style>
 </head>
 <body>
@@ -1160,6 +1172,7 @@ const S = {
   linked: [],
   removed: [],   // accounts removed by the user, ready to add back
   editAccts: false,
+  wheel: null,     // which inline pay-day wheel is open
   user: { first: 'Lena', last: 'Hoffmann', email: 'lena.hoffmann@posteo.de' },
   auth: {},
   prefs: { theme: 'system', faceId: true, approve: true, bills: true, spending: true, paydayNote: false },
@@ -1335,10 +1348,7 @@ function profilePage() {
       <div>
         <h2 class="section-h">Your plan</h2>
         <div class="list">
-          <div class="row pref-row">
-            <label class="grow t" for="pref-payday">Pay day</label>
-            <span class="picker"><select id="pref-payday" data-pref-select="payday" aria-label="Pay day of each month">${Array.from({ length: 28 }, (_, i) => `<option value="${i + 1}" ${i + 1 === S.payDay ? 'selected' : ''}>${ord(i + 1)} of the month</option>`).join('')}</select>${UPDOWN}</span>
-          </div>
+          ${paydayRow('profile')}
           <div class="row pref-row"><span class="grow t">Comfort line</span><span class="v">€1,000</span></div>
         </div>
         <p class="foot" style="text-align:left;margin:8px 4px 0">Cushion keeps your current account above the comfort line when it works out what's safe to spend.</p>
@@ -1522,10 +1532,7 @@ function regPaydayPage() {
     <div class="auth">
       ${authHead('When does your pay land?', 'Cushion plans your spending around it. You can change this later.')}
       <div class="list">
-        <div class="row pref-row">
-          <label class="grow t" for="af-payday">Pay day</label>
-          <span class="picker"><select id="af-payday" data-auth-select="payday">${Array.from({ length: 28 }, (_, i) => `<option value="${i + 1}" ${i + 1 === S.payDay ? 'selected' : ''}>${ord(i + 1)} of the month</option>`).join('')}</select>${UPDOWN}</span>
-        </div>
+        ${paydayRow('signup')}
       </div>
       <button class="btn primary" data-act="auth-payday-submit">Continue</button>
     </div>`;
@@ -1563,6 +1570,57 @@ function finishAuth(msg) {
   S.auth = {};
   refresh();
   setTimeout(() => toast(msg), T);
+}
+
+/* Inline wheel picker for pay day, like an iOS date row that expands into a UIPickerView */
+const WHEEL_ROW = 36;
+function paydayRow(key, flush = false) {
+  const open = S.wheel === key;
+  const items = Array.from({ length: 28 }, (_, i) => `<div class="wheel-item${i + 1 === S.payDay ? ' on' : ''}" data-v="${i + 1}">${ord(i + 1)}</div>`).join('');
+  return `<div class="row pref-row wheel-row${flush ? ' flush' : ''}" data-wheel-toggle="${key}" role="button" tabindex="0" aria-expanded="${open}" aria-controls="wheel-${key}">
+      <span class="grow t">Pay day</span><span class="wheel-value${open ? ' on' : ''}">${ord(S.payDay)} of the month</span>
+    </div>
+    ${open ? `<div class="wheel-wrap${flush ? ' flush' : ''}" id="wheel-${key}">
+      <div class="wheel" id="wheel-input-${key}" role="slider" tabindex="0" aria-label="Pay day of each month" aria-valuemin="1" aria-valuemax="28" aria-valuenow="${S.payDay}" aria-valuetext="${ord(S.payDay)} of the month">${items}</div>
+      <span class="wheel-suffix" aria-hidden="true">of the month</span>
+    </div>` : ''}`;
+}
+function setPayday(v) {
+  if (v < 1 || v > 28 || v === S.payDay) return;
+  S.payDay = v; refresh();
+}
+function syncWheels() {
+  $$('.wheel', app).forEach(w => {
+    const target = (S.payDay - 1) * WHEEL_ROW;
+    if (Math.abs(w.scrollTop - target) > 1 && !w.dragging) w.scrollTop = target;
+    if (w.wired) return;
+    w.wired = true;
+    let t = null;
+    w.addEventListener('scroll', () => {
+      w.dragging = true;
+      const i = Math.round(w.scrollTop / WHEEL_ROW);
+      w.querySelectorAll('.wheel-item').forEach((it, k) => it.classList.toggle('on', k === i));
+      clearTimeout(t);
+      t = setTimeout(() => { w.dragging = false; w.goal = null; setPayday(Math.max(1, Math.min(28, i + 1))); }, 160);
+    }, { passive: true });
+    w.addEventListener('click', e => { const it = e.target.closest('.wheel-item'); if (it) w.scrollTo({ top: (+it.dataset.v - 1) * WHEEL_ROW, behavior: reduced ? 'auto' : 'smooth' }); });
+    w.addEventListener('keydown', e => {
+      const cur = w.goal || Math.round(w.scrollTop / WHEEL_ROW) + 1; // keep counting from where a quick run of presses is heading
+      const nv = e.key === 'ArrowUp' ? cur - 1 : e.key === 'ArrowDown' ? cur + 1 : e.key === 'Home' ? 1 : e.key === 'End' ? 28 : null;
+      if (nv == null) return;
+      e.preventDefault(); e.stopPropagation();
+      w.goal = Math.max(1, Math.min(28, nv));
+      w.scrollTo({ top: (w.goal - 1) * WHEEL_ROW, behavior: reduced ? 'auto' : 'smooth' });
+    });
+  });
+}
+function toggleWheel(key) {
+  S.wheel = S.wheel === key ? null : key;
+  refresh();
+  const row = $(`[data-wheel-toggle="${key}"]`, stack[stack.length - 1] || app) || $(`[data-wheel-toggle="${key}"]`);
+  const w = S.wheel && $(`#wheel-input-${key}`);
+  (w || row) && (w || row).focus({ preventScroll: true });
+  if (w) w.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' });
 }
 
 /* ---------------- Rendering helpers ---------------- */
@@ -1798,7 +1856,7 @@ function icelandPage() {
         <div><span>Deposit due</span><span>€800 · 12 January</span></div>
         ${S.fixesSent ? `<div><span>Fixes money added</span><span>${eur(S.fixesSent, 2)}</span></div>` : ''}
       </div>
-      <p class="foot" style="text-align:left;margin-top:-8px">Held in Lena's Stash at 3.1%, so it earns while it fills. Nothing here is locked. You can take it back any time.</p>
+      <p class="foot" style="text-align:left;margin-top:6px">Held in Lena's Stash at 3.1%, so it earns while it fills. Nothing here is locked. You can take it back any time.</p>
     </div>
     `;
 }
@@ -1876,10 +1934,7 @@ function monthPage() {
       </div>
       ${chartSVG(fc)}
       <div class="list" style="padding:4px 16px;border-radius:24px">
-        <div class="row picker-row" style="padding-left:0;padding-right:0">
-          <label class="grow t" for="payday-pick" style="font-size:16px">Pay day</label>
-          <span class="picker"><select id="payday-pick" aria-label="Pay day of each month">${Array.from({ length: 28 }, (_, i) => `<option value="${i + 1}" ${i + 1 === S.payDay ? 'selected' : ''}>${ord(i + 1)} of the month</option>`).join('')}</select><svg width="10" height="16" viewBox="0 0 10 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6l3-3 3 3M2 10l3 3 3-3"/></svg></span>
-        </div>
+        ${paydayRow('month', true)}
       </div>
       <div class="list" style="padding:4px 16px;border-radius:24px">
         <div class="row" style="padding-left:0;padding-right:0">
@@ -2000,6 +2055,7 @@ function push(render, { modal = false, media = '', onMount, opener, kind } = {})
       if (nav) nav.insertAdjacentHTML('beforeend', `<span class="inline" aria-hidden="true">${esc(h.dataset.short || name)}</span>`);
     }
     onMount && onMount(el);
+    requestAnimationFrame(syncWheels);
   });
   el.render();
   el.modal = modal;
@@ -2027,6 +2083,7 @@ function pop(force) {
   if (!el) return;
   shieldUntil = performance.now() + 300;
   if (el.kind === 'month') S.carLate = false;
+  S.wheel = null;
   lockNav();
   hideToast();
   el.inert = true;
@@ -2068,6 +2125,7 @@ function refresh() {
   keepFocus(() => { renderToday(); renderMoney(); renderAccounts(); });
   allPages().forEach(p => p.render());
   syncInert();
+  syncWheels();
 }
 
 /* ---------------- Tabs ---------------- */
@@ -2654,6 +2712,8 @@ const H = {
   if (performance.now() < shieldUntil && !(e.type === 'click' && e.detail === 0) && !e.target.closest('#layer .sheet:not([inert]), #layer .alert:not(.closing)')) { e.preventDefault(); e.stopPropagation(); }
 }, true));
 app.addEventListener('click', e => {
+  const wt = e.target.closest('[data-wheel-toggle]');
+  if (wt && !wt.closest('[inert]')) { toggleWheel(wt.dataset.wheelToggle); return; }
   const tab = e.target.closest('.tab');
   if (tab) {
     if (stack.some(p => p.modal)) return;
@@ -2713,6 +2773,7 @@ document.addEventListener('keydown', e => {
       }
     }
   }
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.dataset && e.target.dataset.wheelToggle) { e.preventDefault(); toggleWheel(e.target.dataset.wheelToggle); return; }
   if (e.key === 'Enter' && e.target.dataset && e.target.dataset.kb) {
     e.preventDefault();
     const next = e.target.dataset.kbNext && $(e.target.dataset.kbNext, e.target.closest('.page') || app);
