@@ -858,7 +858,8 @@ button.row[disabled] { cursor: default; }
 /* Swipe-to-remove rows */
 .swipe { position: relative; }
 .swipe > .row { background: var(--card); z-index: 1; touch-action: pan-y; transition: transform .35s cubic-bezier(.32, .72, 0, 1); }
-.swipe + .swipe > .row::before { content: ""; position: absolute; top: 0; right: 0; left: var(--inset, 16px); height: .5px; background: var(--sep); }
+.swipe + .swipe > .row::before { content: ""; position: absolute; top: 0; right: 0; left: calc(var(--inset, 16px) + var(--sep-shift, 0px)); height: .5px; background: var(--sep); transition: left .35s cubic-bezier(.32, .72, 0, 1); }
+.swipe + .swipe > .row.sep-drag::before { transition: none; }
 .swipe-action { position: absolute; top: 0; right: 0; bottom: 0; width: 88px; display: flex; align-items: center; justify-content: center; background: var(--red); color: #FFFFFF; font-size: 15px; font-weight: 600; border: 0; }
 @media (prefers-reduced-motion: reduce) { .swipe > .row { transition: none; } }
 
@@ -989,6 +990,24 @@ button.row[disabled] { cursor: default; }
 .welcome-hero p { color: var(--forest); }
 .welcome .btn.primary { background: var(--forest) !important; color: var(--lime) !important; box-shadow: 0 8px 20px rgba(22, 51, 0, .22), 0 2px 5px rgba(22, 51, 0, .16) !important; }
 .welcome-login { background: rgba(255, 255, 255, .85) !important; color: var(--forest) !important; box-shadow: 0 8px 20px rgba(22, 51, 0, .10), 0 2px 5px rgba(22, 51, 0, .08), inset 0 0 0 .5px rgba(22, 51, 0, .06) !important; }
+
+/* Toasts grow out of the Dynamic Island like an expanded Live Activity: the top band stays clear of the
+   cameras and sensors, and the message sits below them */
+.toast { top: 11px; width: 124px; min-width: 0; max-width: none; height: 36px; padding: 0 18px 14px; border-radius: 20px;
+  align-items: flex-end; gap: 10px; white-space: normal; transform: translateX(-50%); opacity: 0; overflow: hidden;
+  transition: width .5s cubic-bezier(.3, 1.25, .5, 1), height .5s cubic-bezier(.3, 1.25, .5, 1), border-radius .5s, opacity .15s; }
+.toast.show { width: calc(100% - 22px); height: 88px; border-radius: 34px; transform: translateX(-50%); opacity: 1; }
+.toast > * { opacity: 0; transition: opacity .2s; }
+.toast.show > * { opacity: 1; transition-delay: .18s; }
+.toast .tick { margin-bottom: 1px; }
+#toast-text { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; line-height: 1.3; padding-bottom: 4px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+@media (max-width: 460px) {
+  /* on a real phone the system draws its own island; the safe area already keeps the toast below it */
+  .toast { width: auto; }
+  .toast.show { width: calc(100% - 24px); height: auto; min-height: 52px; padding: 10px 16px; align-items: center; border-radius: 26px; }
+}
+@media (prefers-reduced-motion: reduce) { .toast, .toast > * { transition: opacity .15s; } }
 </style>
 </head>
 <body>
@@ -2895,6 +2914,9 @@ selectTab('today');
   let d = null, open = null;
   const set = (row, x, anim) => {
     row.style.transition = anim ? '' : 'none';
+    // the line under this row belongs to the next row: slide it along so it stays joined
+    const nx = row.parentElement.nextElementSibling && row.parentElement.nextElementSibling.querySelector(':scope > .row');
+    if (nx) { nx.classList.toggle('sep-drag', !anim); nx.style.setProperty('--sep-shift', x + 'px'); }
     row.style.transform = x ? `translateX(${x}px)` : '';
     const a = row.parentElement.querySelector('.swipe-action'); if (a) { a.style.width = Math.max(W, -x) + 'px'; if (x) a.style.visibility = 'visible'; else setTimeout(() => { if (!row.style.transform) a.style.visibility = ''; }, anim && !reduced ? 380 : 0); }
   };
