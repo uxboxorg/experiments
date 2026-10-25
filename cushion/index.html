@@ -934,7 +934,7 @@ button.row[disabled] { cursor: default; }
 .welcome-hero { display: grid; gap: 14px; }
 .welcome-logo { color: var(--lime); display: block; }
 .welcome-hero h1 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 56px; letter-spacing: -.04em; color: var(--lime); line-height: 1; }
-.welcome-hero p { margin: 0; font-family: var(--display); font-weight: 700; font-size: 30px; line-height: 1.1; letter-spacing: -.02em; max-width: 12ch; }
+.welcome-hero p { margin: 0; font-family: var(--display); font-weight: 500; font-size: 30px; line-height: 1.1; letter-spacing: -.02em; max-width: 12ch; }
 .welcome-actions { display: grid; gap: 10px; }
 .welcome-login { background: rgba(255, 255, 255, .14) !important; color: #FFFFFF !important; }
 .welcome-note { margin: 6px 0 0; text-align: center; font-size: 12.5px; color: rgba(255, 255, 255, .7); }
@@ -1399,7 +1399,6 @@ function welcomePage() {
       <div class="welcome-actions">
         <button class="btn primary" data-act="auth-register">Create Account</button>
         <button class="btn welcome-login" data-act="auth-login">Log In</button>
-        <p class="welcome-note">Prototype · nothing you type leaves this page</p>
       </div>
     </div>`;
 }
