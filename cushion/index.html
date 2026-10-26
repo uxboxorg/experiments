@@ -1165,6 +1165,11 @@ button.row[disabled] { cursor: default; }
 /* Coming up card: pay day as a header row with a hairline under it */
 .card-media .pay-line { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; padding: 0 28px 12px 0; margin-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, .18); }
 .card-media .pay-line svg { opacity: .85; }
+
+/* Every section label sits 12px above what it labels, whatever spacing the screen set inline */
+.section-h { padding-bottom: 12px !important; }
+.section-row .section-h, .goal-stack > .section-h, .plan-start .section-h { padding-bottom: 0 !important; }
+.plan-start { gap: 12px; }
 </style>
 </head>
 <body>
