@@ -1611,19 +1611,22 @@ function regDonePage() {
     </div>`;
 }
 function startAuth() {
-  Object.values(stacks).forEach(st => { while (st.length) st.pop().remove(); });
   S.auth = {};
-  selectTab('today');
+  // Slide the welcome screen up over whatever is showing, then clear the pages it now hides
+  if (S.tab !== 'today') { Object.values(stacks).forEach(st => { while (st.length) st.pop().remove(); }); selectTab('today'); }
   navBusy = false;
   const w = push(welcomePage, { modal: true, kind: 'auth', onMount: el => { el.classList.add('welcome-page'); const v = el.querySelector('video'); if (v && reduced) v.addEventListener('loadeddata', () => { v.currentTime = 1.6; }, { once: true }); } });
   if (w) w.locked = true;
+  setTimeout(() => {
+    Object.values(stacks).forEach(st => { for (let i = st.length - 1; i >= 0; i--) if (st[i] !== w) st.splice(i, 1)[0].remove(); });
+    if (w) w.classList.remove('under');
+    S.editAccts = false; refresh(); updateChrome();
+  }, T + 40);
 }
 function finishAuth(msg) {
-  while (stack.length > 1) stack.pop().remove();
-  const top = stack[stack.length - 1]; if (top) top.locked = false;
-  navBusy = false; pop(true);
   S.auth = {};
   refresh();
+  dismissModal();
   setTimeout(() => toast(msg), T);
 }
 
@@ -1948,13 +1951,7 @@ function flowPush(render, opts = {}) {
     if (!el.dataset.focused && opts.focus !== false) { el.dataset.focused = '1'; setTimeout(() => { if (stack[stack.length - 1] !== el) return; const f = el.querySelector('input.field'); f && f.focus({ preventScroll: true }); }, T + 40); }
   } });
 }
-// Close every page of a full-screen flow in one move
-function closeFlow() {
-  let i = stack.length - 1;
-  while (i > 0 && !stack[i].modal) i--;
-  while (stack.length - 1 > i) stack.pop().remove();
-  navBusy = false; pop(true);
-}
+const closeFlow = () => dismissModal();
 
 // New goal, step 1: what it's for
 function goalMoveFlow(id, mode) {
@@ -2056,8 +2053,8 @@ function goalPage(id) {
     </div>`;
 }
 const goalMoveButtons = g => `<div class="btn-pair"><button class="btn gray" data-act="goal-add" data-id="${g.id}">${I.plus} Add Money</button><button class="btn gray" data-act="goal-withdraw" data-id="${g.id}" ${g.saved > 0 ? '' : 'disabled'}>Withdraw</button></div>`;
-function openGoal(id, kind) {
-  const pg = id === 'iceland' ? push(icelandPage, { media: 'g-iceland', kind }) : push(() => goalPage(id), { media: 'g-iceland', kind: kind || 'goal' });
+function openGoal(id, kind, instant = false) {
+  const pg = id === 'iceland' ? push(icelandPage, { media: 'g-iceland', kind, instant }) : push(() => goalPage(id), { media: 'g-iceland', kind: kind || 'goal', instant });
   if (pg) pg.goalId = id;
   return pg;
 }
@@ -2391,7 +2388,7 @@ function drainPops() {
 }
 let navBusy = false;
 const lockNav = () => { navBusy = true; setTimeout(() => { navBusy = false; }, Math.min(350, T + 50)); }; // long enough to swallow a double tap
-function push(render, { modal = false, media = '', onMount, opener, kind } = {}) {
+function push(render, { modal = false, media = '', onMount, opener, kind, instant = false } = {}) {
   if (navBusy) return null;
   lockNav();
   shieldUntil = performance.now() + 300;
@@ -2400,7 +2397,7 @@ function push(render, { modal = false, media = '', onMount, opener, kind } = {})
   // A page pushed from inside a full-screen modal stays inside it, above the tab bar
   const parent = stack[stack.length - 1];
   const inModal = !modal && !!(parent && (parent.modal || parent.inModal));
-  el.className = `page ${modal ? 'modal from-bottom' : 'from-right'}${inModal ? ' in-modal' : ''} ${media ? 'media ' + media : ''}`;
+  el.className = `page ${modal ? 'modal from-bottom' : instant ? '' : 'from-right'}${inModal ? ' in-modal' : ''} ${media ? 'media ' + media : ''}`; // instant: already in place, e.g. revealed as a flow above it closes
   el.dataset.tab = S.tab;
   el.inModal = inModal;
   el.setAttribute('role', 'region');
@@ -2435,6 +2432,30 @@ function push(render, { modal = false, media = '', onMount, opener, kind } = {})
   updateChrome();
   setTimeout(() => { if (!$$('#layer .sheet, #layer .alert').some(x => !x.closing)) { const f = el.querySelector('.nav button'); f && f.focus({ preventScroll: true }); } }, 60);
   return el;
+}
+// Close a whole full-screen flow in one move: the screen you're looking at slides down together with the
+// flow's first screen, so nothing from earlier steps flashes up on the way out
+function dismissModal() {
+  let i = stack.length - 1;
+  while (i > 0 && !stack[i].modal) i--;
+  const group = stack.splice(i);
+  if (!group.length) return;
+  if (typeof swipeReset === 'function') swipeReset();
+  shieldUntil = performance.now() + 300;
+  S.wheel = null;
+  navBusy = false; lockNav(); hideToast();
+  const top = group[group.length - 1], root = group[0];
+  group.forEach(el => {
+    el.inert = true; el.locked = false;
+    el.removeAttribute('id'); el.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+    if (el !== top && el !== root) { el.remove(); return; } // fully hidden behind the top screen
+    el.classList.remove('under');
+    el.classList.add('from-bottom');
+    setTimeout(() => el.remove(), reduced ? T : 520);
+  });
+  const prev = stack[stack.length - 1]; if (prev) prev.classList.remove('under');
+  updateChrome();
+  setTimeout(() => restoreFocus(root.opener, root.openerKey, FALLBACK.slice(1)), 30);
 }
 function pop(force) {
   if (typeof swipeReset === 'function') swipeReset();
@@ -2977,8 +2998,11 @@ const H = {
     const g = { id: 'g' + (++uid), name: d.name, icon: d.icon, color: goalColor(d.icon), goal: +d.target, saved: 0, monthly: d.monthly, paused: false, by: d.by || 0, done: false };
     S.goals.push(g);
     if (start) moveMoney(g, start, d.from);
-    closeFlow(); refresh();
-    setTimeout(() => { if (!navBusy) openGoal(g.id); toast(`${g.name} goal created`); }, T + 40);
+    refresh();
+    closeFlow();
+    // The new goal's page is already waiting underneath as the flow slides away
+    navBusy = false; openGoal(g.id, null, true); lockNav();
+    setTimeout(() => toast(`${g.name} goal created`), T);
   }),
   'goal-add'(el) { goalMoveFlow(el.dataset.id, 'add'); },
   'goal-withdraw'(el) { goalMoveFlow(el.dataset.id, 'out'); },
