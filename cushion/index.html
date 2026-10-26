@@ -1233,6 +1233,7 @@ const S = {
   dismissed: [],
   spotifyDelta: 0,
   payDay: 22,
+  comfort: 1000,
   carLate: false,
   chat: { title: null, emoji: null, msgs: [], busy: false },
   tab: 'today',
@@ -1240,7 +1241,7 @@ const S = {
 S.goals = [S.iceland];
 const FLEX_DAILY = 88.05;  // flexible budget per day this pay period
 const SPOTIFY_MONTHLY = 10.99; // back in the budget once the second plan is cancelled
-const COMFORT = 1000;      // the balance Lena never wants her current account to drop below
+const COMFORT_DEFAULT = 1000; // the balance Lena never wants her current account to drop below; S.comfort holds her choice
 const BANKS = [
   { id: 'n26', name: 'N26', sub: 'Current account', mask: '9331', bal: 850, kind: 'cash', logo: { brand: 'n26', bg: '#36A18B' }, found: true },
   { id: 'revolut', name: 'Revolut', sub: 'Savings vault', mask: '4862', bal: 1240, kind: 'saved', logo: { brand: 'revolut', bg: '#191C1F' }, found: true },
@@ -1375,8 +1376,8 @@ function safety(fc = forecast()) {
   const budget = r2(FLEX_DAILY + (S.spotifyCancelled && sep(21) < daysToPay ? SPOTIFY_MONTHLY / 29 : 0));
   // Every day until pay day has to stay above the comfort line after that many days of spending
   let per = Infinity, bind = 0;
-  for (let i = 0; i < fc.payIdx; i++) { const v = (fc.days[i] - COMFORT) / (i + 1); if (v < per) { per = v; bind = i; } }
-  const cash = Math.floor(per * 100) / 100; // round down so spending it all keeps €1,000
+  for (let i = 0; i < fc.payIdx; i++) { const v = (fc.days[i] - S.comfort) / (i + 1); if (v < per) { per = v; bind = i; } }
+  const cash = Math.floor(per * 100) / 100; // round down so spending it all keeps the comfort line
   return { safe: Math.max(0, Math.min(budget, cash)), budget, cash, limitedByCash: cash < budget, daysToPay, bind, fc };
 }
 const safeNow = () => safety().safe;
@@ -1404,7 +1405,7 @@ function profilePage() {
         <h2 class="section-h">Your plan</h2>
         <div class="list">
           ${paydayRow('profile')}
-          <div class="row pref-row"><span class="grow t">Comfort line</span><span class="v">€1,000</span></div>
+          ${wheelRow('comfort')}
         </div>
         <p class="foot" style="text-align:left;margin:8px 4px 0">Cushion keeps your current account above the comfort line when it works out what's safe to spend.</p>
       </div>
@@ -1657,9 +1658,10 @@ const monthLong = m => { const o = monthOf(m); return `${o.name} ${o.y}`; };
 // One wheel component, two kinds of value
 const WHEEL_CFG = {
   payday: { label: 'Pay day', aria: 'Pay day of each month', min: 1, max: PAY_MAX, get: () => S.payDay, set: v => { S.payDay = v; }, short: payShort, long: payLong, suffix: 'of the month' },
+  comfort: { label: 'Comfort line', aria: 'Comfort line', min: 0, max: 30, get: () => Math.round(S.comfort / 100), set: v => { S.comfort = v * 100; }, short: v => eur(v * 100), long: v => eur(v * 100) },
   goaldate: { label: 'Target date', aria: 'Target date', min: 0, max: GOAL_MONTHS, get: () => S.draft.by, set: v => { S.draft.by = v; }, short: m => m ? monthShort(m) : 'No date', long: m => m ? monthLong(m) : 'No date' },
 };
-const wheelCfg = key => WHEEL_CFG[key.startsWith('goal') ? 'goaldate' : 'payday'];
+const wheelCfg = key => WHEEL_CFG[key.startsWith('goal') ? 'goaldate' : key.startsWith('comfort') ? 'comfort' : 'payday'];
 function wheelRow(key, flush = false) {
   const c = wheelCfg(key), open = S.wheel === key, cur = c.get();
   const items = Array.from({ length: c.max - c.min + 1 }, (_, i) => `<div class="wheel-item${i + c.min === cur ? ' on' : ''}" data-v="${i + c.min}">${c.short(i + c.min)}</div>`).join('');
@@ -1808,7 +1810,7 @@ function renderToday() {
       <div class="safe">
         <div class="num" id="safe-num" aria-label="${eur(sf.safe, 2)} safe to spend today"><span class="cur">€</span><span class="w">${whole}</span><span class="cents">.${cents}</span></div>
         <div class="cap">Safe to spend today</div>
-        <p class="why">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day · ${sf.limitedByCash ? `held back to keep you above your €1,000 comfort line until then` : 'you stay above your €1,000 comfort line'}</p>
+        <p class="why">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day · ${sf.limitedByCash ? `held back to keep you above your ${eur(S.comfort)} comfort line until then` : `you stay above your ${eur(S.comfort)} comfort line`}</p>
       </div>
       ${undo}<div class="actions" id="actions">${cards || done}</div>
       <div>
@@ -1864,16 +1866,16 @@ function renderMoney() {
           </button>`).join('')}
         </div>
       </div>
+      ${savingsSection()}
       <div>
         <h2 class="section-h" style="margin:0">Coming up</h2>
         <button class="card-media g-month" data-act="open-month"><span class="card-chev mid" aria-hidden="true">${I.chev}</span>
           <span class="pct">Pay day ${dayLabel(fc.payIdx)}</span>
           <span style="font-size:13px;opacity:.9">The month ahead · thinnest moment</span>
           <span class="ttl">${eur(fc.pre.bal)} ${onDay(fc.pre.day)}</span>
-          <span style="font-size:13px;opacity:.9">${fc.pre.bal < COMFORT ? 'Under your €1,000 comfort line' : `${eur(fc.pre.bal - COMFORT)} above your €1,000 comfort line`}</span>
+          <span style="font-size:13px;opacity:.9">${fc.pre.bal < S.comfort ? `Under your ${eur(S.comfort)} comfort line` : `${eur(fc.pre.bal - S.comfort)} above your ${eur(S.comfort)} comfort line`}</span>
         </button>
       </div>
-      ${savingsSection()}
     </div>`;
 }
 
@@ -1919,7 +1921,7 @@ function moveImpact(amt, from, g) {
     return amt > free ? { bad: true, text: `Lena's Stash has ${eur(free)} that isn't set aside for a goal.` } : { bad: false, text: `Sets aside money already in Lena's Stash. Safe to spend doesn't change.` };
   }
   const before = safeNow(), after = safety(forecast({ extra: amt })).safe;
-  if (after <= 0) return { bad: true, text: `That would take your current account under €1,000 before pay day. Try less, or take it from Lena's Stash.` };
+  if (after <= 0) return { bad: true, text: `That would take your current account under ${eur(S.comfort)} before pay day. Try less, or take it from Lena's Stash.` };
   return { bad: false, text: after >= before ? `Today's safe-to-spend stays at ${eur(before, 2)}.` : `Today's safe-to-spend goes from ${eur(before, 2)} to ${eur(after, 2)}.` };
 }
 function moveMoney(g, amt, from) {
@@ -2222,14 +2224,14 @@ function icelandPage() {
 
 function chartSVG(fc) {
   const W = 350, H = 150, padT = 30, padB = 22, padL = 4, padR = 4;
-  const vals = fc.days.concat([COMFORT, 0, fc.start]);
+  const vals = fc.days.concat([S.comfort, 0, fc.start]);
   const max = Math.max(...vals), min = Math.min(...vals);
   const x = i => padL + i * (W - padL - padR) / (DAYS - 1);
   const y = v => padT + (max - v) * (H - padT - padB) / (max - min || 1);
   let d = `M${x(0).toFixed(1)},${y(fc.start).toFixed(1)}`;
   fc.days.forEach((v, i) => { d += ` L${x(i).toFixed(1)},${y(i ? fc.days[i - 1] : fc.start).toFixed(1)} L${x(i).toFixed(1)},${y(v).toFixed(1)}`; });
   const area = d + ` L${x(DAYS - 1).toFixed(1)},${y(min).toFixed(1)} L${x(0).toFixed(1)},${y(min).toFixed(1)} Z`;
-  const lx = x(fc.pre.day), ly = y(fc.pre.bal), cy = y(COMFORT);
+  const lx = x(fc.pre.day), ly = y(fc.pre.bal), cy = y(S.comfort);
   const label = eur(fc.pre.bal);
   const lw = label.length * 7 + 14;
   const below = ly + 30 < H - padB && Math.abs((ly + 20) - cy) > 12;
@@ -2240,7 +2242,7 @@ function chartSVG(fc) {
   const ticks = [0, mid, 22, 37].map(i => `<text x="${x(i).toFixed(1)}" y="${H - 4}" font-size="11" fill="rgba(255,255,255,.85)" text-anchor="${i === 0 ? 'start' : i === 37 ? 'end' : 'middle'}">${dayLabel(i)}</text>`).join('');
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-describedby="bills-list" aria-label="Projected balance in ${cashWord()} from 24 August to 30 September. Thinnest moment before pay day: ${label} on ${dayLabel(fc.pre.day)}.">
     <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
-    <text class="cl" x="${W - padR}" y="${(cy - 6).toFixed(1)}" font-size="11" fill="rgba(255,255,255,.88)" text-anchor="end">Comfort line €1,000</text>
+    <text class="cl" x="${W - padR}" y="${(cy - 6).toFixed(1)}" font-size="11" fill="rgba(255,255,255,.88)" text-anchor="end">Comfort line ${eur(S.comfort)}</text>
     <line x1="${padL}" x2="${W - padR}" y1="${cy.toFixed(1)}" y2="${cy.toFixed(1)}" stroke="rgba(255,255,255,.6)" stroke-dasharray="3 4" stroke-width="1"/>
     <path d="${area}" fill="url(#ga)"/>
     <path d="${d}" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
@@ -2259,7 +2261,7 @@ function monthPage() {
   const joinList = a => a.length > 1 ? `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}` : a[0];
   const sfNow = safety(fc), sfOther = safety(other);
   const lowNames = fc.ev.filter(e => e.day === fc.pre.day && e.amt < 0).map(e => e.phrase);
-  const spare = r2(fc.pre.bal - COMFORT);
+  const spare = r2(fc.pre.bal - S.comfort);
   const tight = spare < sfNow.budget * (fc.pre.day + 1);
   const lowIsRentCar = !S.carLate && (fc.pre.day === sep(1) || fc.pre.day === sep(2)) && fc.payIdx > sep(2);
   let explain;
@@ -2267,7 +2269,7 @@ function monthPage() {
   else if (fc.pre.day === 0) { const same = fc.ev.filter(e => e.day === fc.payIdx && e.amt < 0).map(e => e.phrase); explain = same.length ? `Pay lands ${onDay(fc.payIdx)}, the same day as ${joinList(same)}, so your money never dips below where it is today.` : `Pay lands ${onDay(fc.payIdx)} before any bill, so your money never dips below where it is today.`; }
   else if (lowNames.length) explain = `Your thinnest moment comes after ${joinList(lowNames)} on ${dayLabel(fc.pre.day)}.`;
   else explain = `Your bills are spread out enough that no single week gets tight.`;
-  if (sfNow.limitedByCash) explain += ` Today's safe-to-spend is held to ${eur(sfNow.safe, 2)} so ${cashWord()} ${cashWord() === 'your current account' ? "doesn't" : "don't"} drop below €1,000 through ${dayLabel(sfNow.bind)}${fc.ev.some(e => e.day === sfNow.bind && e.amt < 0) ? `, after ${fc.ev.filter(e => e.day === sfNow.bind && e.amt < 0).map(e => e.phrase).join(' and ')}` : ''}.`;
+  if (sfNow.limitedByCash) explain += ` Today's safe-to-spend is held to ${eur(sfNow.safe, 2)} so ${cashWord()} ${cashWord() === 'your current account' ? "doesn't" : "don't"} drop below ${eur(S.comfort)} through ${dayLabel(sfNow.bind)}${fc.ev.some(e => e.day === sfNow.bind && e.amt < 0) ? `, after ${fc.ev.filter(e => e.day === sfNow.bind && e.amt < 0).map(e => e.phrase).join(' and ')}` : ''}.`;
   if (S.carLate) {
     const moved = fc.pre.day !== other.pre.day;
     const where = sep(2) <= fc.payIdx && sep(6) === fc.payIdx ? ' Car insurance now lands on pay day, after your salary.' : sep(2) <= fc.payIdx && sep(6) > fc.payIdx ? ' Car insurance now lands after pay day.' : (gain > 0 && other.pre.day === sep(2) && fc.pre.day === sep(6)) ? '' : moved ? ` The low point moves from ${dayLabel(other.pre.day)} to ${dayLabel(fc.pre.day)}.` : '';
@@ -2660,7 +2662,7 @@ function reply(q) {
   for (let i = 0; i < fc.payIdx; i++) { const m = fc.days[i] - sf.safe * (i + 1); if (m < worst) { worst = m; k = i; } }
   const spendToLow = Math.round(sf.safe * (k + 1));
   const preBal = Math.round(fc.days[k]);
-  const room = preBal - COMFORT - spendToLow; // what can go out now and still keep the comfort line
+  const room = preBal - S.comfort - spendToLow; // what can go out now and still keep the comfort line
   const lowDay = k === fc.payIdx - 1 ? 'just before pay day' : k === 0 ? 'today' : `on ${dayLabel(k)}`;
   if (/dental|1,?430|dentist/.test(s)) {
     if (room >= 1430) return { title: 'The dental bill', emoji: 'stethoscope', paras: [`Yes. Paying €1,430 now and spending your safe-to-spend each day still leaves ${eur(preBal - spendToLow - 1430)} ${lowDay}, ${room === 1430 ? 'right at' : 'above'} your comfort line.`] };
@@ -2668,7 +2670,7 @@ function reply(q) {
     const short = 1430 - room;
     if (short > 0 && short < 50) return { title: 'The dental bill', emoji: 'stethoscope', paras: [`Just about. Paying €1,430 now and spending your safe-to-spend each day leaves ${eur(preBal - spendToLow - 1430)} ${lowDay}, only ${eur(short)} under your comfort line. A couple of quieter days and you're there.`] };
     return { title: 'The dental bill', emoji: 'stethoscope', paras: [
-      `Not all at once. Before everyday spending you'd have ${eur(preBal)} ${lowDay}. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €1,430 for the bill, and ${preBal - spendToLow - 1430 < 0 ? `you'd be overdrawn by ${eur(-(preBal - spendToLow - 1430))}` : `you'd be at ${eur(preBal - spendToLow - 1430)}, under your €1,000 comfort line`}.`,
+      `Not all at once. Before everyday spending you'd have ${eur(preBal)} ${lowDay}. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €1,430 for the bill, and ${preBal - spendToLow - 1430 < 0 ? `you'd be overdrawn by ${eur(-(preBal - spendToLow - 1430))}` : `you'd be at ${eur(preBal - spendToLow - 1430)}, under your ${eur(S.comfort)} comfort line`}.`,
       now > 0 ? `Pay ${eur(now)} now and the other ${eur(1430 - now)} after pay day on the ${pay}. Or take it from Lena's Stash, which has ${eur(stashFree())} outside ${goalsWord()}.` : `Ask the office to bill you after pay day on the ${pay}, or take it from Lena's Stash, which has ${eur(stashFree())} outside ${goalsWord()}.`] };
   }
   if (/\b(flights?|march|book|booking)\b|(?<![\d,.])€?600(?!\d|[,.]\d|[a-z])/.test(s) && !/iceland/.test(s)) {
@@ -2716,8 +2718,8 @@ function reply(q) {
   }
   if (/safe|spend|today/.test(s)) {
     return { title: 'Safe to spend', emoji: 'wallet', paras: [sf.limitedByCash
-      ? `You can spend ${eur(sf.safe, 2)} today. Your budget allows ${eur(sf.budget, 2)}, but I held it back so ${cashWord()} ${cashWord() === 'your current account' ? "doesn't" : "don't"} drop below €1,000 before pay day.`
-      : `You can spend ${eur(sf.safe, 2)} today. That's your flexible budget for the day, and ${cashWord()} ${cashStay()} above €1,000 until pay day.`] };
+      ? `You can spend ${eur(sf.safe, 2)} today. Your budget allows ${eur(sf.budget, 2)}, but I held it back so ${cashWord()} ${cashWord() === 'your current account' ? "doesn't" : "don't"} drop below ${eur(S.comfort)} before pay day.`
+      : `You can spend ${eur(sf.safe, 2)} today. That's your flexible budget for the day, and ${cashWord()} ${cashStay()} above ${eur(S.comfort)} until pay day.`] };
   }
   return { title: 'Your question', emoji: 'message-circle', paras: ['I can help with purchases, bills and goals. Try asking about a €600 flight, the dental bill, eating out or your savings goals.'] };
 }
