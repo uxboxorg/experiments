@@ -1170,6 +1170,23 @@ button.row[disabled] { cursor: default; }
 .section-h { padding-bottom: 12px !important; }
 .section-row .section-h, .goal-stack > .section-h, .plan-start .section-h { padding-bottom: 0 !important; }
 .plan-start { gap: 12px; }
+
+/* Scroll edge under the tab bar: a light fade, so content stays visible through the glass like iOS 26 */
+.edge-bottom, .page:not(.modal):not(.in-modal) .edge-btm { background: linear-gradient(to top, color-mix(in srgb, var(--bg) 55%, transparent) 0%, color-mix(in srgb, var(--bg) 25%, transparent) 30%, transparent 70%) !important; }
+:root[data-theme="dark"] .edge-bottom, :root[data-theme="dark"] .page:not(.modal):not(.in-modal) .edge-btm { background: linear-gradient(to top, color-mix(in srgb, var(--bg) 55%, transparent) 0%, color-mix(in srgb, var(--bg) 25%, transparent) 30%, transparent 70%) !important; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .edge-bottom, :root:not([data-theme="light"]) .page:not(.modal):not(.in-modal) .edge-btm { background: linear-gradient(to top, color-mix(in srgb, var(--bg) 55%, transparent) 0%, color-mix(in srgb, var(--bg) 25%, transparent) 30%, transparent 70%) !important; } }
+
+.gs-fallback { -webkit-backdrop-filter: blur(14px) saturate(1.6); backdrop-filter: blur(14px) saturate(1.6); }
+
+/* The top bars fade content with a gradient only. A blurred, masked layer here stops Chrome's other
+   backdrop filters from seeing the page, which made the Liquid Glass tab bar look solid */
+.tab-panel .nav::before, .page .nav::before, .chat-title.pinned::before { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+
+/* Liquid Glass, frosted: what's behind stays visible but soft, tinted to the theme, with a bright rim */
+.gs-fallback { background: rgba(255, 255, 255, .34) !important; -webkit-backdrop-filter: blur(10px) saturate(1.8) !important; backdrop-filter: blur(10px) saturate(1.8) !important; }
+:root[data-theme="dark"] .gs-fallback { background: rgba(40, 42, 38, .45) !important; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .gs-fallback { background: rgba(40, 42, 38, .45) !important; } }
+.gs-fallback::after { opacity: .7; }
 </style>
 </head>
 <body>
@@ -3927,7 +3944,8 @@ selectTab('today');
   const isFirefox = /Firefox/.test(ua);
   const probe = document.createElement('div');
   probe.style.backdropFilter = 'url(#x)';
-  const svgOK = !isWebkit && !isFirefox && probe.style.backdropFilter !== '';
+  // The SVG lens (displacement map) samples stale, shifted pixels in Chromium, so everyone gets the frosted glass
+  const svgOK = false && !isWebkit && !isFirefox && probe.style.backdropFilter !== '';
   const SEL = '.tabbar .tabs, .nav .circle-btn.glass, .nav .pill.glass, .chat-title .circle-btn.glass'; // Liquid Glass is for navigation only
   const defs = $('#lg-defs');
   const NS = 'http://www.w3.org/2000/svg';
@@ -4005,7 +4023,8 @@ selectTab('today');
     const key = `${w}x${h}r${r}`;
     if (el.dataset.lg === key) return;
     el.dataset.lg = key;
-    const v = `url(#${filterFor(w, h, r)}) saturate(${G.saturation})`;
+    // Lens bend at the rim, then a soft blur so text behind never fights the tab labels (iOS 26 'regular' glass)
+    const v = `url(#${filterFor(w, h, r)}) blur(${Math.min(w, h) < 60 ? 3 : 7}px) saturate(1.6)`;
     el.style.backdropFilter = v;
     el.style.webkitBackdropFilter = v;
   }
