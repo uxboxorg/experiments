@@ -1273,6 +1273,7 @@ const LUCIDE_EXTRA = {
   umbrella: '<path d="M22 12a10.06 10.06 1 0 0-20 0Z"/><path d="M12 12v8a2 2 0 0 0 4 0"/><path d="M12 2v1"/>',
   'graduation-cap': '<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>',
   zap: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+  'check-check': '<path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/>',
   calendar: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
   heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
 };
@@ -2190,7 +2191,7 @@ function renderToday() {
         <div class="num" id="safe-num" aria-label="${eur(sf.safe, 2)} safe to spend today"><span class="cur">€</span><span class="w">${whole}</span><span class="cents">.${cents}</span></div>
         <div class="safe-chips why">
           <span class="chip-s">${icon('calendar', 14)}${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day</span>
-          <span class="chip-s${sf.limitedByCash ? ' warn' : ''}">${sf.limitedByCash ? `${I.info}Held back for your ${eur(S.comfort)} comfort line` : `${I.check}Above your ${eur(S.comfort)} comfort line`}</span>
+          <span class="chip-s${sf.limitedByCash ? ' warn' : ''}">${sf.limitedByCash ? `${I.info}Held back for your ${eur(S.comfort)} comfort line` : `${icon('check-check', 14)}Above your ${eur(S.comfort)} comfort line`}</span>
         </div>
       </div>
       ${undo}<div class="actions" id="actions">${cards || done}</div>
