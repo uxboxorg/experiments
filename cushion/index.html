@@ -1423,6 +1423,50 @@ function buildLedger() {
 }
 S.tx = buildLedger();
 const txById = id => S.tx.find(t => t.id === id);
+
+// Live wording: everything that quotes a total reads it from the ledger, so edits show up everywhere
+const spendOf = id => SPEND.find(c => c.id === id);
+const coffee = () => { const v = S.tx.filter(t => t.grp === 'Bonanza Coffee'); return { n: v.length, v: r2(v.reduce((a, t) => a - t.amt, 0)), inEat: r2(v.filter(t => t.cat === 'Eating out' && !t.oneoff).reduce((a, t) => a - t.amt, 0)) }; };
+const COFFEE_USUAL = 5; // Bonanza visits in a normal month
+function vsUsual(c) {
+  const d = r2(spendAmt(c) - c.usual);
+  return Math.abs(d) <= 20 ? `right around your usual ${eur(c.usual)}` : d > 0 ? `${eur(d)} more than a normal month for you` : `${eur(-d)} less than a normal month for you`;
+}
+// Shops in a category, biggest first, counting only what isn't a one-off
+function catGroups(c) {
+  const g = [];
+  S.tx.filter(t => t.cat === c.name && t.amt < 0 && !t.oneoff).forEach(t => { const k = t.grp || t.name; let x = g.find(y => y.k === k); if (!x) g.push(x = { k, n: 0, v: 0, unit: t.unit }); x.n++; x.v = r2(x.v - t.amt); });
+  return g.sort((a, b) => (a.k === 'Other places') - (b.k === 'Other places') || b.v - a.v);
+}
+const oneoffTotal = c => r2(S.tx.filter(t => t.cat === c.name && t.oneoff && t.amt < 0).reduce((a, t) => a - t.amt, 0));
+const grpPhrase = g => g.n > 1 ? `${g.n} ${g.unit || 'payments'} and ${eur(g.v)}` : eur(g.v);
+const joinAnd = a => a.length > 1 ? `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}` : a[0] || '';
+function categoryAnswer(c) {
+  const amt = spendAmt(c), off = oneoffTotal(c), g = catGroups(c).filter(x => x.k !== 'Other places');
+  const paras = [`${c.name} ${c.name.endsWith('s') ? 'are' : 'is'} at ${eur(amt)} for August, ${vsUsual(c)}.${off ? ` That leaves out ${eur(off)} you marked as one-off.` : ''}`];
+  if (c.id === 'eat') {
+    const cf = coffee();
+    if (amt - c.usual > 20 && cf.n > COFFEE_USUAL && cf.inEat) paras.push(`The biggest change is Bonanza Coffee: ${cf.n} visits and ${eur(cf.v)} so far, against about ${COFFEE_USUAL} visits in a normal month.${g[0] && g[0].k !== 'Bonanza Coffee' ? ` ${g[0].k} is the largest single spend at ${eur(g[0].v)}.` : ''}`);
+    else if (g.length) paras.push(`Most of it is ${g[0].k} (${grpPhrase(g[0])})${g[1] ? ` and ${g[1].k} (${eur(g[1].v)})` : ''}.`);
+  } else if (g.length) {
+    paras.push(`${g[0].k} is the biggest with ${grpPhrase(g[0])}.${g.length > 1 ? ` ${joinAnd(g.slice(1, 3).map(x => `${x.k} adds ${eur(x.v)}`))}.` : ''}`);
+  }
+  return paras;
+}
+// Notes and insights on the pinned transactions follow the same numbers
+(() => {
+  const bb = TX.find(t => t.id === 'bb'), wf = TX.find(t => t.id === 'wf'), sh = TX.find(t => t.id === 'sh');
+  Object.defineProperty(bb, 'note', { get: () => { const cf = coffee(); return `${ord(cf.n)} visit this month · ${eur(cf.v)} so far`; } });
+  Object.defineProperty(bb, 'insight', { get: () => {
+    const cf = coffee(), eat = spendOf('eat'), d = r2(spendAmt(eat) - eat.usual), avg = cf.n ? cf.v / cf.n : 0;
+    return `Coffee is ${eur(cf.inEat)} of your eating out this month${d > 20 ? `, the biggest single part of the ${eur(d)} overspend` : `, and eating out is ${spendTag(eat).tag.toLowerCase()}`}. Ten fewer visits would save about ${eur(Math.round(avg * 10))}.`;
+  } });
+  Object.defineProperty(wf, 'insight', { get: () => `Right in line with your usual Saturday shop. Groceries are ${spendTag(spendOf('groc')).tag.toLowerCase()} for August.` });
+  Object.defineProperty(sh, 'note', { get: () => `Transport · ${spendTag(spendOf('trans')).tag.toLowerCase()}` });
+  Object.defineProperty(sh, 'insight', { get: () => { const t = spendOf('trans'); return `Fuel is steady. Transport is at ${eur(spendAmt(t))}, ${vsUsual(t)}.`; } });
+  const eat = spendOf('eat');
+  Object.defineProperty(eat, 'note', { get: () => { const cf = coffee(); return cf.n > COFFEE_USUAL ? `Coffee grew the most: ${cf.n} Bonanza visits against about ${COFFEE_USUAL} in a normal month. Delivery is up a little too.` : 'Coffee is back to a normal month. Delivery is the biggest part.'; } });
+})();
 const txWhen = t => t.when || dLabel(t.d);
 // What a category counts this month: everything in it except what you've marked as a one-off
 const spendAmt = c => r2(S.tx.filter(t => t.cat === c.name && !t.oneoff && t.amt < 0).reduce((a, t) => a - t.amt, 0));
@@ -2939,24 +2983,23 @@ function reply(q) {
       sf.limitedByCash ? `After pay day the flight no longer competes with this stretch.` : `Wait until then and you keep your full ${eur(sf.safe, 2)} a day.`] };
   }
   if (/\b(eat|eating|ate|coffee|bonanza|café|cafe|cafes|restaurants?|dining)\b/.test(s)) {
-    return { title: 'Eating out', emoji: 'coffee', paras: [
-      'Eating out is at €620 for August, €130 more than a normal month for you.',
-      'The biggest part of the gap is Bonanza Coffee: 14 visits and €94 so far, against about 5 visits in a normal month. Delivery is up a little too, and everything else looks usual.'] };
+    return { title: 'Eating out', emoji: 'coffee', paras: categoryAnswer(spendOf('eat')) };
   }
   if (/\brent\b/.test(s)) {
+    const c = spendOf('rent'), bill = billById('rent');
+    const ev = bill && fc.ev.find(e => e.bill === 'rent');
+    const biggest = ev && ev.day < fc.payIdx && !fc.ev.some(e => e.amt < ev.amt && e.day < fc.payIdx);
+    const paid = spendAmt(c);
     return { title: 'Rent', emoji: 'house', paras: [
-      'Yes. Rent is €1,850, the same as every month, and it goes out by standing order on the 1st.',
-      "It's already in your forecast. It's also your biggest bill before pay day, which is why your balance dips at the start of September."] };
+      paid ? `${paid === c.usual ? 'Yes. ' : ''}August's rent was ${eur(paid)}${paid === c.usual ? ', the same as every month' : `, against your usual ${eur(c.usual)}`}.` : `No rent is counted for August.`,
+      bill ? `Next: ${eur(bill.amt)} ${ev ? `on ${dayLabel(ev.day)}` : `on the ${payOn(bill.day)}`}, already in your forecast.${biggest ? ` It's your biggest bill before pay day, which is why your balance dips ${ev.day <= sep(5) ? 'at the start of September' : `on ${dayLabel(ev.day)}`}.` : ''}`
+           : `Rent isn't in your forecast any more, because the bill was deleted. Add it back from The month ahead so safe-to-spend allows for it.`] };
   }
   if (/\b(groceries|grocery|supermarket|lidl|rewe)\b/.test(s)) {
-    return { title: 'Groceries', emoji: 'shopping-basket', paras: [
-      'Groceries are at €340 for August, right around your usual €345.',
-      'Lidl is your biggest shop with 6 trips and €186. REWE adds €104 and dm €50.'] };
+    return { title: 'Groceries', emoji: 'shopping-basket', paras: categoryAnswer(spendOf('groc')) };
   }
   if (/\b(transport|fuel|petrol|shell|commute|deutschlandticket)\b/.test(s)) {
-    return { title: 'Transport', emoji: 'car', paras: [
-      'Transport is at €180 for August, the same as a normal month.',
-      "That's two Shell fill-ups (€104), your Deutschlandticket (€58) and two SHARE NOW trips (€18)."] };
+    return { title: 'Transport', emoji: 'car', paras: categoryAnswer(spendOf('trans')) };
   }
   if (/iceland|goal|saving/.test(s)) {
     const live = S.goals.filter(g => !g.done);
