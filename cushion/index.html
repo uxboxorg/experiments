@@ -1964,7 +1964,7 @@ function goalMoveFlow(id, mode) {
 function goalNamePage() {
   return `${goalNav(1, true)}
     <div class="auth">
-      ${authHead('What are you saving for?', 'Pick an icon and give it a name.')}
+      ${authHead('What are you saving for?', null)}
       ${iconGrid(S.draft.icon)}
       ${draftField('name', 'Name', { ph: 'New laptop', max: 28 })}
       <div class="chips idea-chips">${GOAL_IDEAS.map(([n, ic]) => `<button class="chip" data-act="goal-idea" data-name="${n}" data-icon="${ic}">${n}</button>`).join('')}</div>
@@ -2053,7 +2053,6 @@ function goalPage(id) {
         <div><span>Monthly transfer</span><span>${g.done ? 'Stopped' : g.paused ? 'Paused' : `${eur(g.monthly)} · day after pay day`}</span></div>
         <div><span>Held in</span><span>Lena’s Stash · 3.1%</span></div>
       </div>
-      <p class="foot" style="text-align:left;margin-top:6px">It earns interest while it fills. Nothing here is locked. You can take it back any time.</p>
     </div>`;
 }
 const goalMoveButtons = g => `<div class="btn-pair"><button class="btn gray" data-act="goal-add" data-id="${g.id}">${I.plus} Add Money</button><button class="btn gray" data-act="goal-withdraw" data-id="${g.id}" ${g.saved > 0 ? '' : 'disabled'}>Withdraw</button></div>`;
@@ -2111,7 +2110,7 @@ function savingsSection() {
   const active = S.goals.filter(g => !g.done), done = S.goals.filter(g => g.done);
   return `<div class="goal-stack">
       <h2 class="section-h" style="margin:0">Savings</h2>
-      ${active.length ? active.map(goalCard).join('') : '<p class="foot" style="text-align:left;margin:-4px 4px 0">Save for a trip, a laptop or a rainy day. Cushion works out a monthly amount that fits your month.</p>'}
+      ${active.map(goalCard).join('')}
       <button class="btn tinted" data-act="goal-new">${I.plus} New Goal</button>
       ${done.length ? `<h2 class="section-h" style="margin:10px 0 0">Done</h2><div class="list">${done.map(g => `
         <button class="row" data-act="open-goal" data-id="${g.id}" style="--inset:58px">${goalTile(g, 30)}<span class="grow t">${esc(g.name)}</span><span class="v">${eur(g.saved)}</span><span class="chev" aria-hidden="true">${I.chev}</span></button>`).join('')}</div>` : ''}
@@ -2215,11 +2214,11 @@ function icelandPage() {
       </div>
       <div class="kv">
         <div><span>Monthly transfer</span><span>${ic.paused ? 'Paused' : `${eur(ic.monthly)} · 23 Sep`}</span></div>
+        <div><span>Held in</span><span>Lena’s Stash · 3.1%</span></div>
         <div><span>Round-ups swept in</span><span>€680 since March</span></div>
         <div><span>Deposit due</span><span>€800 · 12 January</span></div>
         ${S.fixesSent ? `<div><span>Fixes money added</span><span>${eur(S.fixesSent, 2)}</span></div>` : ''}
       </div>
-      <p class="foot" style="text-align:left;margin-top:6px">Held in Lena's Stash at 3.1%, so it earns while it fills. Nothing here is locked. You can take it back any time.</p>
     </div>
     `;
 }
