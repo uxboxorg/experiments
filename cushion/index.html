@@ -1112,6 +1112,41 @@ button.row[disabled] { cursor: default; }
 .bank-done span { font-size: 15px; color: #555555; }
 .bank-app.approved .bank-done { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .bank-app, .bank-screen, .bank-hand { transition: none; } }
+
+/* Safari and Mail hand-offs */
+.web-app .bank-screen { background: #121212; color: #FFFFFF; }
+.web-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: calc(var(--top) + 6px) 14px 10px; background: #F2F2F7; color: #000000; border-bottom: .5px solid #C6C6C8; }
+.web-done { color: #007AFF; font-size: 17px; font-weight: 600; width: 52px; text-align: left; }
+.web-url { display: flex; align-items: center; gap: 4px; font-size: 15px; background: #E3E3E8; border-radius: 10px; padding: 7px 12px; flex: 1; justify-content: center; }
+.web-aa { width: 52px; text-align: right; font-size: 15px; }
+.web-body { padding: 24px 20px; display: grid; gap: 14px; align-content: start; overflow: auto; flex: 1; }
+.sp-logo { display: flex; align-items: center; gap: 8px; color: #1ED760; font-size: 22px; }
+.sp-logo b { color: #FFFFFF; }
+.sp-who { margin: -4px 0 6px; color: #B3B3B3; font-size: 14px; }
+.sp-web h2 { margin: 0; font-size: 26px; font-weight: 800; outline: none; }
+.sp-card { display: grid; gap: 4px; padding: 16px; border-radius: 8px; background: #242424; }
+.sp-card b { font-size: 18px; }
+.sp-card span { color: #B3B3B3; font-size: 14px; }
+.sp-p { margin: 0; color: #B3B3B3; font-size: 15px; line-height: 1.45; }
+.sp-pill { height: 48px; border-radius: 24px; background: #FFFFFF; color: #000000; font-size: 16px; font-weight: 700; }
+.sp-pill.ghost { background: transparent; color: #FFFFFF; border: 1px solid #727272; }
+.sp-link { color: #FFFFFF; font-size: 15px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; justify-self: start; padding: 6px 0; }
+.sp-link.plain { justify-self: center; text-decoration: none; }
+.sp-ok { color: #1ED760; }
+.mail-app .bank-screen { background: #FFFFFF; color: #000000; top: 46px; border-radius: 12px 12px 0 0; }
+.mail-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; }
+.mail-bar b { font-size: 17px; }
+.mail-cancel { color: #007AFF; font-size: 17px; }
+.mail-send { width: 32px; height: 32px; border-radius: 50%; background: #007AFF; color: #FFFFFF; display: grid; place-items: center; }
+.mail-body { overflow: auto; flex: 1; }
+.mail-row { display: flex; gap: 6px; align-items: center; padding: 11px 16px; border-bottom: .5px solid #C6C6C8; font-size: 15px; color: #000000; }
+.mail-row span { color: #8E8E93; }
+.mail-row b { font-weight: 400; }
+.mail-chip { color: #007AFF; }
+.mail-text { padding: 14px 16px; font-size: 16px; line-height: 1.45; }
+.mail-attach { margin: 0 16px 20px; display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 10px; background: #F2F2F7; color: #8E8E93; }
+.mail-attach b { display: block; color: #000000; font-weight: 500; font-size: 15px; }
+.mail-attach small { font-size: 12px; }
 </style>
 </head>
 <body>
@@ -1125,8 +1160,8 @@ button.row[disabled] { cursor: default; }
       <h2>Things to try</h2>
       <ul>
         <li>Approve “Move €1,200 into savings”, then check The month ahead</li>
-        <li>Open “Cancel the second Spotify” and let Cushion handle it</li>
-        <li>Send the fixes money to the Iceland trip, then change the monthly amount</li>
+        <li>Open “Cancel the second Spotify” and cancel it on Spotify’s site</li>
+        <li>In Fixes, email Q-Park about the duplicate parking charge, then put the refund towards Iceland</li>
         <li>Move car insurance to the 6th in The month ahead</li>
         <li>Ask Chat “Can I afford a €600 flight in March?” or try the voice demo</li>
         <li>Open the Accounts tab to add a sample N26 account or swipe one away</li>
@@ -1286,6 +1321,7 @@ const S = {
   spotifyDelta: 0,
   payDay: 22,
   comfort: 1000,
+  parking: 'found', // duplicate Q-Park charge: found → requested → refunded
   carLate: false,
   chat: { title: null, emoji: null, msgs: [], busy: false },
   tab: 'today',
@@ -1382,7 +1418,7 @@ function categoryPage(c0) {
     </div>`;
 }
 const FIXES = [
-  { id: 'parking', name: 'Duplicate parking charge', note: 'Q-Park refund · 19 Aug', amt: 46.01, ready: () => true },
+  { id: 'parking', name: 'Duplicate parking charge', amt: 46.01, ready: () => S.parking === 'refunded' },
 ];
 const fixesTotal = () => FIXES.filter(f => f.ready()).reduce((a, f) => a + f.amt, 0);
 const fixesAvailable = () => r2(fixesTotal() - S.fixesSent);
@@ -2126,7 +2162,7 @@ function renderToday() {
       <article class="action glass" data-card="spotify">
         ${tile({ brand: 'spotify', bg: '#191414', fg: '#1ED760' }, 44)}
         <h3>Cancel the second Spotify</h3>
-        <p>Two accounts bill the same card. I have drafted the cancellation and just need your go-ahead.</p>
+        <p>Two Premium plans bill the same card, and one hasn't been played since June. Cancelling it takes about a minute.</p>
         <div class="btns"><button class="review-pill" data-act="open-spotify">Review</button><button class="pill neutral" style="height:44px" data-act="dismiss" data-id="spotify">Not Now</button></div>
       </article>`).join('');
   const done = `<article class="action glass done" tabindex="-1" id="all-done"><span class="ok" aria-hidden="true">${I.check}</span><div><h3>All caught up</h3><p>New suggestions show up here when I spot them.</p></div></article>`;
@@ -2260,6 +2296,112 @@ function bankApprove({ lines, ref }) {
       setTimeout(() => close(true), reduced ? 200 : 900);
     });
   });
+}
+
+
+/* ---------------- Hand-offs to other apps ----------------
+   Cushion can't cancel a subscription or claim a refund itself. It sends Lena to the right place
+   (Spotify's site in Safari, a drafted email in Mail) and picks the thread back up when she returns. */
+const LOCK_SVG = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 10V7A5 5 0 0 0 7 7v3H5v12h14V10h-2zM9 7a3 3 0 0 1 6 0v3H9V7z"/></svg>';
+function handoff({ cls, label, body, onClick, hand }) {
+  if (alertOpen) return Promise.resolve(false);
+  hideToast();
+  return new Promise(resolve => {
+    const opener = document.activeElement, key = focusKey(opener);
+    const el = document.createElement('div');
+    el.className = `bank-app ${cls}`;
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', label);
+    el.innerHTML = `${hand ? `<div class="bank-hand" aria-hidden="true">${hand}</div>` : ''}<div class="bank-screen">${body()}</div>`;
+    $('#layer').append(el);
+    let done = false;
+    const close = value => {
+      if (done) return; done = true;
+      alertOpen = null; el.closing = true; el.classList.add('leaving');
+      setTimeout(() => { el.remove(); syncInert(); restoreFocus(opener, key, FALLBACK); resolve(value); }, reduced ? 0 : 380);
+    };
+    alertOpen = { cancel: () => close(false) };
+    syncInert();
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+    setTimeout(() => { el.classList.add('open'); const f = el.querySelector('[data-first]'); f && f.focus({ preventScroll: true }); }, reduced ? 0 : (hand ? 650 : 60));
+    el.addEventListener('click', e => { const b = e.target.closest('[data-w]'); if (b && !done) onClick(b.dataset.w, el, close); });
+  });
+}
+
+// Spotify's account page, in Safari
+function spotifyWeb() {
+  let step = 0;
+  const page = () => [
+    `<div class="sp-logo">${glyph({ brand: 'spotify' }, 30)}<b>Spotify</b></div>
+     <p class="sp-who">Logged in as lena.music</p>
+     <h2 data-first tabindex="-1">Your plan</h2>
+     <div class="sp-card"><b>Premium Individual</b><span>€10.99 a month</span><span>Next payment 21/09/2026 · Mastercard ···· 9002</span></div>
+     <button class="sp-pill ghost" data-w="none">Change plan</button>
+     <button class="sp-link" data-w="cancel">Cancel Premium</button>`,
+    `<h2 data-first tabindex="-1">Cancel Premium?</h2>
+     <p class="sp-p">You’ll switch to Spotify Free on 21 September 2026. Your playlists and saved music stay.</p>
+     <button class="sp-pill" data-w="confirm">Yes, Cancel Premium</button>
+     <button class="sp-link plain" data-w="keep">Keep Premium</button>`,
+    `<div class="sp-ok">${CHECK_SVG}</div>
+     <h2 data-first tabindex="-1">Premium cancelled</h2>
+     <p class="sp-p">Your plan ends on 21 September 2026. You won’t be charged again.</p>`,
+  ][step];
+  const body = () => `
+    <div class="web-bar"><button class="web-done" data-w="done">Done</button><span class="web-url">${LOCK_SVG} spotify.com</span><span class="web-aa">aA</span></div>
+    <div class="web-body sp-web">${page()}</div>`;
+  return handoff({ cls: 'web-app', label: 'Safari, spotify.com', hand: `${tile({ brand: 'spotify', bg: '#191414', fg: '#1ED760' }, 64)}<span>Opening spotify.com…</span>`, body, onClick: (w, el, close) => {
+    if (w === 'done') return close(step === 2);
+    if (w === 'none') return;
+    step = w === 'cancel' ? 1 : w === 'confirm' ? 2 : 0;
+    $('.web-body', el).innerHTML = page();
+    const f = el.querySelector('[data-first]'); f && f.focus({ preventScroll: true });
+  } });
+}
+
+// A drafted email in Mail, sent from Lena's own address
+function mailCompose({ to, subject, text, attach }) {
+  const body = () => `
+    <div class="mail-bar"><button class="mail-cancel" data-w="cancel">Cancel</button><b>New Message</b><button class="mail-send" data-w="send" aria-label="Send" data-first><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>
+    <div class="mail-body">
+      <div class="mail-row"><span>To:</span><b class="mail-chip">${to}</b></div>
+      <div class="mail-row"><span>Cc/Bcc, From:</span>${esc(S.user.email)}</div>
+      <div class="mail-row"><span>Subject:</span><b>${subject}</b></div>
+      <div class="mail-text">${text}</div>
+      ${attach ? `<div class="mail-attach">${icon('receipt', 22)}<span><b>${attach}</b><small>PDF · 84 KB</small></span></div>` : ''}
+    </div>`;
+  return handoff({ cls: 'mail-app', label: 'Mail, new message', body, onClick: (w, el, close) => close(w === 'send') });
+}
+
+/* Duplicate parking charge: found → refund requested → refunded (then it's money you can put aside) */
+const PARKING_AMT = 46.01;
+function parkingPage() {
+  const st = S.parking, g = fixGoal(), avail = fixesAvailable();
+  const callout = st === 'requested'
+    ? `<div class="callout" style="background:var(--card)">${I.info}<span>You asked Q-Park for a refund today. They usually reply within 3–5 working days, and Cushion tells you when the money lands.</span></div>`
+    : st === 'refunded' ? `<div class="callout" style="background:var(--card)">${I.check}<span><b>Q-Park refunded ${eur(PARKING_AMT, 2)}</b> to your current account.${S.fixesSent >= PARKING_AMT ? ' You’ve put it towards a goal.' : ''}</span></div>` : '';
+  const dock = st === 'found'
+    ? `<p class="foot">If Q-Park doesn’t refund it within 14 days, you can dispute the charge with Sparkasse.</p><button class="btn primary" data-act="parking-email">Email Q-Park</button>`
+    : st === 'refunded' && avail > 0 ? (g ? `<button class="btn primary" data-act="send-fixes">Put ${eur(avail, 2)} Towards ${esc(g.name)}</button>` : `<button class="btn primary" data-act="fix-new-goal">${I.plus} Start a Goal</button>`)
+    : `<button class="btn primary" data-act="back">Done</button>`;
+  return `
+    <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
+    <div class="detail">
+      <div><h1 data-short="Parking Charge">Duplicate parking charge</h1>
+      <p class="body" style="margin-top:6px">Q-Park Alexanderplatz took ${eur(PARKING_AMT, 2)} twice from your current account on 18 August, a minute apart. It looks like the exit barrier charged you twice.</p></div>
+      <div class="kv">
+        <div><span>18 Aug, 14:02</span><span>${eur(PARKING_AMT, 2)}</span></div>
+        <div><span>18 Aug, 14:03 · duplicate</span><span>${eur(PARKING_AMT, 2)}</span></div>
+      </div>
+      ${st === 'found' ? `<p class="body">Cushion can’t claim refunds for you, but it can write the email. You send it from your own address, with your statement attached.</p>` : callout}
+    </div>
+    <div class="dock">${dock}</div>`;
+}
+function refundArrives() {
+  if (S.parking !== 'requested') return;
+  S.parking = 'refunded';
+  acct('chk').bal = r2(acct('chk').bal + PARKING_AMT);
+  S.tx.unshift({ id: 'qp-ref', name: 'Q-Park', grp: 'Q-Park', note: 'Refund for 18 Aug', amt: PARKING_AMT, cat: 'Other', cat0: 'Other', d: 24, acct: 'chk', oneoff: false, logo: { icon: 'car', bg: '#004B87' } });
+  refresh();
+  toast(`3 days later: Q-Park refunded ${eur(PARKING_AMT, 2)}`);
 }
 
 /* ---------------- Goals ---------------- */
@@ -2533,29 +2675,29 @@ function spotifyPage() {
     <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
     <div class="detail">
       <div><h1 data-short="Spotify Plan">Cancel the second Spotify</h1>
-      <p class="body" style="margin-top:6px">I cancelled the account opened in March and kept the family plan. The last play on it was 7 June.</p></div>
+      <p class="body" style="margin-top:6px">You cancelled the Individual plan from March and kept Family.</p></div>
       <div class="kv"><div><span>Keeping</span><span>Family · €17.99</span></div><div><span>Cancelled</span><span>Individual · €10.99</span></div></div>
-      <div class="callout glass">${I.check}<span><b>The second Spotify has been cancelled.</b><br>${spDelta > 0 ? `Your safe-to-spend went up by ${eur(spDelta, 2)} a day.` : sf.limitedByCash ? `Your safe-to-spend stays at ${eur(sf.safe, 2)} for now, because ${cashWord()} ${cashWord() === 'your current account' ? 'is' : 'are'} what limits it until pay day.` : `Your next charge would have ${sep(21) === sf.daysToPay ? 'landed on' : 'come after'} pay day, so the saving shows up in your next pay period.`} You'll save €10.99 a month from 21 September.</span></div>
+      <div class="callout glass">${I.check}<span><b>The second Spotify has been cancelled.</b><br>${spDelta > 0 ? `Your safe-to-spend went up by ${eur(spDelta, 2)} a day.` : sf.limitedByCash ? `Your safe-to-spend stays at ${eur(sf.safe, 2)} for now, because ${cashWord()} ${cashWord() === 'your current account' ? 'is' : 'are'} what limits it until pay day.` : `Your next charge would have ${sep(21) === sf.daysToPay ? 'landed on' : 'come after'} pay day, so the saving shows up in your next pay period.`} You'll save €10.99 a month from 21 September, and Cushion will check that no charge arrives that day.</span></div>
     </div>
     <div class="dock">
-      <p class="foot">Spotify confirmed the cancellation</p>
+      <p class="foot">You marked this as cancelled today</p>
       <button class="btn primary" data-act="back">Done</button>
     </div>`;
   return `
     <div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button></div>
     <div class="detail">
       <div><h1 data-short="Spotify Plan">Cancel the second Spotify</h1>
-      <p class="body" style="margin-top:6px">I'll cancel the account opened in March and keep the family plan. The last play on it was 7 June.</p></div>
+      <p class="body" style="margin-top:6px">Two Premium plans bill your Mastercard: Family and an Individual plan opened in March. Nobody has played anything on the Individual one since 7 June.</p></div>
       <div class="kv">
         <div><span>Keeping</span><span>Family · €17.99</span></div>
         <div><span>Cancelling</span><span>Individual · €10.99</span></div>
         <div><span>Next charge avoided</span><span>21 September</span></div>
       </div>
-      <p class="body">I'll sign in with the passkey you saved, confirm on their site, and screenshot the confirmation. If they push a retention offer I'll bring it back to you instead of accepting.</p>
+      <p class="body">Cushion can’t cancel subscriptions for you. On Spotify’s site it takes about a minute: Your plan › Cancel Premium.</p>
     </div>
     <div class="dock">
-      <p class="foot">Cushion handles it with Spotify for you</p>
-      <button class="btn primary" data-act="confirm-spotify">End It for Me</button>
+      <p class="foot">Opens spotify.com in Safari</p>
+      <button class="btn primary" data-act="confirm-spotify">Cancel on Spotify</button>
     </div>`;
 }
 
@@ -3159,15 +3301,15 @@ function fixesSheet() {
   const avail = fixesAvailable();
   openSheet(`
     <div class="sheet-head"><h2 data-title>Fixes</h2><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button></div>
-    <p class="sub">Money I found by cleaning things up. Send it wherever it helps most.</p>
+    <p class="sub">Things worth fixing, and money you get back from them.</p>
     <div class="body">
-      <div class="list" style="background:var(--fill)">${FIXES.map(f => `
+      <div class="list" style="background:var(--fill)">
         <div class="row">
-          <span class="grow"><div class="t" style="font-size:16px">${f.name}</div><div class="s">${f.note}</div></span>
-          <span class="v" style="color:var(--green-text)">+${eur(f.amt, 2)}</span>
-        </div>`).join('')}
+          <span class="grow"><div class="t" style="font-size:16px">Duplicate parking charge</div><div class="s">${S.parking === 'found' ? 'Q-Park charged you twice on 18 Aug' : S.parking === 'requested' ? 'Refund requested · usually 3–5 days' : 'Refunded by Q-Park'}</div></span>
+          ${S.parking === 'refunded' ? `<span class="v" style="color:var(--green-text)">+${eur(PARKING_AMT, 2)}</span>` : S.parking === 'requested' ? '<span class="tag">Waiting</span>' : '<button class="review-pill" data-act="fix-parking">Review</button>'}
+        </div>
         <div class="row">
-          <span class="grow"><div class="t" style="font-size:16px">Second Spotify plan</div><div class="s">${S.spotifyCancelled ? '€10.99 a month back in your budget' : S.dismissed.includes('spotify') ? 'Dismissed · €10.99 a month' : 'Saves €10.99 a month · needs your go-ahead'}</div></span>
+          <span class="grow"><div class="t" style="font-size:16px">Second Spotify plan</div><div class="s">${S.spotifyCancelled ? '€10.99 a month back in your budget' : S.dismissed.includes('spotify') ? 'Dismissed · €10.99 a month' : 'Saves €10.99 a month · cancel on Spotify'}</div></span>
           ${S.spotifyCancelled ? `<span class="tag">Cancelled</span>` : `<button class="review-pill" data-act="fix-review">Review</button>`}
         </div>
       </div>
@@ -3269,10 +3411,10 @@ const H = {
   'open-spotify'() { push(spotifyPage, { media: 'g-teal', kind: 'spotify' }); },
   'confirm-spotify': once(async el => {
     if (S.spotifyCancelled) return;
-    const ok = await alertBox({ sheet: true, title: 'End your second Spotify plan?', msg: 'Cushion ends the plan with Spotify and updates your forecast.', actions: [{ label: 'End Plan', style: 'destructive', value: true }, { label: 'Cancel', value: false }] });
+    const went = await spotifyWeb();
+    // Cushion can't see inside Spotify, so it asks
+    const ok = await alertBox({ title: went ? 'Did the cancellation go through?' : 'Did you cancel the plan?', msg: 'Cushion updates your forecast now and checks that no Spotify charge arrives on 21 September.', actions: [{ label: 'Yes, It’s Cancelled', style: 'prominent', value: true }, { label: 'Not Yet', value: false }] });
     if (!ok || S.spotifyCancelled) return;
-    el.innerHTML = '<span class="spinner"></span> Cancelling…'; el.disabled = true;
-    await wait(reduced ? 0 : 1100);
     const from = safeNow();
     S.spotifyCancelled = true;
     if (S.lastDismissed === 'spotify') S.lastDismissed = S.dismissed.filter(x => x !== 'spotify').slice(-1)[0] || null;
@@ -3329,6 +3471,17 @@ const H = {
     toast(after !== before ? `${b.name} deleted · safe to spend is now ${eur(after, 2)}` : `${b.name} deleted`);
   }),
   fixes() { fixesSheet(); },
+  'fix-parking'() { const o = sheetEl && sheetEl.opener; closeSheet(true); push(parkingPage, { opener: o, kind: 'parking' }); },
+  'parking-email': once(async () => {
+    if (S.parking !== 'found') return;
+    const sent = await mailCompose({ to: 'service@q-park.de', subject: 'Duplicate charge on 18 August: refund request',
+      text: `Hello,<br><br>I was charged twice for one stay at Q-Park Alexanderplatz on 18 August 2026: ${eur(PARKING_AMT, 2)} at 14:02 and again at 14:03, both to my Sparkasse account ending 4659. Please refund the second charge.<br><br>My bank statement is attached.<br><br>Thank you,<br>${esc(S.user.first)} ${esc(S.user.last)}`,
+      attach: 'Statement-18-Aug.pdf' });
+    if (!sent) return;
+    S.parking = 'requested'; refresh();
+    toast('Email sent to Q-Park');
+    setTimeout(refundArrives, reduced ? 2500 : 7000); // a prototype shortcut for the 3–5 days it takes
+  }),
   'fix-review'() { const o = sheetEl && sheetEl.opener; closeSheet(true); push(spotifyPage, { media: 'g-teal', opener: o, kind: 'spotify' }); },
   'fix-to-iceland'() {
     if (fixesAvailable() <= 0) return;
