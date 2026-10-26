@@ -2189,7 +2189,7 @@ function renderToday() {
         <div class="safe-top"><span class="cap" id="safe-cap">Safe to spend today</span><button class="safe-ask" data-act="ask-chat" data-q="Why is my safe to spend ${eur(sf.safe, 2)} today?" aria-label="Ask Cushion why it's ${eur(sf.safe, 2)} today">${icon('sparkles', 18)}</button></div>
         <div class="num" id="safe-num" aria-label="${eur(sf.safe, 2)} safe to spend today"><span class="cur">€</span><span class="w">${whole}</span><span class="cents">.${cents}</span></div>
         <div class="safe-chips why">
-          <span class="chip-s">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day</span>
+          <span class="chip-s">${icon('calendar', 14)}${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day</span>
           <span class="chip-s${sf.limitedByCash ? ' warn' : ''}">${sf.limitedByCash ? `${I.info}Held back for your ${eur(S.comfort)} comfort line` : `${I.check}Above your ${eur(S.comfort)} comfort line`}</span>
         </div>
       </div>
