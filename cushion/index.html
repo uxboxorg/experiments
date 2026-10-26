@@ -1149,7 +1149,7 @@ button.row[disabled] { cursor: default; }
 .mail-attach small { font-size: 12px; }
 
 /* Safe-to-spend card: label first, context as pills, the balance line inside */
-.safe { display: grid; gap: 12px; padding: 20px 20px 16px; border-radius: 30px; text-align: left; background: #12290A !important; box-shadow: 0 10px 30px rgba(18, 41, 10, .18) !important; }
+.safe { display: grid; gap: 12px; padding: 20px 20px 20px; border-radius: 30px; text-align: left; background: #12290A !important; box-shadow: 0 10px 30px rgba(18, 41, 10, .18) !important; }
 :root[data-theme="dark"] .safe { background: #102207 !important; box-shadow: none !important; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .safe { background: #102207 !important; box-shadow: none !important; } }
 .safe-top { display: flex; align-items: center; justify-content: space-between; min-height: 40px; margin-bottom: -10px; }
@@ -1161,11 +1161,6 @@ button.row[disabled] { cursor: default; }
 .chip-s { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 11px; white-space: nowrap; border-radius: 14px; background: rgba(255, 255, 255, .12); color: #FFFFFF; font-size: 13px; font-weight: 600; text-shadow: none; }
 .chip-s svg { width: 14px; height: 14px; opacity: .85; margin-left: -2px; }
 .chip-s.warn { background: rgba(255, 184, 77, .2); color: #FFD08A; }
-.safe-chart { position: relative; display: grid; gap: 6px; width: 100%; padding: 6px 0 0; margin-top: 2px; text-align: left; color: #FFFFFF; border-radius: 12px; }
-.safe-chart svg { width: 100%; height: 74px; display: block; overflow: visible; }
-.spark-plot { position: relative; display: block; height: 74px; margin-bottom: 16px; }
-.spark-dot { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--lime); pointer-events: none; }
-.spark-line { position: absolute; right: 0; transform: translateY(4px); font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, .7); white-space: nowrap; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -2162,27 +2157,6 @@ function keepFocus(fn) {
 const edge = '<div class="edge-top" aria-hidden="true"></div>';
 
 /* ---------------- Today ---------------- */
-// The balance to pay day, drawn small inside the safe-to-spend card; it opens The month ahead
-function safeSpark(sf) {
-  const fc = sf.fc, n = fc.payIdx + 1, W = 320, H = 74, padT = 8, padB = 6;
-  const days = fc.days.slice(0, n), vals = days.concat([fc.start]);
-  const hi = Math.max(...vals, S.comfort), lo = Math.min(...vals, S.comfort), span = Math.max(hi - lo, 400);
-  const max = hi + span * .06, min = lo - span * .06; // the comfort line always stays in view
-  const x = i => i * W / Math.max(1, n - 1);
-  const y = v => padT + (max - v) * (H - padT - padB) / (max - min || 1);
-  let d = `M0,${y(fc.start).toFixed(1)}`;
-  days.forEach((v, i) => { d += ` L${x(i).toFixed(1)},${y(i ? days[i - 1] : fc.start).toFixed(1)} L${x(i).toFixed(1)},${y(v).toFixed(1)}`; });
-  const area = `${d} L${W},${H} L0,${H} Z`, cy = y(S.comfort).toFixed(1);
-  const low = fc.pre, lx = x(Math.min(low.day, n - 1)).toFixed(1), ly = y(low.bal).toFixed(1);
-  return `<button class="safe-chart" data-act="open-month" aria-label="The month ahead. Lowest before pay day: ${eur(low.bal)} ${onDay(low.day)}.">
-    <span class="spark-plot"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
-      <defs><linearGradient id="sp-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
-      <path d="${area}" fill="url(#sp-fill)"/>
-      <line x1="0" x2="${W}" y1="${cy}" y2="${cy}" stroke="rgba(255,255,255,.5)" stroke-dasharray="3 4" stroke-width="1" vector-effect="non-scaling-stroke"/>
-      <path d="${d}" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-    </svg><i class="spark-dot" style="left:${(lx / W * 100).toFixed(2)}%;top:${(ly / H * 100).toFixed(2)}%"></i><span class="spark-line" style="top:${(cy / H * 100).toFixed(2)}%">Comfort line ${eur(S.comfort)}</span></span>
-  </button>`;
-}
 function renderToday() {
   const sf = safety();
   const n = S.actions.length;
@@ -2216,9 +2190,8 @@ function renderToday() {
         <div class="num" id="safe-num" aria-label="${eur(sf.safe, 2)} safe to spend today"><span class="cur">€</span><span class="w">${whole}</span><span class="cents">.${cents}</span></div>
         <div class="safe-chips why">
           <span class="chip-s">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day</span>
-          <span class="chip-s${sf.limitedByCash ? ' warn' : ''}" title="Comfort line ${eur(S.comfort)}">${sf.limitedByCash ? `${I.info}Held back for comfort line` : `${I.check}Above comfort line`}</span>
+          <span class="chip-s${sf.limitedByCash ? ' warn' : ''}">${sf.limitedByCash ? `${I.info}Held back for your ${eur(S.comfort)} comfort line` : `${I.check}Above your ${eur(S.comfort)} comfort line`}</span>
         </div>
-        ${safeSpark(sf)}
       </div>
       ${undo}<div class="actions" id="actions">${cards || done}</div>
       <div>
