@@ -1161,6 +1161,10 @@ button.row[disabled] { cursor: default; }
 .chip-s { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 11px; white-space: nowrap; border-radius: 14px; background: rgba(255, 255, 255, .12); color: #FFFFFF; font-size: 13px; font-weight: 600; text-shadow: none; }
 .chip-s svg { width: 14px; height: 14px; opacity: .85; margin-left: -2px; }
 .chip-s.warn { background: rgba(255, 184, 77, .2); color: #FFD08A; }
+
+/* Coming up card: pay day as a header row with a hairline under it */
+.card-media .pay-line { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; padding: 0 28px 12px 0; margin-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, .18); }
+.card-media .pay-line svg { opacity: .85; }
 </style>
 </head>
 <body>
@@ -2252,7 +2256,7 @@ function renderMoney() {
       <div>
         <h2 class="section-h" style="margin:0">Coming up</h2>
         <button class="card-media g-month" data-act="open-month"><span class="card-chev mid" aria-hidden="true">${I.chev}</span>
-          <span class="pct">Pay day ${dayLabel(fc.payIdx)}</span>
+          <span class="pay-line">${icon('calendar', 15)}Pay day ${dayLabel(fc.payIdx)}</span>
           <span style="font-size:13px;opacity:.9">The month ahead · thinnest moment</span>
           <span class="ttl">${eur(fc.pre.bal)} ${onDay(fc.pre.day)}</span>
           <span style="font-size:13px;opacity:.9">${fc.pre.bal < S.comfort ? `Under your ${eur(S.comfort)} comfort line` : `${eur(fc.pre.bal - S.comfort)} above your ${eur(S.comfort)} comfort line`}</span>
