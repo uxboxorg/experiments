@@ -965,7 +965,9 @@ button.row[disabled] { cursor: default; }
 .faceid.ok { color: #34C759; }
 @keyframes face-scan { from { opacity: .55; transform: scale(.96); } to { opacity: 1; transform: scale(1.02); } }
 .kb.pad .kb-row { gap: 6px; padding: 0 6px; }
-.kb.pad .kb-key { flex: 1 1 0; height: 48px; font-size: 26px; }
+/* Number pad: three equal columns in every row, with the delete key bare like iOS */
+.kb.pad .kb-key, .kb.pad .kb-key.fn, .kb.pad .kb-key.blank { flex: 1 1 0; min-width: 0; height: 48px; font-size: 26px; }
+.kb.pad .kb-key.fn { background: transparent; box-shadow: none; }
 .kb-key.blank { visibility: hidden; }
 @media (prefers-reduced-motion: reduce) { .faceid:not(.ok) svg { animation: none; } }
 
@@ -1346,7 +1348,7 @@ function forecast(over = {}) {
     { day: sep(Math.min(st.payDay, 30)), name: 'Salary', phrase: 'your salary', amt: 3482 },
   ];
   if (st.payDay >= 25) ev.push({ day: st.payDay - 24, name: 'Salary', phrase: 'your salary', amt: 3482 });
-  if (!S.iceland.paused && !S.iceland.done) ev.push({ day: sep(23), name: `${esc(S.iceland.name)} transfer`, phrase: `the ${esc(S.iceland.name)} transfer`, amt: -S.iceland.monthly });
+  if (S.goals.includes(S.iceland) && !S.iceland.paused && !S.iceland.done && S.iceland.saved < S.iceland.goal) ev.push({ day: sep(23), name: `${esc(S.iceland.name)} transfer`, phrase: `the ${esc(S.iceland.name)} transfer`, amt: -S.iceland.monthly });
   const payT = sep(Math.min(st.payDay, 30)) + 1; // other goals move the day after pay lands
   S.goals.forEach(g => { if (g !== S.iceland && !g.paused && !g.done && g.saved < g.goal && payT < DAYS) ev.push({ day: payT, name: `${esc(g.name)} transfer`, phrase: `the ${esc(g.name)} transfer`, amt: -g.monthly }); });
   ev.sort((a, b) => a.day - b.day || b.amt - a.amt);
@@ -1882,7 +1884,9 @@ const goalTitle = g => g.sub ? `${g.name} · ${g.sub}` : g.name;
 const goalTile = (g, size) => tile({ icon: g.icon, bg: g.color || goalColor(g.icon) }, size);
 const goalsSaved = () => r2(S.goals.reduce((a, g) => a + g.saved, 0));
 const stashFree = () => r2(acct('stash').bal - goalsSaved());
-const goalsWord = () => S.goals.length > 1 ? 'your goals' : `the ${S.iceland.name} goal`;
+const goalsWord = () => S.goals.length === 1 ? `the ${esc(S.goals[0].name)} goal` : 'your goals';
+// Where Fixes money goes: the first goal still filling
+const fixGoal = () => S.goals.find(g => !g.done) || null;
 const goalsMonthly = except => S.goals.filter(g => g !== except && !g.paused && !g.done && g.saved < g.goal).reduce((a, g) => a + g.monthly, 0);
 const suggestMonthly = (rem, by) => Math.max(10, Math.ceil(rem / (by || 12) / 5) * 5);
 const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
@@ -2040,6 +2044,7 @@ function goalPage(id) {
       ${need ? `<div class="callout glass">${I.info}<span>That lands after ${monthLong(g.by)}. ${eur(need)} a month gets you there in time.</span></div>` : ''}
       <div class="stack ice-actions">
         ${reached && !g.done ? `<button class="btn primary" data-act="goal-done" data-id="${id}">Mark as Done</button>` : ''}
+        ${fixGoal() === g && fixesAvailable() > 0 ? `<button class="btn primary" data-act="send-fixes">Add ${eur(fixesAvailable(), 2)} from Fixes</button>` : ''}
         ${goalMoveButtons(g)}
         ${g.done ? '' : `<button class="btn gray" data-act="change-monthly" data-id="${id}">Change Monthly Amount</button>
         <button class="btn gray" data-act="toggle-pause" data-id="${id}">${g.paused ? 'Resume Transfers' : 'Pause Transfers'}</button>`}
@@ -2052,8 +2057,8 @@ function goalPage(id) {
     </div>`;
 }
 const goalMoveButtons = g => `<div class="btn-pair"><button class="btn gray" data-act="goal-add" data-id="${g.id}">${I.plus} Add Money</button><button class="btn gray" data-act="goal-withdraw" data-id="${g.id}" ${g.saved > 0 ? '' : 'disabled'}>Withdraw</button></div>`;
-function openGoal(id) {
-  const pg = id === 'iceland' ? push(icelandPage, { media: 'g-iceland' }) : push(() => goalPage(id), { media: 'g-iceland', kind: 'goal' });
+function openGoal(id, kind) {
+  const pg = id === 'iceland' ? push(icelandPage, { media: 'g-iceland', kind }) : push(() => goalPage(id), { media: 'g-iceland', kind: kind || 'goal' });
   if (pg) pg.goalId = id;
   return pg;
 }
@@ -2089,7 +2094,7 @@ function goalEditPage(id) {
       ${draftField('name', 'Name', { max: 28 })}
       ${draftField('target', 'Target', { kb: 'amount', max: 7 })}
       <div class="list">${wheelRow('goal-edit')}</div>
-      ${id === 'iceland' ? '' : `<button class="btn destructive" data-act="goal-delete" data-id="${id}">Delete Goal</button>`}
+      <button class="btn destructive" data-act="goal-delete" data-id="${id}">Delete Goal</button>
     </div>`;
 }
 
@@ -2106,7 +2111,7 @@ function savingsSection() {
   const active = S.goals.filter(g => !g.done), done = S.goals.filter(g => g.done);
   return `<div class="goal-stack">
       <h2 class="section-h" style="margin:0">Savings</h2>
-      ${active.map(goalCard).join('')}
+      ${active.length ? active.map(goalCard).join('') : '<p class="foot" style="text-align:left;margin:-4px 4px 0">Save for a trip, a laptop or a rainy day. Cushion works out a monthly amount that fits your month.</p>'}
       <button class="btn tinted" data-act="goal-new">${I.plus} New Goal</button>
       ${done.length ? `<h2 class="section-h" style="margin:10px 0 0">Done</h2><div class="list">${done.map(g => `
         <button class="row" data-act="open-goal" data-id="${g.id}" style="--inset:58px">${goalTile(g, 30)}<span class="grow t">${esc(g.name)}</span><span class="v">${eur(g.saved)}</span><span class="chev" aria-hidden="true">${I.chev}</span></button>`).join('')}</div>` : ''}
@@ -2114,7 +2119,7 @@ function savingsSection() {
 }
 
 /* ---------------- Chat ---------------- */
-const SUGGEST = ['Can I afford a €600 flight in March?', 'Why is eating out up this month?', 'When will I reach the Iceland goal?'];
+const suggestions = () => { const g = fixGoal(); return ['Can I afford a €600 flight in March?', 'Why is eating out up this month?', g ? `When will I reach the ${g.name} goal?` : 'Should I start a savings goal?']; };
 const TAB_NAMES = { today: 'Home', money: 'Money', accounts: 'Accounts' };
 const chatBack = () => `<button class="circle-btn glass" data-act="chat-back" aria-label="Back to ${TAB_NAMES[S.prevTab] || 'Home'}">${I.back}</button>`;
 function renderChat() {
@@ -2125,7 +2130,7 @@ function renderChat() {
   const body = c.msgs.map((m, i) => m.role === 'user'
     ? `<div class="bubble-user">${esc(m.text)}</div>`
     : `<div class="ai" id="ai-${i}">${m.typing ? '<div class="typing" aria-label="Cushion is typing"><i></i><i></i><i></i></div>' : m.paras.map(p => `<p>${esc(p)}</p>`).join('')}</div>`).join('');
-  const sug = c.msgs.length ? '' : `<div class="suggest">${SUGGEST.map(s => `<button class="chip" data-act="ask" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>`;
+  const sug = c.msgs.length ? '' : `<div class="suggest">${suggestions().map(s => `<button class="chip" data-act="ask" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>`;
   keepFocus(() => {
     $('#tab-chat').innerHTML = `<div class="chat-wrap" style="padding-top:0">${head}${body}${sug}</div>`;
   });
@@ -2203,7 +2208,7 @@ function icelandPage() {
       <p class="body">${plan}</p>
       ${late ? `<div class="callout glass">${I.info}<span>That lands after ${ic.sub ? 'the trip' : monthLong(ic.by)}. ${eur(needed)} a month gets you there by ${MONTH_NAMES[(7 + ic.by) % 12]}.</span></div>` : ''}
       <div class="stack ice-actions">
-        ${avail > 0 ? `<button class="btn primary" data-act="send-fixes">Add ${eur(avail, 2)} to ${esc(ic.name)}</button>` : ''}
+        ${avail > 0 && fixGoal() === ic ? `<button class="btn primary" data-act="send-fixes">Add ${eur(avail, 2)} to ${esc(ic.name)}</button>` : ''}
         ${goalMoveButtons(ic)}
         <button class="btn gray" data-act="change-monthly" data-id="iceland">Change Monthly Amount</button>
         <button class="btn gray" data-act="toggle-pause" data-id="iceland">${ic.paused ? 'Resume Transfers' : 'Pause Transfers'}</button>
@@ -2307,8 +2312,8 @@ function monthPage() {
     </div>`;
 }
 
-// These two stay connected: pay lands in one, the Iceland goal lives in the other
-const PROTECTED = { chk: 'Your pay lands here', stash: 'Holds your Iceland goal' };
+// These two stay connected: pay lands in one, the savings goals live in the other
+const PROTECTED = { chk: 'Your pay lands here', stash: 'Holds your savings goals' };
 const MINUS = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12h10" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>';
 function renderAccounts() {
   const ed = S.editAccts && S.accounts.some(a => !PROTECTED[a.id]);
@@ -2325,7 +2330,7 @@ function renderAccounts() {
           <span class="v">${eur(a.bal)}</span>
         </div></div>`).join('')}
       </div>
-      ${ed ? `<p class="foot" style="text-align:left;margin-top:-10px">Your current account and Lena's Stash stay connected, because your pay and the Iceland goal depend on them.</p>` : ''}
+      ${ed ? `<p class="foot" style="text-align:left;margin-top:-10px">Your current account and Lena's Stash stay connected, because your pay and your savings goals depend on them.</p>` : ''}
       <div class="list accounts-total" style="border-radius:22px"><div class="row"><span class="grow t" style="font-size:16px">Total</span><span class="v" style="font-weight:600">${eur(net())}</span></div></div>
       <button class="btn tinted" data-act="add-account">${I.plus} Add Account</button>
     </div>`;
@@ -2677,20 +2682,24 @@ function reply(q) {
       "That's two Shell fill-ups (€104), your Deutschlandticket (€58) and two SHARE NOW trips (€18)."] };
   }
   if (/iceland|goal|saving/.test(s)) {
-    const ic = S.iceland, rem = r2(ic.goal - ic.saved), m = Math.ceil(rem / ic.monthly);
-    const others = S.goals.filter(g => g !== ic && !g.done).map(g => { const p = pace(g); return g.paused ? `${esc(g.name)} is paused at ${eur(g.saved)} of ${eur(g.goal)}` : p.rem ? `${esc(g.name)} is ${eur(g.saved)} of ${eur(g.goal)}, about ${plural(p.m, 'month')} to go${p.late ? `, after your ${monthLong(g.by)} date` : ''}` : `${esc(g.name)} has reached ${eur(g.goal)}`; });
+    const live = S.goals.filter(g => !g.done);
+    const ic = (/iceland/.test(s) && live.find(g => g === S.iceland)) || live[0];
+    if (!ic) return { title: 'Savings goals', emoji: 'piggy-bank', paras: [`You don't have a goal yet. Lena's Stash has ${eur(stashFree())} you could put towards one.`, "Tap New Goal on the Money tab, and I'll work out a monthly amount that fits."] };
+    const rem = r2(Math.max(0, ic.goal - ic.saved)), m = Math.ceil(rem / ic.monthly), byName = ic.by ? MONTH_NAMES[(7 + ic.by) % 12] : '';
+    const others = live.filter(g => g !== ic).map(g => { const p = pace(g); return g.paused ? `${esc(g.name)} is paused at ${eur(g.saved)} of ${eur(g.goal)}` : p.rem ? `${esc(g.name)} is ${eur(g.saved)} of ${eur(g.goal)}, about ${plural(p.m, 'month')} to go${p.late ? `, after your ${monthLong(g.by)} date` : ''}` : `${esc(g.name)} has reached ${eur(g.goal)}`; });
     const extra = others.length ? [`Your other goal${others.length > 1 ? 's' : ''}: ${others.join('; ')}.`] : [];
     return { title: `${esc(ic.name)} goal`, emoji: ic.icon, paras: (ic.paused
       ? [`Transfers are paused, so the goal is waiting at ${eur(ic.saved)} of ${eur(ic.goal)}.`]
+      : !rem ? [`You've reached ${eur(ic.goal)}.`]
       : [`At ${eur(ic.monthly)} a month you'll have the remaining ${eur(rem)} in about ${m} month${m === 1 ? '' : 's'}.`,
-         ic.by && m > ic.by ? `That's after ${MONTH_NAMES[(7 + ic.by) % 12]}. ${eur(Math.ceil(rem / ic.by / 10) * 10)} a month gets you there in time.` : ic.by ? `That gets you there before ${MONTH_NAMES[(7 + ic.by) % 12]}.` : '']).filter(Boolean).concat(extra) };
+         ic.by && m > ic.by ? `That's after ${byName}. ${eur(Math.ceil(rem / ic.by / 10) * 10)} a month gets you there in time.` : ic.by ? `That gets you there before ${byName}.` : '']).filter(Boolean).concat(extra) };
   }
   if (/safe|spend|today/.test(s)) {
     return { title: 'Safe to spend', emoji: 'wallet', paras: [sf.limitedByCash
       ? `You can spend ${eur(sf.safe, 2)} today. Your budget allows ${eur(sf.budget, 2)}, but I held it back so ${cashWord()} ${cashWord() === 'your current account' ? "doesn't" : "don't"} drop below €1,000 before pay day.`
       : `You can spend ${eur(sf.safe, 2)} today. That's your flexible budget for the day, and ${cashWord()} ${cashStay()} above €1,000 until pay day.`] };
   }
-  return { title: 'Your question', emoji: 'message-circle', paras: ['I can help with purchases, bills and goals. Try asking about a €600 flight, the dental bill, eating out or the Iceland goal.'] };
+  return { title: 'Your question', emoji: 'message-circle', paras: ['I can help with purchases, bills and goals. Try asking about a €600 flight, the dental bill, eating out or your savings goals.'] };
 }
 async function send(text) {
   text = (text || '').trim();
@@ -2767,9 +2776,9 @@ function fixesSheet() {
       </div>
       <div class="list" style="background:var(--fill)">
         <div class="row"><span class="grow t" style="font-size:16px">Ready to move</span><span class="v" style="font-weight:600">${eur(avail, 2)}</span></div>
-        ${S.fixesSent ? `<div class="row"><span class="grow t" style="font-size:16px">Already sent to ${esc(S.iceland.name)}</span><span class="v">${eur(S.fixesSent, 2)}</span></div>` : ''}
+        ${S.fixesSent ? `<div class="row"><span class="grow t" style="font-size:16px">Already sent to goals</span><span class="v">${eur(S.fixesSent, 2)}</span></div>` : ''}
       </div>
-      <button class="btn prominent" data-act="fix-to-iceland" ${avail > 0 ? '' : 'disabled'}>Add to ${esc(S.iceland.name)} Goal</button>
+      ${fixGoal() ? `<button class="btn prominent" data-act="fix-to-iceland" ${avail > 0 ? '' : 'disabled'}>Add to ${esc(fixGoal().name)} Goal</button>` : `<button class="btn prominent" data-act="fix-new-goal" ${avail > 0 ? '' : 'disabled'}>${I.plus} Start a Goal</button>`}
     </div>`);
 }
 function monthlySheet(id = 'iceland') {
@@ -2888,26 +2897,29 @@ const H = {
     // Escape cancels this two-step hand-off at any point before the alert appears
     pendingFix = [setTimeout(() => {
       if (S.tab !== startTab || stack.length !== depth || sheetEl || alertOpen) { pendingFix = []; return; }
-      const pg = push(icelandPage, { media: 'g-iceland', kind: 'iceland-fix' });
+      const g = fixGoal(); if (!g) { pendingFix = []; return; }
+      const pg = openGoal(g.id, 'iceland-fix');
       if (pg) pendingFix = [setTimeout(() => { pendingFix = []; if (stack[stack.length - 1] === pg && !sheetEl && !alertOpen) H['send-fixes'](); }, T + 20)];
       else pendingFix = [];
     }, 260)];
   },
   'open-iceland'() { openGoal('iceland'); },
+  'fix-new-goal'() { closeSheet(); setTimeout(() => { if (!sheetEl && !alertOpen) H['goal-new'](); }, 260); },
   'open-month'() { push(monthPage, { media: 'g-month', kind: 'month' }); },
   'send-fixes': once(async () => {
     const amt = fixesAvailable(); if (amt <= 0) return;
     const before = safeNow(), afterSafe = safety(forecast({ extra: amt })).safe;
-    const ok = await alertBox({ sheet: true, title: `Add ${eur(amt, 2)} to ${esc(S.iceland.name)}?`, msg: `Moves money from your Sparkasse current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: `Add ${eur(amt, 2)}`, style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
+    const g = fixGoal(); if (!g) return;
+    const ok = await alertBox({ sheet: true, title: `Add ${eur(amt, 2)} to ${esc(g.name)}?`, msg: `Moves money from your Sparkasse current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: `Add ${eur(amt, 2)}`, style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
     const amt2 = fixesAvailable();
     if (!ok || amt2 <= 0) return;
-    const from = S.iceland.saved;
-    S.iceland.saved = r2(from + amt2); S.fixesSent = r2(S.fixesSent + amt2);
+    const from = g.saved;
+    g.saved = r2(from + amt2); S.fixesSent = r2(S.fixesSent + amt2);
     acct('chk').bal = r2(acct('chk').bal - amt2); acct('stash').bal = r2(acct('stash').bal + amt2);
     refresh();
-    tween($('#ice-num .w'), from, S.iceland.saved, 1100);
+    const w = $('.page:last-child #ice-num .w, .page:last-child #goal-num .w'); w && tween(w, from, g.saved, 1100);
     restoreFocus(null, null, ['.page:last-child [data-act="change-monthly"]']);
-    toast(`${eur(amt2, 2)} added to ${S.iceland.name}`);
+    toast(`${eur(amt2, 2)} added to ${g.name}`);
   }),
   'change-monthly'(el) { monthlySheet(el.dataset.id || 'iceland'); },
   'save-monthly'() {
@@ -2999,7 +3011,7 @@ const H = {
     toast('Changes saved');
   },
   'goal-delete': once(async el => {
-    const g = goalById(el.dataset.id); if (!g || g === S.iceland) return;
+    const g = goalById(el.dataset.id); if (!g) return;
     const ok = await alertBox({ sheet: true, title: `Delete ${esc(g.name)}?`, msg: g.saved > 0 ? `The ${eur(g.saved)} you saved stays in Lena’s Stash.` : 'Monthly transfers for this goal stop.', actions: [{ label: 'Delete Goal', style: 'destructive', value: true }, { label: 'Cancel', value: false }] });
     if (!ok) return;
     // Take the goal's page out from under the edit sheet, then close the sheet
