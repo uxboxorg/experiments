@@ -1063,8 +1063,9 @@ button.row[disabled] { cursor: default; }
 .auth-flow .nav .pill b { font-weight: 600; }
 
 /* Transactions, accounts and bills */
-.section-row { display: flex; align-items: baseline; justify-content: space-between; padding: 0 4px 0 0; }
-.see-all { color: var(--accent); font-size: 15px; font-weight: 600; padding: 4px 0 8px 12px; }
+.section-row { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 10px 0; }
+.section-row .section-h { padding-bottom: 0; }
+.see-all { color: var(--accent); font-size: 15px; font-weight: 600; padding: 6px 0 6px 12px; margin: -6px 0; }
 .tx-page { gap: 18px; }
 .tx-day { display: grid; gap: 0; }
 .tx-day .section-h { margin: 0; }
@@ -1081,6 +1082,36 @@ button.row[disabled] { cursor: default; }
 #bills-list button.row { width: 100%; text-align: left; color: inherit; }
 #bills-list .chev, #bills-list .chev-space { width: 14px; display: flex; justify-content: flex-end; color: var(--label3); }
 .add-btn { display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+/* Bank hand-off: Sparkasse's own approval screen, in Sparkasse's colours rather than Cushion's */
+.bank-app { position: absolute; inset: 0; pointer-events: auto; z-index: 4; background: rgba(0, 0, 0, 0); transition: background .3s; overflow: hidden; border-radius: inherit; }
+.bank-app.show { background: rgba(0, 0, 0, .35); }
+.bank-hand { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%) scale(.9); display: grid; justify-items: center; gap: 12px; color: #FFFFFF; font-size: 15px; font-weight: 600; opacity: 0; transition: opacity .25s, transform .3s cubic-bezier(.32, .72, 0, 1); }
+.bank-app.show .bank-hand { opacity: 1; transform: translate(-50%, -50%); }
+.bank-app.open .bank-hand { opacity: 0; }
+.bank-screen { position: absolute; inset: 0; background: #F2F2F2; color: #1A1A1A; transform: translateY(100%); transition: transform .45s cubic-bezier(.32, .72, 0, 1); display: flex; flex-direction: column; font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif; }
+.bank-app.open .bank-screen { transform: none; }
+.bank-app.leaving .bank-screen { transform: translateY(100%); }
+.bank-app.leaving { background: rgba(0, 0, 0, 0); }
+.bank-top { background: #FF0000; color: #FFFFFF; padding: calc(var(--top) + 14px) 20px 16px; display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 700; }
+.bank-mark { display: flex; color: #FFFFFF; }
+.bank-body { padding: 22px 20px; display: grid; gap: 14px; align-content: start; flex: 1; overflow: auto; }
+.bank-body h2 { margin: 0; font-size: 24px; font-weight: 700; line-height: 1.2; outline: none; }
+.bank-sub { margin: -4px 0 4px; font-size: 15px; color: #555555; line-height: 1.4; }
+.bank-card { background: #FFFFFF; border-radius: 6px; border: 1px solid #DADADA; }
+.bank-card > div { display: flex; justify-content: space-between; gap: 16px; padding: 12px 14px; font-size: 15px; }
+.bank-card > div + div { border-top: 1px solid #E6E6E6; }
+.bank-card span { color: #555555; }
+.bank-card b { text-align: right; font-weight: 600; display: grid; }
+.bank-card small { font-weight: 400; color: #555555; font-size: 13px; }
+.bank-btn { height: 50px; border-radius: 6px; font-size: 17px; font-weight: 600; background: #FFFFFF; color: #1A1A1A; border: 1px solid #C8C8C8; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.bank-btn.primary { background: #FF0000; border-color: #FF0000; color: #FFFFFF; margin-top: 6px; }
+.bank-done { position: absolute; inset: 0; background: #F2F2F2; display: grid; place-content: center; justify-items: center; gap: 6px; color: #1A1A1A; opacity: 0; pointer-events: none; transition: opacity .25s; }
+.bank-done svg { color: #1F7A3A; margin-bottom: 8px; }
+.bank-done b { font-size: 22px; }
+.bank-done span { font-size: 15px; color: #555555; }
+.bank-app.approved .bank-done { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .bank-app, .bank-screen, .bank-hand { transition: none; } }
 </style>
 </head>
 <body>
@@ -1235,7 +1266,7 @@ const S = {
   spotifyCancelled: false,
   accounts: [
     { id: 'chk', name: 'Current account', sub: 'Sparkasse', mask: '4659', kind: 'cash', bal: 7400, logo: { brand: 'sparkasse', bg: '#FF0000' } },
-    { id: 'stash', name: "Lena's Stash", sub: 'Savings · 3.1%', mask: '6839', kind: 'saved', bal: 9140, logo: { icon: 'piggy-bank', bg: '#2E9E55' } },
+    { id: 'stash', name: "Lena's Stash", sub: 'Cushion savings · 3.1%', mask: '6839', kind: 'saved', bal: 9140, logo: { icon: 'piggy-bank', bg: '#2E9E55' } },
     { id: 'brk', name: 'ETF portfolio', sub: 'Trade Republic', mask: '1120', kind: 'saved', bal: 4395, logo: { icon: 'trending-up', bg: '#4B4BC8' } },
     { id: 'amex', name: 'Mastercard Gold', sub: 'Credit card', mask: '9002', kind: 'owed', bal: -612, logo: { mc: true, bg: '#1C1C1E' } },
     { id: 'visa', name: 'Visa Card', sub: 'Credit card', mask: '4088', kind: 'owed', bal: -698, logo: { brand: 'visa', bg: '#1A1F71' } },
@@ -1708,8 +1739,7 @@ function profilePage() {
       <div>
         <h2 class="section-h">Security</h2>
         <div class="list">
-          ${prefToggle('faceId', 'Face ID', 'Open Cushion and approve transfers')}
-          ${prefToggle('approve', 'Ask before moving money', 'Every transfer waits for your OK')}
+          ${prefToggle('faceId', 'Face ID', 'Open Cushion and take money out of Lena’s Stash')}
         </div>
       </div>
       <div>
@@ -2176,6 +2206,62 @@ function renderMoney() {
     </div>`;
 }
 
+
+/* ---------------- Bank approval ----------------
+   Cushion can ask Sparkasse to send money (PSD2 payment initiation), but Lena approves each request in
+   Sparkasse's own app. This plays that hand-off: Cushion steps aside, the bank shows the request, then hands back. */
+const STASH_IBAN = 'DE47 1001 1001 2620 4418 37';
+const transferDay = () => S.payDay >= 30 ? 1 : S.payDay + 1;
+function bankApprove({ lines, ref }) {
+  if (alertOpen) return Promise.resolve(false);
+  return new Promise(resolve => {
+    hideToast();
+    const opener = document.activeElement, key = focusKey(opener);
+    const el = document.createElement('div');
+    el.className = 'bank-app';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-labelledby', 'bank-h');
+    el.innerHTML = `
+      <div class="bank-hand" aria-hidden="true">${tile({ brand: 'sparkasse', bg: '#FF0000' }, 64)}<span>Opening Sparkasse…</span></div>
+      <div class="bank-screen">
+        <div class="bank-top"><span class="bank-mark">${glyph({ brand: 'sparkasse' }, 22)}</span>Sparkasse</div>
+        <div class="bank-body">
+          <h2 id="bank-h" tabindex="-1">Approve a request from Cushion</h2>
+          <p class="bank-sub">Cushion is asking to send money from your account. Check the details before you approve.</p>
+          <div class="bank-card">
+            <div><span>From</span><b>Current account<small>···· 4659</small></b></div>
+            <div><span>To</span><b>Lena’s Stash (Cushion)<small>${STASH_IBAN}</small></b></div>
+            ${lines.map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join('')}
+            <div><span>Reference</span><b>${esc(ref)}</b></div>
+          </div>
+          <button class="bank-btn primary" data-b="ok">${FACE_SM} Approve</button>
+          <button class="bank-btn" data-b="no">Decline</button>
+        </div>
+        <div class="bank-done" aria-live="polite"></div>
+      </div>`;
+    $('#layer').append(el);
+    let done = false;
+    const close = value => {
+      if (done) return; done = true;
+      alertOpen = null;
+      el.classList.add('leaving'); el.closing = true;
+      setTimeout(() => { el.remove(); syncInert(); restoreFocus(opener, key, FALLBACK); resolve(value); }, reduced ? 0 : 380);
+    };
+    alertOpen = { cancel: () => close(false) };
+    syncInert();
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+    setTimeout(() => { el.classList.add('open'); $('#bank-h', el).focus({ preventScroll: true }); }, reduced ? 0 : 700);
+    el.addEventListener('click', async e => {
+      const b = e.target.closest('[data-b]'); if (!b || done || el.busy) return;
+      if (b.dataset.b === 'no') return close(false);
+      el.busy = true;
+      await faceId();
+      $('.bank-done', el).innerHTML = `${CHECK_SVG}<b>Approved</b><span>Returning to Cushion…</span>`;
+      el.classList.add('approved');
+      setTimeout(() => close(true), reduced ? 200 : 900);
+    });
+  });
+}
+
 /* ---------------- Goals ---------------- */
 const GOAL_ICONS = [['plane', '#2F6FD6'], ['house', '#C2410C'], ['car', '#475569'], ['laptop', '#4B4BC8'], ['gift', '#C0267A'], ['umbrella', '#0E8A7E'], ['graduation-cap', '#7C3AED'], ['heart', '#D9364C']];
 const GOAL_IDEAS = [['Emergency fund', 'umbrella'], ['New laptop', 'laptop'], ['Wedding', 'heart'], ['Driving lessons', 'car']];
@@ -2297,7 +2383,7 @@ function goalPlanPage() {
         ${seg('start', [[0, '€0'], [100, '€100'], [250, '€250'], [500, '€500']], d.start || 0, 'Start with')}
         ${d.start ? `${seg('from', [['chk', 'Current account'], ['stash', 'Lena’s Stash']], d.from, 'Take it from')}<p class="plan-note${im.bad ? ' warn' : ''}">${im.text}</p>` : ''}
       </div>
-      <p class="foot" style="text-align:left;margin:0">Moves from your current account to Lena’s Stash the day after pay day.${S.prefs.approve ? ' Each transfer waits for your OK.' : ''}</p>
+      <p class="foot" style="text-align:left;margin:0">You’ll approve a standing order in Sparkasse, so ${eur(d.monthly)} moves to Lena’s Stash on the ${ord(transferDay())} of each month, the day after pay day.</p>
       <button class="btn primary" data-act="goal-create" ${d.start && im.bad ? 'disabled' : ''}>Create Goal</button>
     </div>`;
 }
@@ -2797,12 +2883,12 @@ function updateChrome() {
   syncInert();
 }
 function syncInert() {
-  const overlay = $$('#layer .sheet, #layer .alert').some(x => !x.closing);
+  const overlay = $$('#layer .sheet, #layer .alert, #layer .bank-app').some(x => !x.closing);
   const top = stack[stack.length - 1];
   ['#tab-today', '#tab-money', '#tab-accounts', '#tab-chat', '#composer'].forEach(s => { $(s).inert = overlay || !!top; });
   $('#tabbar').inert = overlay || S.tab === 'chat' || !!(top && (top.modal || top.inModal));
   allPages().forEach(p => { p.inert = overlay || p !== top; });
-  const al = $$('#layer .alert').some(a => !a.closing);
+  const al = $$('#layer .alert, #layer .bank-app').some(a => !a.closing);
   $$('#layer .sheet').forEach(s => { s.inert = !!al || s.closing; });
 }
 function refresh() {
@@ -3151,8 +3237,10 @@ const H = {
   'approve-save': once(async () => {
     if (!S.actions.includes('save')) return;
     const before = safeNow(), after = forecast({ extra: 1200 }), afterSafe = safety(after).safe;
-    const ok = await alertBox({ sheet: true, title: 'Move €1,200 into savings?', msg: `Moves money from your Sparkasse current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: 'Move €1,200', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
+    const ok = await alertBox({ sheet: true, title: 'Move €1,200 into savings?', msg: `Moves money from your Sparkasse current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: 'Continue in Sparkasse', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
     if (!ok || !S.actions.includes('save')) return;
+    if (!await bankApprove({ lines: [['Amount', '€1,200.00']], ref: 'Cushion · Savings' })) { toast('Nothing moved'); return; }
+    if (!S.actions.includes('save')) return;
     await removeAction('save');
     acct('chk').bal -= 1200; acct('stash').bal += 1200;
     refresh();
@@ -3262,9 +3350,11 @@ const H = {
     const amt = fixesAvailable(); if (amt <= 0) return;
     const before = safeNow(), afterSafe = safety(forecast({ extra: amt })).safe;
     const g = fixGoal(); if (!g) return;
-    const ok = await alertBox({ sheet: true, title: `Add ${eur(amt, 2)} to ${esc(g.name)}?`, msg: `Moves money from your Sparkasse current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: `Add ${eur(amt, 2)}`, style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
+    const ok = await alertBox({ sheet: true, title: `Add ${eur(amt, 2)} to ${esc(g.name)}?`, msg: `Moves money from your Sparkasse current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: 'Continue in Sparkasse', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
+    if (!ok) return;
+    if (!await bankApprove({ lines: [['Amount', eur(amt, 2)]], ref: `Cushion · ${g.name}` })) { toast('Nothing moved'); return; }
     const amt2 = fixesAvailable();
-    if (!ok || amt2 <= 0) return;
+    if (amt2 <= 0) return;
     const from = g.saved;
     g.saved = r2(from + amt2); S.fixesSent = r2(S.fixesSent + amt2);
     acct('chk').bal = r2(acct('chk').bal - amt2); acct('stash').bal = r2(acct('stash').bal + amt2);
@@ -3274,15 +3364,18 @@ const H = {
     toast(`${eur(amt2, 2)} added to ${g.name}`);
   }),
   'change-monthly'(el) { monthlySheet(el.dataset.id || 'iceland'); },
-  'save-monthly'() {
+  'save-monthly': once(async () => {
     const sl = $('#m-slider'); if (!sl) return;
     const g = goalById(monthlySheet.id) || S.iceland;
-    const wasPaused = g.paused;
-    g.monthly = +sl.value; g.paused = false;
-    closeSheet(); refresh();
+    const wasPaused = g.paused, v = +sl.value;
+    if (v === g.monthly && !wasPaused) { closeSheet(); return; }
+    closeSheet(); await wait(reduced ? 0 : 300);
+    if (!await bankApprove({ lines: [['Standing order', `${eur(v)} every month, on the ${g === S.iceland ? '23rd' : ord(transferDay())}`], ['Replaces', wasPaused ? 'Paused order' : `${eur(g.monthly)} a month`]], ref: `Cushion · ${g.name}` })) { toast('Nothing changed'); return; }
+    g.monthly = v; g.paused = false;
+    refresh();
     restoreFocus(null, null, ['.page:last-child [data-act="change-monthly"]']);
     toast(`${eur(g.monthly)} a month${wasPaused ? ', transfers resumed' : ''}`);
-  },
+  }),
   'toggle-pause'(el) {
     const g = goalById(el.dataset.id) || S.iceland;
     g.paused = !g.paused; refresh();
@@ -3326,7 +3419,10 @@ const H = {
   'goal-create': once(async () => {
     const d = S.draft, start = +d.start || 0;
     if (start && moveImpact(start, d.from, { saved: 0 }).bad) return;
-    if (start && d.from === 'chk' && S.prefs.approve) await faceId();
+    const lines = [];
+    if (start && d.from === 'chk') lines.push(['Today', eur(start, 2)]);
+    if (d.monthly > 0) lines.push(['Standing order', `${eur(d.monthly)} every month, on the ${ord(transferDay())}`]);
+    if (!await bankApprove({ lines, ref: `Cushion · ${d.name}` })) { toast('Nothing was set up'); return; }
     const g = { id: 'g' + (++uid), name: d.name, icon: d.icon, color: goalColor(d.icon), goal: +d.target, saved: 0, monthly: d.monthly, paused: false, by: d.by || 0, done: false };
     S.goals.push(g);
     if (start) moveMoney(g, start, d.from);
@@ -3342,7 +3438,8 @@ const H = {
     const g = goalById(el.dataset.id), mode = el.dataset.mode, amt = +S.draft.amt || 0;
     const from = mode === 'add' ? S.draft.from : 'out';
     if (!g || !amt || moveImpact(amt, from, g).bad) return;
-    if (from !== 'stash' && S.prefs.approve) await faceId();
+    if (from === 'chk' && !await bankApprove({ lines: [['Amount', eur(amt, 2)]], ref: `Cushion · ${g.name}` })) { toast('Nothing moved'); return; }
+    if (from === 'out' && S.prefs.faceId) await faceId(); // Lena's Stash is Cushion's own account, so Face ID here is enough
     const was = g.saved;
     moveMoney(g, amt, from);
     navBusy = false; pop(true); refresh();
