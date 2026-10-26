@@ -1021,8 +1021,44 @@ button.row[disabled] { cursor: default; }
 .wheel-wrap:has(.wheel:focus-visible)::before { box-shadow: 0 0 0 2px var(--accent); }
 .wheel-item { height: 36px; line-height: 36px; scroll-snap-align: center; text-align: right; font-size: 22px; color: var(--label2); white-space: nowrap; transform-origin: 50% 50%; will-change: transform; cursor: pointer; font-variant-numeric: tabular-nums; }
 .wheel-item.on { color: var(--label); }
+.wheel-wrap.solo .wheel { width: 200px; }
+.wheel-wrap.solo .wheel-item { text-align: center; }
 .wheel-suffix { position: relative; z-index: 1; font-size: 22px; color: var(--label); }
 .wheel-wrap + .row::before { content: ""; position: absolute; top: 0; right: 0; left: var(--inset, 16px); height: .5px; background: var(--sep); }
+
+/* Goals */
+.goal-stack { display: grid; gap: 12px; }
+.goal-stack .btn.tinted { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.icon-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.icon-pick { aspect-ratio: 1; border-radius: 18px; display: grid; place-items: center; background: var(--fill); color: var(--c); transition: background .15s, color .15s, transform .15s; }
+.icon-pick.on { background: var(--c); color: #FFFFFF; transform: scale(1.04); }
+.idea-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: -6px; }
+.idea-chips .chip { padding: 8px 14px; border-radius: 18px; background: var(--fill); color: var(--label); font-size: 15px; font-weight: 500; }
+.amount-field { position: relative; display: block; }
+.amount-field .cur { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 17px; color: var(--label2); pointer-events: none; }
+.amount-field .field { padding-left: 32px; font-variant-numeric: tabular-nums; }
+.seg { display: flex; padding: 3px; border-radius: 12px; background: var(--fill); gap: 2px; }
+.seg button { flex: 1; min-height: 38px; border-radius: 9px; font-size: 15px; font-weight: 500; color: var(--label); white-space: nowrap; padding: 0 6px; }
+.seg button.on { background: var(--bg); font-weight: 600; box-shadow: 0 2px 8px rgba(0, 0, 0, .1), 0 0 0 .5px rgba(0, 0, 0, .04); }
+:root[data-theme="dark"] .seg button.on { background: #636366; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .seg button.on { background: #636366; } }
+.goal-sum { display: flex; gap: 14px; align-items: center; padding: 14px 16px; border-radius: 20px; background: var(--card); }
+.goal-sum > span:last-child { display: grid; gap: 2px; }
+.goal-sum b { font-size: 17px; }
+.goal-sum b + span { font-size: 15px; color: var(--label2); }
+.plan-card { display: grid; gap: 10px; padding: 16px; border-radius: 20px; background: var(--card); }
+.plan-h { display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; color: var(--label2); }
+.plan-h .num { font-size: 30px; color: var(--label); font-weight: 700; }
+.plan-note { margin: 0; font-size: 14px; line-height: 1.4; color: var(--label2); }
+.plan-note.warn { color: var(--red); }
+.plan-note:empty { display: none; }
+.plan-start { display: grid; gap: 10px; }
+.plan-start .section-h { padding: 0 4px; margin: 0; }
+.btn-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-pair .btn { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.goal-head { display: grid; gap: 12px; justify-items: start; }
+.goal-head .body { margin: -4px 0 0; }
+.auth-flow .nav .pill b { font-weight: 600; }
 </style>
 </head>
 <body>
@@ -1129,6 +1165,13 @@ const I = {
   info: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5"/></svg>',
 };
 
+const LUCIDE_EXTRA = {
+  laptop: '<path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/>',
+  gift: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/>',
+  umbrella: '<path d="M22 12a10.06 10.06 1 0 0-20 0Z"/><path d="M12 12v8a2 2 0 0 0 4 0"/><path d="M12 2v1"/>',
+  'graduation-cap': '<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+};
 const LUCIDE = {"sparkles": "<path d=\"M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z\" /> <path d=\"M20 2v4\" /> <path d=\"M22 4h-4\" /> <circle cx=\"4\" cy=\"20\" r=\"2\" />", "house": "<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />", "utensils": "<path d=\"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2\" /> <path d=\"M7 2v20\" /> <path d=\"M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7\" />", "car": "<path d=\"M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2\" /> <circle cx=\"7\" cy=\"17\" r=\"2\" /> <path d=\"M9 17h6\" /> <circle cx=\"17\" cy=\"17\" r=\"2\" />", "coffee": "<path d=\"M10 2v2\" /> <path d=\"M14 2v2\" /> <path d=\"M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1\" /> <path d=\"M6 2v2\" />", "shopping-basket": "<path d=\"m15 11-1 9\" /> <path d=\"m19 11-4-7\" /> <path d=\"M2 11h20\" /> <path d=\"m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4\" /> <path d=\"M4.5 15.5h15\" /> <path d=\"m5 11 4-7\" /> <path d=\"m9 11 1 9\" />", "fuel": "<path d=\"M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0v-6.998a2 2 0 0 0-.59-1.42L18 5\" /> <path d=\"M14 21V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v16\" /> <path d=\"M2 21h13\" /> <path d=\"M3 9h11\" />", "piggy-bank": "<path d=\"M11 17h3v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a3.16 3.16 0 0 0 2-2h1a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-1a5 5 0 0 0-2-4V3a4 4 0 0 0-3.2 1.6l-.3.4H11a6 6 0 0 0-6 6v1a5 5 0 0 0 2 4v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1z\" /> <path d=\"M16 10h.01\" /> <path d=\"M2 8v1a2 2 0 0 0 2 2h1\" />", "mountain-snow": "<path d=\"m8 3 4 8 5-5 5 15H2L8 3z\" /> <path d=\"M4.14 15.08c2.62-1.57 5.24-1.43 7.86.42 2.74 1.94 5.49 2 8.23.19\" />", "plane": "<path d=\"M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z\" />", "receipt": "<path d=\"M12 17V7\" /> <path d=\"M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8\" /> <path d=\"M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z\" />", "wallet": "<path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\" /> <path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\" />", "message-circle": "<path d=\"M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719\" />", "landmark": "<path d=\"M10 18v-7\" /> <path d=\"M11.119 2.205a2 2 0 0 1 1.762 0l7.84 3.846A.5.5 0 0 1 20.5 7h-17a.5.5 0 0 1-.22-.949z\" /> <path d=\"M14 18v-7\" /> <path d=\"M18 18v-7\" /> <path d=\"M3 22h18\" /> <path d=\"M6 18v-7\" />", "trending-up": "<path d=\"M16 7h6v6\" /> <path d=\"m22 7-8.5 8.5-5-5L2 17\" />", "credit-card": "<rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"2\" /> <line x1=\"2\" x2=\"22\" y1=\"10\" y2=\"10\" /> <path d=\"M6 14h2\" />", "stethoscope": "<path d=\"M11 2v2\" /> <path d=\"M5 2v2\" /> <path d=\"M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1\" /> <path d=\"M8 15a6 6 0 0 0 12 0v-3\" /> <circle cx=\"20\" cy=\"10\" r=\"2\" />"};
 const BRAND_PATHS = {"n26": "M0 3.803v1.195h7.436V3.803H0zM12.69 7.29c-2.034 0-3.038 1.252-3.038 2.684 0 .234.027.468.092.728l1.393.135a3.697 3.697 0 0 1-.09-.793c0-1.072.71-1.586 1.598-1.586.866 0 1.507.485 1.507 1.652 0 1.186-.58 1.995-1.464 2.88-.925.923-2.4 2.027-3.112 2.534v1.092h6.135v-1.195h-4.168c.695-.48 1.69-1.279 2.133-1.72.502-.503 1.931-1.794 1.931-3.636 0-1.903-1.24-2.775-2.918-2.775zm8.34 0c-1.976 0-3.454 1.517-3.454 4.916 0 3.017 1.233 4.508 3.356 4.508 1.754 0 3.068-1.198 3.068-3.172 0-1.542-.823-3.066-2.793-3.066-1.1 0-1.884.51-2.281 1.263 0-1.78.62-3.33 2.094-3.33.937 0 1.309.538 1.507 1.422l1.366-.271c-.321-1.527-1.292-2.27-2.864-2.27zM.075 7.389v9.228h1.33v-6.312c0-.56-.013-.898-.039-1.223h.026c.136.372.298.699.539 1.123l3.732 6.412h1.69V7.39H6.04v6.31c0 .56.013.898.04 1.223h-.028a7.252 7.252 0 0 0-.537-1.123L1.783 7.389H.076zm20.817 4.185c1.114 0 1.744.822 1.744 1.992 0 1.256-.717 2.034-1.701 2.034-1.09 0-1.843-1.001-1.973-2.329.33-1.133 1.063-1.697 1.93-1.697zM0 19.008v1.19h7.436v-1.19H0z", "revolut": "M20.9133 6.9566C20.9133 3.1208 17.7898 0 13.9503 0H2.424v3.8605h10.9782c1.7376 0 3.177 1.3651 3.2087 3.043.016.84-.2994 1.633-.8878 2.2324-.5886.5998-1.375.9303-2.2144.9303H9.2322a.2756.2756 0 0 0-.2755.2752v3.431c0 .0585.018.1142.052.1612L16.2646 24h5.3114l-7.2727-10.094c3.6625-.1838 6.61-3.2612 6.61-6.9494zM6.8943 5.9229H2.424V24h4.4704z", "deutschebank": "M3.375 3.375v17.25h17.25V3.375H3.375zM0 0h24v24H0V0zm5.25 18.225 9.15-12.45h4.35L9.6 18.225H5.25z", "commerzbank": "M6.277 1.538a.018.018 0 0 0-.012.007l-4.74 8.21-1.398 2.418c.446.774.794 1.353 1.22 2.09.671 1.164 1.548 1.597 3.13 1.889a12.9 12.9 0 0 1 .697-1.392l2.783-4.824 2.786-4.826c.404-.702 1.296-2.143 2.57-2.965-.04.025-.07.059-.109.085.07-.047.137-.094.209-.136.46-.278.98-.467 1.413-.515.339-.038 1.465-.041 2.74-.041zm11.59.505c-1.048-.008-1.462.007-2.545.008-1.39 0-2.381.887-3.083 1.773.372.493.68.971.863 1.288a13357.605 13357.605 0 0 0 5.571 9.648c.404.7 1.209 2.196 1.284 3.71.029.574-.079 1.165-.265 1.592-.131.3-.652 1.207-1.256 2.253L24 12.678v-.008a.013.013 0 0 0-.002-.005zM.001 8.163l.095 4.946L0 8.163zm.093 4.946 1.132 1.964 4.264 7.384a.015.015 0 0 0 .012.005h12.265c.446-.779.664-1.147 1.311-2.282.709-1.242.278-2.681-.037-3.472-.618.076-1.18.093-1.547.093H6.35c-.809 0-2.505-.05-3.853-.741-.513-.263-.972-.65-1.248-1.027-.176-.238-.625-1.003-1.156-1.924z", "caixabank": "M4.938 16c.183 0 .315.13.487.1.239.09.212.383.462.455.19.384.312.797.419 1.21-.077.244.129.384.056.608l.072.04a1.8 1.8 0 0 1-.114.716c.038.426-.17.78-.353 1.14-.13.083-.19.314-.372.273-.323.102-.353.584-.748.524-.25.189-.596.083-.895.09-.176-.09-.419-.067-.536-.22a3.3 3.3 0 0 1-.84-.57c-.102-.22-.333-.318-.363-.57.09-.302-.1-.576-.02-.88l-.06-.504.19-.87c.326-.171.235-.561.558-.683.2-.467.683-.566 1.059-.797.14-.03.311.05.422-.08.205-.03.394.179.577.018m1.496-3.682c.202.14.19.422.372.566l.092.622-.456.669c-.573.303-1.431.433-1.967-.054-.304-.269-.383-.664-.304-1.059l.213-.573c.122-.084.28-.103.365-.243.28-.182.645-.14.967-.213.244.08.607-.05.718.282zm14.967-9.766c-.084 1.424-1.253 2.38-1.868 3.584-.266.714-.89 1.14-1.33 1.784-.405.418-.796.87-1.134 1.334.06.333.418.424.618.667.456.27.502.786.896 1.102.232 0 .232.341.487.3.535.577.967 1.173 1.412 1.795a1.3 1.3 0 0 0 .37.607c.355.514.647 1.064 1.01 1.584.055.585.549.979.7 1.526.22.292.312.635.513.926.316.684.524 1.406.9 2.062.069.152-.023.3-.103.41-.14.114-.25-.091-.414-.06a14 14 0 0 1-2.38-1.2c-.79-.638-1.656-1.09-2.43-1.758-.304-.076-.428-.433-.71-.574-.747-.462-1.344-1.131-2.1-1.563-.341-.266-.683-.518-1.028-.79-.266-.027-.354-.331-.607-.422-.563-.342-1.08-.82-1.656-1.14-.05.077 0 .203-.05.282-.383.373-.28.949-.554 1.364-.01.595-.425 1.028-.596 1.556-.475.846-.888 1.712-1.382 2.55-.657.87-1.01 1.919-1.937 2.614-.205.253-.436.383-.686.546-.114-.03-.274-.012-.304-.152-.114-.212.03-.532-.121-.725.132-.297.05-.627.113-.95l-.053-.14c.01-.444.23-.82.14-1.272a3 3 0 0 0 .206-.91 5 5 0 0 0 .303-1.212 1.5 1.5 0 0 0 .153-.836c.098-.265.117-.576.39-.77.039-.17 0-.342.03-.524.27-.827.608-1.625.817-2.471 0-.061-.06-.08-.103-.092-.596-.03-1.15.092-1.705-.06a14 14 0 0 1-2.695-.311c-.348-.07-.774-.027-1.097-.23-.209.009-.452.05-.653-.063-.418-.2-.919-.167-1.329-.391-.315.038-.54-.16-.82-.19-.274.019-.425-.212-.615-.364v-.092c.5-.683 1.31-.876 2.038-1.139.714-.224 1.511-.243 2.26-.395.475-.08.987.05 1.465-.03.858.02 1.682.16 2.532.182.282.038.544.172.828.16l-.01-.122-.8-1.09c-.302-.705-.857-1.302-1.046-2.05-.182-.219-.012-.553-.152-.796-.011-.11.075-.19.13-.282.17-.068.363.05.535-.06.515.12.986.303 1.503.405.53.21 1.078.422 1.556.776.593.425 1.31.698 1.773 1.351.125.114.316.133.475.091.14-.019.17-.19.303-.243.627-.39 1.334-.615 1.948-1.048.255-.25.657-.28.81-.627.189-.09.36-.212.565-.265.353-.247.707-.52 1.09-.72a1.1 1.1 0 0 0 .515-.244c.627-.342 1.284-.627 1.88-1.02.13-.355.524-.27.805-.355.14.034.334.012.395.19z", "bunq": "M16.414 14.62h1.103v-2.896a2.484 2.484 0 0 0-2.483-2.483 2.484 2.484 0 0 0-2.482 2.483v2.897h1.103v-2.897c0-.837.618-1.517 1.38-1.517.76 0 1.379.68 1.379 1.517zm-6.07-5.24h1.104v2.896a2.484 2.484 0 0 1-2.482 2.483 2.484 2.484 0 0 1-2.483-2.483V9.379h1.103v2.897c0 .837.618 1.517 1.38 1.517.76 0 1.379-.68 1.379-1.517zM0 7.034V12c0 .046.001.093.004.139H0v2.482h.965l.055-.48A2.76 2.76 0 0 0 5.518 12a2.76 2.76 0 0 0-4.414-2.208V7.035zm2.69 3.172c.951 0 1.724.803 1.724 1.793 0 .99-.773 1.793-1.725 1.793-.951 0-1.724-.803-1.724-1.793 0-.99.773-1.793 1.724-1.793zm18.552-.965A2.76 2.76 0 0 0 18.482 12a2.76 2.76 0 0 0 4.414 2.207v2.758H24V12a2.15 2.15 0 0 0-.004-.139H24V9.38h-.965l-.055.48a2.741 2.741 0 0 0-1.738-.617zm.069.965c.951 0 1.724.803 1.724 1.793 0 .99-.773 1.793-1.724 1.793-.952 0-1.725-.803-1.725-1.793 0-.99.773-1.793 1.725-1.793Z", "sparkasse": "M7.0602 12.3061v1.8455h14.175v6.7773c.0296 1.6615-1.4064 3.1066-3.0705 3.0705H5.8352c-1.6582.0306-3.1011-1.4121-3.0705-3.0705v-1.225H16.908v-1.8455H2.7648v-6.7773c-.0307-1.6579 1.4123-3.1012 3.0704-3.0704h12.3295c1.6641-.0363 3.1 1.4095 3.0705 3.0705v1.225H7.0602zm4.9241-6.1486c1.7003 0 3.0787-1.3784 3.0787-3.0787S13.6847 0 11.9843 0 8.9055 1.3784 8.9055 3.0788s1.3785 3.0787 3.0788 3.0787z", "visa": "M9.112 8.262L5.97 15.758H3.92L2.374 9.775c-.094-.368-.175-.503-.461-.658C1.447 8.864.677 8.627 0 8.479l.046-.217h3.3a.904.904 0 01.894.764l.817 4.338 2.018-5.102zm8.033 5.049c.008-1.979-2.736-2.088-2.717-2.972.006-.269.262-.555.822-.628a3.66 3.66 0 011.913.336l.34-1.59a5.207 5.207 0 00-1.814-.333c-1.917 0-3.266 1.02-3.278 2.479-.012 1.079.963 1.68 1.698 2.04.756.367 1.01.603 1.006.931-.005.504-.602.725-1.16.734-.975.015-1.54-.263-1.992-.473l-.351 1.642c.453.208 1.289.39 2.156.398 2.037 0 3.37-1.006 3.377-2.564m5.061 2.447H24l-1.565-7.496h-1.656a.883.883 0 00-.826.55l-2.909 6.946h2.036l.405-1.12h2.488zm-2.163-2.656l1.02-2.815.588 2.815zm-8.16-4.84l-1.603 7.496H8.34l1.605-7.496z", "spotify": "M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z", "lidl": "M0 0v24h24V0zm.209.209h23.582v23.582H.209zm11.789.625C5.83.834.83 5.834.83 12.002c0 6.168 5 11.168 11.168 11.168 6.167 0 11.167-5 11.168-11.166C23.165 5.837 18.166.837 12 .834zm.002.709c5.777 0 10.46 4.682 10.46 10.459v.004c-.004 5.773-4.686 10.452-10.46 10.453-5.777 0-10.46-4.68-10.46-10.457C1.54 6.225 6.222 1.543 12 1.543zM9.229 7.85c-.645 0-1.166.521-1.166 1.166v.004c0 1.044 1.261 1.567 1.999.829.738-.738.215-2-.829-1.999zM2.73 10.059v.71h.551v2.465h-.55v.713h4.644v-.65l.537-.54 1.486 1.491-.55.547.357.36 2.973-2.977v-.713l-.826.83-1.848-1.848-2.129 2.133v-.576l-1.904 1.06V10.77h.549v-.711zm8.905 0v.71h.549v2.465h-.555v.713h3.129c2.325 0 2.355-3.888.008-3.888zm4.963 0v.71h.55v2.465h-.55v.713h4.648v-1.943l-1.906 1.06V10.77h.55v-.711zm-2.43 1.21h.133c.687 0 .685 1.461.023 1.461h-.156v-1.46z", "shell": "M12 .863C5.34.863 0 6.251 0 12.98c0 .996.038 1.374.246 2.33l3.662 2.71.57 4.515h6.102l.326.227c.377.262.705.375 1.082.375.352 0 .732-.101 1.024-.313l.39-.289h6.094l.563-4.515 3.695-2.71c.208-.956.246-1.334.246-2.33C24 6.252 18.661.863 12 .863zm.996 2.258c.9 0 1.778.224 2.512.649l-2.465 12.548 3.42-12.062c1.059.36 1.863.941 2.508 1.814l.025.034-4.902 10.615 5.572-9.713.033.03c.758.708 1.247 1.567 1.492 2.648l-6.195 7.666 6.436-6.5.01.021c.253.563.417 1.36.417 1.996 0 .509-.024.712-.164 1.25l-3.554 2.602-.467 3.71h-4.475l-.517.395c-.199.158-.482.266-.682.266-.199 0-.483-.108-.682-.266l-.517-.394H6.322l-.445-3.61-3.627-2.666c-.11-.436-.16-.83-.16-1.261 0-.72.159-1.49.426-2.053l.013-.024 6.45 6.551L2.75 9.621c.25-1.063.874-2.09 1.64-2.713l5.542 9.776L4.979 6.1c.555-.814 1.45-1.455 2.546-1.827l3.424 12.069L8.355 3.816l.055-.03c.814-.45 1.598-.657 2.457-.657.195 0 .286.004.528.03l.587 13.05.46-13.059c.224-.025.309-.029.554-.029z"};
 
@@ -1145,6 +1188,8 @@ function glyph(spec, px) {
 }
 const tile = (spec, size = 36) => `<span class="logo-tile" style="width:${size}px;height:${size}px;border-radius:${Math.round(size * .27)}px;background:${spec.bg};color:${spec.fg || '#FFFFFF'}" aria-hidden="true">${glyph(spec, Math.round(size * (spec.scale || (spec.mc ? .5 : .56))))}</span>`;
 const icon = (name, px = 22) => glyph({ icon: name }, px);
+
+Object.assign(LUCIDE, LUCIDE_EXTRA);
 
 /* ---------------- Helpers ---------------- */
 const $ = (s, r = document) => r.querySelector(s);
@@ -1179,7 +1224,9 @@ const S = {
   user: { first: 'Lena', last: 'Hoffmann', email: 'lena.hoffmann@posteo.de' },
   auth: {},
   prefs: { theme: 'system', faceId: true, approve: true, bills: true, spending: true, paydayNote: false },
-  iceland: { saved: 1400, goal: 2400, monthly: 140, paused: false },
+  // Savings goals all live in Lena's Stash. `goal` is the target; `by` counts months from August 2026 (0 = no date)
+  iceland: { id: 'iceland', name: 'Iceland', sub: 'February trip', icon: 'mountain-snow', color: 'var(--forest)', saved: 1400, goal: 2400, monthly: 140, paused: false, by: 6 },
+  draft: {},
   fixesSent: 0,
   dismissed: [],
   spotifyDelta: 0,
@@ -1188,6 +1235,7 @@ const S = {
   chat: { title: null, emoji: null, msgs: [], busy: false },
   tab: 'today',
 };
+S.goals = [S.iceland];
 const FLEX_DAILY = 88.05;  // flexible budget per day this pay period
 const SPOTIFY_MONTHLY = 10.99; // back in the budget once the second plan is cancelled
 const COMFORT = 1000;      // the balance Lena never wants her current account to drop below
@@ -1298,7 +1346,9 @@ function forecast(over = {}) {
     { day: sep(Math.min(st.payDay, 30)), name: 'Salary', phrase: 'your salary', amt: 3482 },
   ];
   if (st.payDay >= 25) ev.push({ day: st.payDay - 24, name: 'Salary', phrase: 'your salary', amt: 3482 });
-  if (!S.iceland.paused) ev.push({ day: sep(23), name: 'Iceland transfer', phrase: 'the Iceland transfer', amt: -S.iceland.monthly });
+  if (!S.iceland.paused && !S.iceland.done) ev.push({ day: sep(23), name: `${esc(S.iceland.name)} transfer`, phrase: `the ${esc(S.iceland.name)} transfer`, amt: -S.iceland.monthly });
+  const payT = sep(Math.min(st.payDay, 30)) + 1; // other goals move the day after pay lands
+  S.goals.forEach(g => { if (g !== S.iceland && !g.paused && !g.done && g.saved < g.goal && payT < DAYS) ev.push({ day: payT, name: `${esc(g.name)} transfer`, phrase: `the ${esc(g.name)} transfer`, amt: -g.monthly }); });
   ev.sort((a, b) => a.day - b.day || b.amt - a.amt);
   const start = st.start - st.extra;
   let bal = start, low = { bal: start, day: 0 };
@@ -1593,25 +1643,41 @@ function curveWheel(w) {
     it.style.opacity = Math.abs(a) > 1.55 ? 0 : (0.25 + 0.75 * Math.cos(c)).toFixed(2);
   });
 }
-function paydayRow(key, flush = false) {
-  const open = S.wheel === key;
-  const items = Array.from({ length: PAY_MAX }, (_, i) => `<div class="wheel-item${i + 1 === S.payDay ? ' on' : ''}" data-v="${i + 1}">${payShort(i + 1)}</div>`).join('');
+// Months are counted from August 2026, so 1 is September 2026; 0 means no target date
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const GOAL_MONTHS = 48;
+const monthOf = m => { const d = new Date(2026, 7 + m, 1); return { name: MONTH_NAMES[d.getMonth()], y: d.getFullYear() }; };
+const monthShort = m => { const o = monthOf(m); return `${o.name.slice(0, 3)} ${o.y}`; };
+const monthLong = m => { const o = monthOf(m); return `${o.name} ${o.y}`; };
+// One wheel component, two kinds of value
+const WHEEL_CFG = {
+  payday: { label: 'Pay day', aria: 'Pay day of each month', min: 1, max: PAY_MAX, get: () => S.payDay, set: v => { S.payDay = v; }, short: payShort, long: payLong, suffix: 'of the month' },
+  goaldate: { label: 'Target date', aria: 'Target date', min: 0, max: GOAL_MONTHS, get: () => S.draft.by, set: v => { S.draft.by = v; }, short: m => m ? monthShort(m) : 'No date', long: m => m ? monthLong(m) : 'No date' },
+};
+const wheelCfg = key => WHEEL_CFG[key.startsWith('goal') ? 'goaldate' : 'payday'];
+function wheelRow(key, flush = false) {
+  const c = wheelCfg(key), open = S.wheel === key, cur = c.get();
+  const items = Array.from({ length: c.max - c.min + 1 }, (_, i) => `<div class="wheel-item${i + c.min === cur ? ' on' : ''}" data-v="${i + c.min}">${c.short(i + c.min)}</div>`).join('');
   return `<div class="row pref-row wheel-row${flush ? ' flush' : ''}" data-wheel-toggle="${key}" role="button" tabindex="0" aria-expanded="${open}" aria-controls="wheel-${key}">
-      <span class="grow t">Pay day</span><span class="wheel-value${open ? ' on' : ''}">${payLong(S.payDay)}</span>
+      <span class="grow t">${c.label}</span><span class="wheel-value${open ? ' on' : ''}">${c.long(cur)}</span>
     </div>
-    ${open ? `<div class="wheel-wrap${flush ? ' flush' : ''}" id="wheel-${key}">
-      <div class="wheel" id="wheel-input-${key}" role="slider" tabindex="0" aria-label="Pay day of each month" aria-valuemin="1" aria-valuemax="${PAY_MAX}" aria-valuenow="${S.payDay}" aria-valuetext="${payLong(S.payDay)}">${items}</div>
-      <span class="wheel-suffix" aria-hidden="true">of the month</span>
+    ${open ? `<div class="wheel-wrap${flush ? ' flush' : ''}${c.suffix ? '' : ' solo'}" id="wheel-${key}">
+      <div class="wheel" id="wheel-input-${key}" role="slider" tabindex="0" aria-label="${c.aria}" aria-valuemin="${c.min}" aria-valuemax="${c.max}" aria-valuenow="${cur}" aria-valuetext="${c.long(cur)}">${items}</div>
+      ${c.suffix ? `<span class="wheel-suffix" aria-hidden="true">${c.suffix}</span>` : ''}
     </div>` : ''}`;
 }
-function setPayday(v) {
-  if (v < 1 || v > PAY_MAX || v === S.payDay) return;
-  S.payDay = v; refresh();
+const paydayRow = (key, flush) => wheelRow(key, flush);
+const wheelKey = w => w.id.replace('wheel-input-', '');
+const wheelIdx = w => Math.round(w.scrollTop / WHEEL_ROW);
+function setWheel(key, v) {
+  const c = wheelCfg(key);
+  if (v < c.min || v > c.max || v === c.get()) return;
+  c.set(v); refresh();
 }
 // Our own ease-out spin: native smooth scrolling stalls on a snapping list whose rows restyle as it moves
-function spinTo(w, v) {
-  w.goal = v;
-  const to = (v - 1) * WHEEL_ROW, from = w.scrollTop;
+function spinTo(w, idx) {
+  w.goalIdx = idx;
+  const to = idx * WHEEL_ROW, from = w.scrollTop;
   cancelAnimationFrame(w.spin);
   if (reduced || Math.abs(to - from) < 1) { w.scrollTop = to; return; }
   const dur = Math.min(520, 220 + Math.abs(to - from) * 0.4), t0 = performance.now();
@@ -1625,23 +1691,25 @@ function spinTo(w, v) {
 }
 function syncWheels() {
   $$('.wheel', app).forEach(w => {
-    const target = (S.payDay - 1) * WHEEL_ROW;
+    const key = wheelKey(w), c = wheelCfg(key), n = c.max - c.min;
+    const target = (c.get() - c.min) * WHEEL_ROW;
     if (Math.abs(w.scrollTop - target) > 1 && !w.dragging) w.scrollTop = target;
     curveWheel(w);
     if (w.wired) return;
     w.wired = true;
+    const clamp = i => Math.max(0, Math.min(n, i));
     w.addEventListener('scroll', () => {
       if (!w.isConnected) return; // a late scroll from a wheel that was just saved and removed
       w.dragging = true;
       curveWheel(w);
-      const i = Math.round(w.scrollTop / WHEEL_ROW);
+      const i = wheelIdx(w);
       w.querySelectorAll('.wheel-item').forEach((it, k) => it.classList.toggle('on', k === i));
       clearTimeout(w.settleT);
       const settle = () => {
         if (!w.isConnected) return;
-        const now = Math.round(w.scrollTop / WHEEL_ROW) + 1;
-        if (w.goal && now !== w.goal) { w.settleT = setTimeout(settle, 120); return; } // a long keyboard jump is still travelling
-        w.dragging = false; w.goal = null; setPayday(Math.max(1, Math.min(PAY_MAX, now)));
+        const now = wheelIdx(w);
+        if (w.goalIdx != null && now !== w.goalIdx) { w.settleT = setTimeout(settle, 120); return; } // a long keyboard jump is still travelling
+        w.dragging = false; w.goalIdx = null; setWheel(key, clamp(now) + c.min);
       };
       w.settleT = setTimeout(settle, 160);
     }, { passive: true });
@@ -1649,25 +1717,25 @@ function syncWheels() {
       const it = e.target.closest('.wheel-item');
       if (!it) return;
       // Tapping the row already in the band saves it and folds the wheel away
-      if (+it.dataset.v === Math.round(w.scrollTop / WHEEL_ROW) + 1) commitWheel(w); else spinTo(w, +it.dataset.v);
+      const i = +it.dataset.v - c.min;
+      if (i === wheelIdx(w)) commitWheel(w); else spinTo(w, i);
     });
     w.addEventListener('keydown', e => {
       if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); commitWheel(w); return; }
-      const cur = w.goal || Math.round(w.scrollTop / WHEEL_ROW) + 1; // keep counting from where a quick run of presses is heading
-      const nv = e.key === 'ArrowUp' ? cur - 1 : e.key === 'ArrowDown' ? cur + 1 : e.key === 'Home' ? 1 : e.key === 'End' ? PAY_MAX : null;
-      if (nv == null) return;
+      const cur = w.goalIdx != null ? w.goalIdx : wheelIdx(w); // keep counting from where a quick run of presses is heading
+      const ni = e.key === 'ArrowUp' ? cur - 1 : e.key === 'ArrowDown' ? cur + 1 : e.key === 'Home' ? 0 : e.key === 'End' ? n : null;
+      if (ni == null) return;
       e.preventDefault(); e.stopPropagation();
-      w.goal = Math.max(1, Math.min(PAY_MAX, nv));
-      spinTo(w, w.goal);
+      spinTo(w, clamp(ni));
     });
   });
 }
 function commitWheel(w) {
-  const key = w.id.replace('wheel-input-', '');
+  const key = wheelKey(w), c = wheelCfg(key);
   clearTimeout(w.settleT); cancelAnimationFrame(w.spin);
-  const v = Math.max(1, Math.min(PAY_MAX, w.goal || Math.round(w.scrollTop / WHEEL_ROW) + 1));
-  w.dragging = false; w.goal = null;
-  S.payDay = v;
+  const i = Math.max(0, Math.min(c.max - c.min, w.goalIdx != null ? w.goalIdx : wheelIdx(w)));
+  w.dragging = false; w.goalIdx = null;
+  c.set(i + c.min);
   toggleWheel(key); // closes it and re-renders with the saved value
 }
 function toggleWheel(key) {
@@ -1754,7 +1822,6 @@ function renderToday() {
 /* ---------------- Money ---------------- */
 function renderMoney() {
   const cash = sumKind('cash'), saved = sumKind('saved'), owed = -sumKind('owed');
-  const ic = S.iceland, pct = Math.round(ic.saved / ic.goal * 100);
   const fc = forecast();
   const avail = fixesAvailable();
   const linkedTotal = S.linked.reduce((a, b) => a + b.bal, 0);
@@ -1801,15 +1868,248 @@ function renderMoney() {
           <span style="font-size:13px;opacity:.9">${fc.pre.bal < COMFORT ? 'Under your €1,000 comfort line' : `${eur(fc.pre.bal - COMFORT)} above your €1,000 comfort line`}</span>
         </button>
       </div>
-      <div>
-        <h2 class="section-h" style="margin:0">Savings</h2>
-        <button class="card-media g-iceland" data-act="open-iceland"><span class="card-chev" aria-hidden="true">${I.chev}</span>
-          <span aria-hidden="true">${tile({ icon: 'mountain-snow', bg: 'var(--forest)' }, 40)}</span>
-          <span class="ttl">Iceland · February trip</span>
-          <span style="font-size:13px;opacity:.9">${pct}% · ${eur(ic.saved)} of ${eur(ic.goal)}${ic.paused ? ' · Paused' : ''}</span>
-          <span class="meter"><i style="width:${pct}%"></i></span>
-        </button>
+      ${savingsSection()}
+    </div>`;
+}
+
+/* ---------------- Goals ---------------- */
+const GOAL_ICONS = [['plane', '#2F6FD6'], ['house', '#C2410C'], ['car', '#475569'], ['laptop', '#4B4BC8'], ['gift', '#C0267A'], ['umbrella', '#0E8A7E'], ['graduation-cap', '#7C3AED'], ['heart', '#D9364C']];
+const GOAL_IDEAS = [['Emergency fund', 'umbrella'], ['New laptop', 'laptop'], ['Wedding', 'heart'], ['Driving lessons', 'car']];
+const SPARE_MONTHLY = 560; // usually left each month after bills and everyday spending, before any goals
+const goalColor = ic => (GOAL_ICONS.find(g => g[0] === ic) || GOAL_ICONS[0])[1];
+const goalById = id => S.goals.find(g => g.id === id);
+const goalTitle = g => g.sub ? `${g.name} · ${g.sub}` : g.name;
+const goalTile = (g, size) => tile({ icon: g.icon, bg: g.color || goalColor(g.icon) }, size);
+const goalsSaved = () => r2(S.goals.reduce((a, g) => a + g.saved, 0));
+const stashFree = () => r2(acct('stash').bal - goalsSaved());
+const goalsWord = () => S.goals.length > 1 ? 'your goals' : `the ${S.iceland.name} goal`;
+const goalsMonthly = except => S.goals.filter(g => g !== except && !g.paused && !g.done && g.saved < g.goal).reduce((a, g) => a + g.monthly, 0);
+const suggestMonthly = (rem, by) => Math.max(10, Math.ceil(rem / (by || 12) / 5) * 5);
+const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+// How long the rest takes at a monthly amount, and whether that misses the date
+function pace(g, monthly = g.monthly) {
+  const rem = r2(Math.max(0, g.goal - g.saved));
+  if (!rem) return { m: 0, late: false, rem, text: 'You’re already there.' };
+  const m = Math.ceil(rem / Math.max(1, monthly)), late = !!g.by && m > g.by;
+  return { m, late, rem, text: `Gets you there in about ${plural(m, 'month')}, around ${monthLong(m)}${g.by ? (late ? `. That’s after your ${monthLong(g.by)} date.` : ', in time.') : '.'}` };
+}
+function spareLine(monthly, except) {
+  const spare = SPARE_MONTHLY - goalsMonthly(except), left = spare - monthly;
+  return left >= 0
+    ? { bad: false, text: `You usually have ${eur(spare)} spare a month after bills, spending and other goals. This leaves ${eur(left)}.` }
+    : { bad: true, text: `That’s ${eur(-left)} more than the ${eur(Math.max(0, spare))} you usually have spare after bills, spending and other goals. It would come out of your everyday budget.` };
+}
+// What moving money in or out does to today's safe-to-spend
+function moveImpact(amt, from, g) {
+  if (!amt) return { bad: true, text: '' };
+  if (from === 'out') {
+    if (amt > g.saved) return { bad: true, text: `This goal has ${eur(g.saved)}.` };
+    const before = safeNow(), after = safety(forecast({ extra: -amt })).safe;
+    return { bad: false, text: `Goes to your current account${after > before ? `. Today's safe-to-spend goes up to ${eur(after, 2)}.` : '.'}` };
+  }
+  if (from === 'stash') {
+    const free = stashFree();
+    return amt > free ? { bad: true, text: `Lena's Stash has ${eur(free)} that isn't set aside for a goal.` } : { bad: false, text: `Sets aside money already in Lena's Stash. Safe to spend doesn't change.` };
+  }
+  const before = safeNow(), after = safety(forecast({ extra: amt })).safe;
+  if (after <= 0) return { bad: true, text: `That would take your current account under €1,000 before pay day. Try less, or take it from Lena's Stash.` };
+  return { bad: false, text: after >= before ? `Today's safe-to-spend stays at ${eur(before, 2)}.` : `Today's safe-to-spend goes from ${eur(before, 2)} to ${eur(after, 2)}.` };
+}
+function moveMoney(g, amt, from) {
+  if (from === 'out') { g.saved = r2(g.saved - amt); acct('stash').bal = r2(acct('stash').bal - amt); acct('chk').bal = r2(acct('chk').bal + amt); return; }
+  g.saved = r2(g.saved + amt);
+  if (from === 'chk') { acct('chk').bal = r2(acct('chk').bal - amt); acct('stash').bal = r2(acct('stash').bal + amt); }
+}
+
+// Shared form parts
+const iconGrid = cur => `<div class="icon-grid" role="radiogroup" aria-label="Icon">${GOAL_ICONS.map(([ic, col]) => `<button class="icon-pick${cur === ic ? ' on' : ''}" role="radio" aria-checked="${cur === ic}" aria-label="${ic.replace('-', ' ')}" data-act="goal-icon" data-icon="${ic}" style="--c:${col}">${icon(ic, 24)}</button>`).join('')}</div>`;
+function draftField(key, label, o = {}) {
+  const amt = o.kb === 'amount';
+  return `<label class="auth-field"><span>${label}</span>
+    <span class="${amt ? 'amount-field' : ''}">${amt ? '<span class="cur" aria-hidden="true">€</span>' : ''}<input class="field" id="df-${key}" data-draft="${key}" data-kb="${o.kb || 'name'}" data-kb-return="${o.ret || 'done'}" type="text" inputmode="${amt ? 'numeric' : 'text'}" autocomplete="off" autocapitalize="${o.caps || 'sentences'}" spellcheck="false"${o.max ? ` maxlength="${o.max}"` : ''} placeholder="${o.ph || ''}" value="${esc(S.draft[key] == null ? '' : String(S.draft[key]))}" aria-describedby="de-${key}"></span>
+    <p class="field-err" id="de-${key}" role="alert"></p></label>`;
+}
+function draftErr(key, msg) {
+  const page = stack[stack.length - 1], f = page && $(`#df-${key}`, page), e = page && $(`#de-${key}`, page);
+  if (e) e.textContent = msg;
+  if (f) { f.setAttribute('aria-invalid', 'true'); f.focus({ preventScroll: true }); }
+  return false;
+}
+const seg = (key, opts, cur, label) => `<div class="seg" role="radiogroup" aria-label="${label}">${opts.map(([v, l]) => `<button role="radio" aria-checked="${String(cur) === String(v)}" class="${String(cur) === String(v) ? 'on' : ''}" data-act="draft-seg" data-key="${key}" data-v="${v}">${l}</button>`).join('')}</div>`;
+const goalNav = (step, first) => `<div class="nav"><button class="circle-btn glass" data-act="back" aria-label="${first ? 'Cancel' : 'Back'}">${first ? I.x : I.back}</button><div class="auth-progress" role="progressbar" aria-label="Step ${step} of 3" aria-valuemin="1" aria-valuemax="3" aria-valuenow="${step}"><i style="width:${step / 3 * 100}%"></i></div><span style="width:44px"></span></div>`;
+function flowPush(render, opts = {}) {
+  return push(render, { modal: !!opts.modal, kind: opts.kind || 'goal-flow', onMount: el => {
+    el.classList.add('auth-flow');
+    opts.mount && opts.mount(el);
+    if (!el.dataset.focused && opts.focus !== false) { el.dataset.focused = '1'; setTimeout(() => { if (stack[stack.length - 1] !== el) return; const f = el.querySelector('input.field'); f && f.focus({ preventScroll: true }); }, T + 40); }
+  } });
+}
+// Close every page of a full-screen flow in one move
+function closeFlow() {
+  let i = stack.length - 1;
+  while (i > 0 && !stack[i].modal) i--;
+  while (stack.length - 1 > i) stack.pop().remove();
+  navBusy = false; pop(true);
+}
+
+// New goal, step 1: what it's for
+function goalMoveFlow(id, mode) {
+  S.draft = { amt: '', from: 'chk' };
+  flowPush(() => goalMovePage(id, mode), { modal: true, kind: 'goal-move', mount: el => { el.live = () => liveMove(el, id, mode); el.live(); } });
+}
+function goalNamePage() {
+  return `${goalNav(1, true)}
+    <div class="auth">
+      ${authHead('What are you saving for?', 'Pick an icon and give it a name.')}
+      ${iconGrid(S.draft.icon)}
+      ${draftField('name', 'Name', { ph: 'New laptop', max: 28 })}
+      <div class="chips idea-chips">${GOAL_IDEAS.map(([n, ic]) => `<button class="chip" data-act="goal-idea" data-name="${n}" data-icon="${ic}">${n}</button>`).join('')}</div>
+      <button class="btn primary" data-act="goal-name-submit" data-kb-submit>Continue</button>
+    </div>`;
+}
+// Step 2: how much and by when
+function goalAmountPage() {
+  return `${goalNav(2)}
+    <div class="auth">
+      ${authHead(`How much for ${esc(S.draft.name)}?`, 'Add a date if there is one, and Cushion works out the monthly amount.')}
+      ${draftField('target', 'Target', { kb: 'amount', ph: '1,500', max: 7 })}
+      <div class="list">${wheelRow('goal-new')}</div>
+      <button class="btn primary" data-act="goal-amount-submit" data-kb-submit>Continue</button>
+    </div>`;
+}
+// Step 3: the plan, checked against the month and against today
+function goalPlanPage() {
+  const d = S.draft, target = +d.target, g = { goal: target, saved: +d.start || 0, by: d.by };
+  const p = pace(g, d.monthly), sp = spareLine(d.monthly), im = moveImpact(+d.start || 0, d.from, g);
+  const max = Math.max(400, Math.ceil(suggestMonthly(target, d.by) * 2 / 50) * 50);
+  return `${goalNav(3)}
+    <div class="auth">
+      ${authHead('Here’s your plan', null)}
+      <div class="goal-sum">${goalTile({ icon: d.icon }, 44)}<span><b>${esc(d.name)}</b><span>${eur(target)}${d.by ? ` by ${monthLong(d.by)}` : ''}</span></span></div>
+      <div class="plan-card">
+        <div class="plan-h"><span>Every month</span><span class="num" id="gp-val">${eur(d.monthly)}</span></div>
+        <input id="gp-slider" class="slider" type="range" min="10" max="${max}" step="5" value="${d.monthly}" aria-label="Monthly amount" aria-valuetext="${eur(d.monthly)} a month">
+        <p class="plan-note" id="gp-pace">${p.text}</p>
+        <p class="plan-note${sp.bad ? ' warn' : ''}" id="gp-spare">${sp.text}</p>
       </div>
+      <div class="plan-start">
+        <h2 class="section-h">Start with</h2>
+        ${seg('start', [[0, '€0'], [100, '€100'], [250, '€250'], [500, '€500']], d.start || 0, 'Start with')}
+        ${d.start ? `${seg('from', [['chk', 'Current account'], ['stash', 'Lena’s Stash']], d.from, 'Take it from')}<p class="plan-note${im.bad ? ' warn' : ''}">${im.text}</p>` : ''}
+      </div>
+      <p class="foot" style="text-align:left;margin:0">Moves from your current account to Lena’s Stash the day after pay day.${S.prefs.approve ? ' Each transfer waits for your OK.' : ''}</p>
+      <button class="btn primary" data-act="goal-create" ${d.start && im.bad ? 'disabled' : ''}>Create Goal</button>
+    </div>`;
+}
+function wirePlanSlider(el) {
+  const sl = $('#gp-slider', el); if (!sl) return;
+  const upd = () => {
+    const v = +sl.value; S.draft.monthly = v;
+    sl.style.setProperty('--p', ((v - sl.min) / (sl.max - sl.min) * 100) + '%');
+    sl.setAttribute('aria-valuetext', `${eur(v)} a month`);
+    $('#gp-val', el).textContent = eur(v);
+    $('#gp-pace', el).textContent = pace({ goal: +S.draft.target, saved: +S.draft.start || 0, by: S.draft.by }, v).text;
+    const sp = spareLine(v), n = $('#gp-spare', el); n.textContent = sp.text; n.classList.toggle('warn', sp.bad);
+  };
+  sl.addEventListener('input', upd); upd();
+}
+
+// A goal's own page
+function goalPage(id) {
+  const g = goalById(id); if (!g) return '';
+  const p = pace(g), pct = Math.min(100, Math.round(g.saved / g.goal * 100));
+  const reached = p.rem === 0;
+  const plan = g.done ? `Done. The ${eur(g.saved)} stays in Lena’s Stash until you take it out.`
+    : g.paused ? `Transfers are paused. You’re ${eur(p.rem)} away, and nothing moves until you resume.`
+    : reached ? `You reached ${eur(g.goal)}. Mark it as done, or keep it going.`
+    : `At ${eur(g.monthly)} a month, you’d get there around ${monthLong(p.m)}.`;
+  const need = !g.done && !g.paused && p.late ? suggestMonthly(p.rem, g.by) : 0;
+  return `
+    <div class="nav">
+      <button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button>
+      <button class="pill glass" data-act="goal-edit" data-id="${id}">Edit</button>
+    </div>
+    <div class="detail">
+      <div class="goal-head">${goalTile(g, 52)}<h1 data-short="${esc(g.name)}">${esc(goalTitle(g))}</h1>${g.by ? `<p class="body">Target date ${monthLong(g.by)}</p>` : ''}</div>
+      <div>
+        <div class="big"><span class="num" id="goal-num"><span class="cur">€</span><span class="w">${fmt(g.saved)}</span></span><span class="of">of ${eur(g.goal)}</span>${g.done ? '<span class="paused-badge">Done</span>' : g.paused ? '<span class="paused-badge">Paused</span>' : ''}</div>
+        <div class="progress" style="margin-top:16px"><i style="width:${pct}%"></i></div>
+        <div class="progress-cap"><span>${pct}% there</span><span>${g.done ? 'Done' : g.paused ? 'Paused' : reached ? 'Reached' : `About ${plural(p.m, 'month')} to go`}</span></div>
+      </div>
+      <p class="body">${plan}</p>
+      ${need ? `<div class="callout glass">${I.info}<span>That lands after ${monthLong(g.by)}. ${eur(need)} a month gets you there in time.</span></div>` : ''}
+      <div class="stack ice-actions">
+        ${reached && !g.done ? `<button class="btn primary" data-act="goal-done" data-id="${id}">Mark as Done</button>` : ''}
+        ${goalMoveButtons(g)}
+        ${g.done ? '' : `<button class="btn gray" data-act="change-monthly" data-id="${id}">Change Monthly Amount</button>
+        <button class="btn gray" data-act="toggle-pause" data-id="${id}">${g.paused ? 'Resume Transfers' : 'Pause Transfers'}</button>`}
+      </div>
+      <div class="kv">
+        <div><span>Monthly transfer</span><span>${g.done ? 'Stopped' : g.paused ? 'Paused' : `${eur(g.monthly)} · day after pay day`}</span></div>
+        <div><span>Held in</span><span>Lena’s Stash · 3.1%</span></div>
+      </div>
+      <p class="foot" style="text-align:left;margin-top:6px">It earns interest while it fills. Nothing here is locked. You can take it back any time.</p>
+    </div>`;
+}
+const goalMoveButtons = g => `<div class="btn-pair"><button class="btn gray" data-act="goal-add" data-id="${g.id}">${I.plus} Add Money</button><button class="btn gray" data-act="goal-withdraw" data-id="${g.id}" ${g.saved > 0 ? '' : 'disabled'}>Withdraw</button></div>`;
+function openGoal(id) {
+  const pg = id === 'iceland' ? push(icelandPage, { media: 'g-iceland' }) : push(() => goalPage(id), { media: 'g-iceland', kind: 'goal' });
+  if (pg) pg.goalId = id;
+  return pg;
+}
+
+// Add money or withdraw: a full-screen page so the number pad never covers the button
+function goalMovePage(id, mode) {
+  const g = goalById(id); if (!g) return '';
+  const add = mode === 'add';
+  return `<div class="nav"><button class="circle-btn glass" data-act="back" aria-label="Cancel">${I.x}</button><span style="width:44px"></span></div>
+    <div class="auth">
+      ${authHead(add ? `Add to ${esc(g.name)}` : `Withdraw from ${esc(g.name)}`, add ? `${eur(g.saved)} saved of ${eur(g.goal)}.` : `${eur(g.saved)} saved.`)}
+      ${draftField('amt', 'Amount', { kb: 'amount', ph: '0', max: 7 })}
+      ${add ? seg('from', [['chk', 'Current account'], ['stash', 'Lena’s Stash']], S.draft.from, 'Take it from') : ''}
+      <p class="plan-note" id="mv-note" aria-live="polite"></p>
+      <button class="btn primary" id="mv-go" data-act="goal-move" data-id="${id}" data-mode="${mode}" data-kb-submit disabled>${add ? 'Add Money' : 'Withdraw'}</button>
+    </div>`;
+}
+function liveMove(el, id, mode) {
+  const g = goalById(id), amt = +S.draft.amt || 0;
+  const im = moveImpact(amt, mode === 'add' ? S.draft.from : 'out', g);
+  const n = $('#mv-note', el), b = $('#mv-go', el);
+  if (n) { n.textContent = im.text; n.classList.toggle('warn', im.bad && !!amt); }
+  if (b) b.disabled = !amt || im.bad;
+}
+
+// Edit: name, icon, target and date
+function goalEditPage(id) {
+  const g = goalById(id); if (!g) return '';
+  return `<div class="nav"><button class="pill glass" data-act="back">Cancel</button><button class="pill glass" data-act="goal-save" data-id="${id}"><b>Save</b></button></div>
+    <div class="auth">
+      ${authHead('Edit Goal', null)}
+      ${iconGrid(S.draft.icon)}
+      ${draftField('name', 'Name', { max: 28 })}
+      ${draftField('target', 'Target', { kb: 'amount', max: 7 })}
+      <div class="list">${wheelRow('goal-edit')}</div>
+      ${id === 'iceland' ? '' : `<button class="btn destructive" data-act="goal-delete" data-id="${id}">Delete Goal</button>`}
+    </div>`;
+}
+
+const goalCard = g => {
+  const pct = Math.min(100, Math.round(g.saved / g.goal * 100));
+  return `<button class="card-media g-iceland" data-act="${g === S.iceland ? 'open-iceland' : 'open-goal'}" data-id="${g.id}"><span class="card-chev" aria-hidden="true">${I.chev}</span>
+    <span aria-hidden="true">${goalTile(g, 40)}</span>
+    <span class="ttl">${esc(goalTitle(g))}</span>
+    <span style="font-size:13px;opacity:.9">${pct}% · ${eur(g.saved)} of ${eur(g.goal)}${g.paused ? ' · Paused' : ''}</span>
+    <span class="meter"><i style="width:${pct}%"></i></span>
+  </button>`;
+};
+function savingsSection() {
+  const active = S.goals.filter(g => !g.done), done = S.goals.filter(g => g.done);
+  return `<div class="goal-stack">
+      <h2 class="section-h" style="margin:0">Savings</h2>
+      ${active.map(goalCard).join('')}
+      <button class="btn tinted" data-act="goal-new">${I.plus} New Goal</button>
+      ${done.length ? `<h2 class="section-h" style="margin:10px 0 0">Done</h2><div class="list">${done.map(g => `
+        <button class="row" data-act="open-goal" data-id="${g.id}" style="--inset:58px">${goalTile(g, 30)}<span class="grow t">${esc(g.name)}</span><span class="v">${eur(g.saved)}</span><span class="chev" aria-hidden="true">${I.chev}</span></button>`).join('')}</div>` : ''}
     </div>`;
 }
 
@@ -1878,8 +2178,8 @@ function icelandPage() {
   const rem = r2(Math.max(0, ic.goal - ic.saved));
   const months = ic.paused ? null : Math.ceil(rem / ic.monthly);
   const pct = Math.round(ic.saved / ic.goal * 100);
-  const needed = Math.ceil(rem / 6 / 10) * 10;
-  const late = months !== null && months > 6;
+  const needed = Math.ceil(rem / (ic.by || 6) / 10) * 10;
+  const late = months !== null && !!ic.by && months > ic.by;
   const avail = fixesAvailable();
   const plan = ic.paused
     ? `Transfers are paused. You're ${eur(rem)} away, and nothing moves until you resume.`
@@ -1888,12 +2188,12 @@ function icelandPage() {
   return `
     <div class="nav">
       <button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button>
-      <button class="pill glass" data-act="toggle-pause">${ic.paused ? I.play : I.pause} ${ic.paused ? 'Resume' : 'Pause'}</button>
+      <button class="pill glass" data-act="goal-edit" data-id="iceland">Edit</button>
     </div>
     <div class="detail">
       <div>
-        <h1 data-short="Iceland">Iceland · February trip</h1>
-        <p class="body" style="margin-top:6px">Flights, a week of car hire and the northern-lights tour in February.</p>
+        <h1 data-short="${esc(ic.name)}">${esc(goalTitle(ic))}</h1>
+        ${ic.sub ? '<p class="body" style="margin-top:6px">Flights, a week of car hire and the northern-lights tour in February.</p>' : ic.by ? `<p class="body" style="margin-top:6px">Target date ${monthLong(ic.by)}</p>` : ''}
       </div>
       <div>
         <div class="big"><span class="num" id="ice-num"><span class="cur">€</span><span class="w">${fmt(ic.saved)}</span></span><span class="of">of ${eur(ic.goal)}</span>${ic.paused ? '<span class="paused-badge">Paused</span>' : ''}</div>
@@ -1901,10 +2201,12 @@ function icelandPage() {
         <div class="progress-cap"><span>${pct}% there</span><span>${months === null ? 'Paused' : rem === 0 ? 'Done' : `About ${months} month${months === 1 ? '' : 's'} to go`}</span></div>
       </div>
       <p class="body">${plan}</p>
-      ${late ? `<div class="callout glass">${I.info}<span>That lands after the trip. ${eur(needed)} a month gets you there by February.</span></div>` : ''}
+      ${late ? `<div class="callout glass">${I.info}<span>That lands after ${ic.sub ? 'the trip' : monthLong(ic.by)}. ${eur(needed)} a month gets you there by ${MONTH_NAMES[(7 + ic.by) % 12]}.</span></div>` : ''}
       <div class="stack ice-actions">
-        ${avail > 0 ? `<button class="btn primary" data-act="send-fixes">Add ${eur(avail, 2)} to Iceland</button>` : ''}
-        <button class="btn gray" data-act="change-monthly">Change Monthly Amount</button>
+        ${avail > 0 ? `<button class="btn primary" data-act="send-fixes">Add ${eur(avail, 2)} to ${esc(ic.name)}</button>` : ''}
+        ${goalMoveButtons(ic)}
+        <button class="btn gray" data-act="change-monthly" data-id="iceland">Change Monthly Amount</button>
+        <button class="btn gray" data-act="toggle-pause" data-id="iceland">${ic.paused ? 'Resume Transfers' : 'Pause Transfers'}</button>
       </div>
       <div class="kv">
         <div><span>Monthly transfer</span><span>${ic.paused ? 'Paused' : `${eur(ic.monthly)} · 23 Sep`}</span></div>
@@ -2342,7 +2644,7 @@ function reply(q) {
     if (short > 0 && short < 50) return { title: 'The dental bill', emoji: 'stethoscope', paras: [`Just about. Paying €1,430 now and spending your safe-to-spend each day leaves ${eur(preBal - spendToLow - 1430)} ${lowDay}, only ${eur(short)} under your comfort line. A couple of quieter days and you're there.`] };
     return { title: 'The dental bill', emoji: 'stethoscope', paras: [
       `Not all at once. Before everyday spending you'd have ${eur(preBal)} ${lowDay}. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €1,430 for the bill, and ${preBal - spendToLow - 1430 < 0 ? `you'd be overdrawn by ${eur(-(preBal - spendToLow - 1430))}` : `you'd be at ${eur(preBal - spendToLow - 1430)}, under your €1,000 comfort line`}.`,
-      now > 0 ? `Pay ${eur(now)} now and the other ${eur(1430 - now)} after pay day on the ${pay}. Or take it from Lena's Stash, which has ${eur(acct('stash').bal - S.iceland.saved)} outside the Iceland goal.` : `Ask the office to bill you after pay day on the ${pay}, or take it from Lena's Stash, which has ${eur(acct('stash').bal - S.iceland.saved)} outside the Iceland goal.`] };
+      now > 0 ? `Pay ${eur(now)} now and the other ${eur(1430 - now)} after pay day on the ${pay}. Or take it from Lena's Stash, which has ${eur(stashFree())} outside ${goalsWord()}.` : `Ask the office to bill you after pay day on the ${pay}, or take it from Lena's Stash, which has ${eur(stashFree())} outside ${goalsWord()}.`] };
   }
   if (/\b(flights?|march|book|booking)\b|(?<![\d,.])€?600(?!\d|[,.]\d|[a-z])/.test(s) && !/iceland/.test(s)) {
     const after = preBal - spendToLow - 600;
@@ -2376,10 +2678,12 @@ function reply(q) {
   }
   if (/iceland|goal|saving/.test(s)) {
     const ic = S.iceland, rem = r2(ic.goal - ic.saved), m = Math.ceil(rem / ic.monthly);
-    return { title: 'Iceland goal', emoji: 'mountain-snow', paras: ic.paused
+    const others = S.goals.filter(g => g !== ic && !g.done).map(g => { const p = pace(g); return g.paused ? `${esc(g.name)} is paused at ${eur(g.saved)} of ${eur(g.goal)}` : p.rem ? `${esc(g.name)} is ${eur(g.saved)} of ${eur(g.goal)}, about ${plural(p.m, 'month')} to go${p.late ? `, after your ${monthLong(g.by)} date` : ''}` : `${esc(g.name)} has reached ${eur(g.goal)}`; });
+    const extra = others.length ? [`Your other goal${others.length > 1 ? 's' : ''}: ${others.join('; ')}.`] : [];
+    return { title: `${esc(ic.name)} goal`, emoji: ic.icon, paras: (ic.paused
       ? [`Transfers are paused, so the goal is waiting at ${eur(ic.saved)} of ${eur(ic.goal)}.`]
       : [`At ${eur(ic.monthly)} a month you'll have the remaining ${eur(rem)} in about ${m} month${m === 1 ? '' : 's'}.`,
-         m > 6 ? `That's after February. ${eur(Math.ceil(rem / 6 / 10) * 10)} a month gets you there in time.` : 'That gets you there before the February trip.'] };
+         ic.by && m > ic.by ? `That's after ${MONTH_NAMES[(7 + ic.by) % 12]}. ${eur(Math.ceil(rem / ic.by / 10) * 10)} a month gets you there in time.` : ic.by ? `That gets you there before ${MONTH_NAMES[(7 + ic.by) % 12]}.` : '']).filter(Boolean).concat(extra) };
   }
   if (/safe|spend|today/.test(s)) {
     return { title: 'Safe to spend', emoji: 'wallet', paras: [sf.limitedByCash
@@ -2463,21 +2767,23 @@ function fixesSheet() {
       </div>
       <div class="list" style="background:var(--fill)">
         <div class="row"><span class="grow t" style="font-size:16px">Ready to move</span><span class="v" style="font-weight:600">${eur(avail, 2)}</span></div>
-        ${S.fixesSent ? `<div class="row"><span class="grow t" style="font-size:16px">Already sent to Iceland</span><span class="v">${eur(S.fixesSent, 2)}</span></div>` : ''}
+        ${S.fixesSent ? `<div class="row"><span class="grow t" style="font-size:16px">Already sent to ${esc(S.iceland.name)}</span><span class="v">${eur(S.fixesSent, 2)}</span></div>` : ''}
       </div>
-      <button class="btn prominent" data-act="fix-to-iceland" ${avail > 0 ? '' : 'disabled'}>Add to Iceland Goal</button>
+      <button class="btn prominent" data-act="fix-to-iceland" ${avail > 0 ? '' : 'disabled'}>Add to ${esc(S.iceland.name)} Goal</button>
     </div>`);
 }
-function monthlySheet() {
-  const ic = S.iceland;
-  const rem = r2(ic.goal - ic.saved);
+function monthlySheet(id = 'iceland') {
+  const ic = goalById(id) || S.iceland;
+  monthlySheet.id = ic.id;
+  const rem = r2(Math.max(0, ic.goal - ic.saved));
   const desc = v => {
     const m = Math.ceil(rem / v);
-    return `About ${m} month${m === 1 ? '' : 's'} to go${m > 6 ? ', which lands after the February trip.' : ', in time for February.'}`;
+    if (!rem) return 'You’ve already reached this goal.';
+    return `About ${m} month${m === 1 ? '' : 's'} to go${ic.by ? (m > ic.by ? `, which lands after ${ic.sub ? 'the February trip' : monthLong(ic.by)}.` : `, in time for ${ic.sub ? 'February' : monthLong(ic.by)}.`) : '.'}`;
   };
   openSheet(`
     <div class="sheet-head"><h2 data-title>Monthly amount</h2><button class="close" data-act="close-sheet" aria-label="Close">${I.x}</button><button class="pill save" style="background:var(--lime);color:var(--forest);height:44px" data-act="save-monthly">Save</button></div>
-    <p class="sub">${ic.paused ? 'Transfers are paused. Saving a new amount resumes them on 23 Sep.' : 'Moves from your Sparkasse current account to Lena\'s Stash on the 23rd.'}</p>
+    <p class="sub">${ic.paused ? `Transfers are paused. Saving a new amount resumes them${ic === S.iceland ? ' on 23 Sep' : ''}.` : `Moves from your Sparkasse current account to Lena's Stash ${ic === S.iceland ? 'on the 23rd' : 'the day after pay day'}.`}</p>
     <div class="body">
       <div class="num" style="font-size:52px;text-align:center"><span class="cur">€</span><span id="m-val">${ic.monthly}</span></div>
       <input id="m-slider" class="slider" type="range" min="50" max="400" step="10" value="${ic.monthly}" aria-label="Monthly amount" autofocus>
@@ -2587,12 +2893,12 @@ const H = {
       else pendingFix = [];
     }, 260)];
   },
-  'open-iceland'() { push(icelandPage, { media: 'g-iceland' }); },
+  'open-iceland'() { openGoal('iceland'); },
   'open-month'() { push(monthPage, { media: 'g-month', kind: 'month' }); },
   'send-fixes': once(async () => {
     const amt = fixesAvailable(); if (amt <= 0) return;
     const before = safeNow(), afterSafe = safety(forecast({ extra: amt })).safe;
-    const ok = await alertBox({ sheet: true, title: `Add ${eur(amt, 2)} to Iceland?`, msg: `Moves money from your Sparkasse current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: `Add ${eur(amt, 2)}`, style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
+    const ok = await alertBox({ sheet: true, title: `Add ${eur(amt, 2)} to ${esc(S.iceland.name)}?`, msg: `Moves money from your Sparkasse current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: `Add ${eur(amt, 2)}`, style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
     const amt2 = fixesAvailable();
     if (!ok || amt2 <= 0) return;
     const from = S.iceland.saved;
@@ -2601,18 +2907,115 @@ const H = {
     refresh();
     tween($('#ice-num .w'), from, S.iceland.saved, 1100);
     restoreFocus(null, null, ['.page:last-child [data-act="change-monthly"]']);
-    toast(`${eur(amt2, 2)} added to Iceland`);
+    toast(`${eur(amt2, 2)} added to ${S.iceland.name}`);
   }),
-  'change-monthly'() { monthlySheet(); },
+  'change-monthly'(el) { monthlySheet(el.dataset.id || 'iceland'); },
   'save-monthly'() {
     const sl = $('#m-slider'); if (!sl) return;
-    const wasPaused = S.iceland.paused;
-    S.iceland.monthly = +sl.value; S.iceland.paused = false;
+    const g = goalById(monthlySheet.id) || S.iceland;
+    const wasPaused = g.paused;
+    g.monthly = +sl.value; g.paused = false;
     closeSheet(); refresh();
     restoreFocus(null, null, ['.page:last-child [data-act="change-monthly"]']);
-    toast(`${eur(S.iceland.monthly)} a month${wasPaused ? ', transfers resumed' : ''}`);
+    toast(`${eur(g.monthly)} a month${wasPaused ? ', transfers resumed' : ''}`);
   },
-  'toggle-pause'() { S.iceland.paused = !S.iceland.paused; refresh(); toast(S.iceland.paused ? 'Transfers paused' : 'Transfers resumed'); },
+  'toggle-pause'(el) {
+    const g = goalById(el.dataset.id) || S.iceland;
+    g.paused = !g.paused; refresh();
+    restoreFocus(null, null, ['.page:last-child [data-act="toggle-pause"]']);
+    toast(g.paused ? 'Transfers paused' : 'Transfers resumed');
+  },
+  'open-goal'(el) { openGoal(el.dataset.id); },
+  'goal-new'() {
+    S.draft = { name: '', icon: 'plane', target: '', by: 0, monthly: 50, start: 0, from: 'chk' };
+    flowPush(goalNamePage, { modal: true });
+  },
+  'goal-icon'(el) {
+    S.draft.icon = el.dataset.icon;
+    const pg = stack[stack.length - 1]; pg && pg.render();
+    const b = pg && $(`[data-icon="${el.dataset.icon}"]`, pg); b && b.focus({ preventScroll: true });
+  },
+  'goal-idea'(el) {
+    S.draft.name = el.dataset.name; S.draft.icon = el.dataset.icon;
+    const pg = stack[stack.length - 1]; pg && pg.render();
+  },
+  'goal-name-submit'() {
+    const n = (S.draft.name || '').trim();
+    if (!n) return draftErr('name', 'Give your goal a name.');
+    S.draft.name = n;
+    flowPush(goalAmountPage);
+  },
+  'goal-amount-submit'() {
+    const t = +S.draft.target || 0;
+    if (t < 10) return draftErr('target', 'Enter at least €10.');
+    S.draft.monthly = suggestMonthly(t, S.draft.by);
+    S.wheel = null;
+    flowPush(goalPlanPage, { focus: false, mount: wirePlanSlider });
+  },
+  'draft-seg'(el) {
+    const k = el.dataset.key, v = el.dataset.v;
+    S.draft[k] = k === 'start' ? +v : v;
+    const pg = stack[stack.length - 1]; if (!pg) return;
+    if (pg.live) { pg.render(); pg.live(); } else pg.render();
+    const b = $(`[data-act="draft-seg"][data-key="${k}"][data-v="${v}"]`, pg); b && b.focus({ preventScroll: true });
+  },
+  'goal-create': once(async () => {
+    const d = S.draft, start = +d.start || 0;
+    if (start && moveImpact(start, d.from, { saved: 0 }).bad) return;
+    if (start && d.from === 'chk' && S.prefs.approve) await faceId();
+    const g = { id: 'g' + (++uid), name: d.name, icon: d.icon, color: goalColor(d.icon), goal: +d.target, saved: 0, monthly: d.monthly, paused: false, by: d.by || 0, done: false };
+    S.goals.push(g);
+    if (start) moveMoney(g, start, d.from);
+    closeFlow(); refresh();
+    setTimeout(() => { if (!navBusy) openGoal(g.id); toast(`${g.name} goal created`); }, T + 40);
+  }),
+  'goal-add'(el) { goalMoveFlow(el.dataset.id, 'add'); },
+  'goal-withdraw'(el) { goalMoveFlow(el.dataset.id, 'out'); },
+  'goal-move': once(async el => {
+    const g = goalById(el.dataset.id), mode = el.dataset.mode, amt = +S.draft.amt || 0;
+    const from = mode === 'add' ? S.draft.from : 'out';
+    if (!g || !amt || moveImpact(amt, from, g).bad) return;
+    if (from !== 'stash' && S.prefs.approve) await faceId();
+    const was = g.saved;
+    moveMoney(g, amt, from);
+    navBusy = false; pop(true); refresh();
+    setTimeout(() => { const w = $('.page:last-child #goal-num .w, .page:last-child #ice-num .w'); w && tween(w, was, g.saved, 900); }, 60);
+    toast(from === 'out' ? `${eur(amt)} back in your current account` : `${eur(amt)} added to ${g.name}`);
+  }),
+  'goal-edit'(el) {
+    const g = goalById(el.dataset.id); if (!g) return;
+    S.draft = { name: g.name, icon: g.icon, target: String(g.goal), by: g.by || 0 };
+    flowPush(() => goalEditPage(g.id), { modal: true, focus: false, kind: 'goal-edit' });
+  },
+  'goal-save'(el) {
+    const g = goalById(el.dataset.id); if (!g) return;
+    const n = (S.draft.name || '').trim(), t = +S.draft.target || 0;
+    if (!n) return draftErr('name', 'Give your goal a name.');
+    if (t < 10) return draftErr('target', 'Enter at least €10.');
+    if (g === S.iceland && n !== g.name) g.sub = '';
+    Object.assign(g, { name: n, icon: S.draft.icon, goal: t, by: S.draft.by || 0 });
+    g.color = g === S.iceland && g.icon === 'mountain-snow' ? 'var(--forest)' : goalColor(g.icon);
+    navBusy = false; pop(true); refresh();
+    toast('Changes saved');
+  },
+  'goal-delete': once(async el => {
+    const g = goalById(el.dataset.id); if (!g || g === S.iceland) return;
+    const ok = await alertBox({ sheet: true, title: `Delete ${esc(g.name)}?`, msg: g.saved > 0 ? `The ${eur(g.saved)} you saved stays in Lena’s Stash.` : 'Monthly transfers for this goal stop.', actions: [{ label: 'Delete Goal', style: 'destructive', value: true }, { label: 'Cancel', value: false }] });
+    if (!ok) return;
+    // Take the goal's page out from under the edit sheet, then close the sheet
+    const i = stack.findIndex(p => p.goalId === g.id);
+    if (i >= 0) stack.splice(i, 1)[0].remove();
+    navBusy = false; pop(true);
+    S.goals = S.goals.filter(x => x !== g);
+    refresh();
+    toast(`${g.name} deleted`);
+  }),
+  'goal-done'(el) {
+    const g = goalById(el.dataset.id); if (!g) return;
+    g.done = true; refresh();
+    restoreFocus(null, null, ['.page:last-child [data-act="goal-add"]']);
+    toast(`${g.name} marked as done`);
+  },
   'toggle-car'(el) {
     S.carLate = el.checked; refresh();
     const r = stack.length && $('.car-row', stack[stack.length - 1]); r && r.classList.add('flash');
@@ -2800,6 +3203,13 @@ app.addEventListener('input', e => {
     if (k === 'regCode' && e.target.value.length === 6) setTimeout(() => { if (stack[stack.length - 1] && stack[stack.length - 1].contains(e.target)) H['auth-code-submit'](); }, 250);
   }
 
+  if (e.target.dataset && e.target.dataset.draft) {
+    const k = e.target.dataset.draft;
+    if (e.target.dataset.kb === 'amount') { const v = e.target.value.replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, 7); if (v !== e.target.value) e.target.value = v; }
+    S.draft[k] = e.target.value;
+    e.target.removeAttribute('aria-invalid'); const er = $(`#de-${k}`, e.target.closest('.page') || app); if (er) er.textContent = '';
+    const pg = e.target.closest('.page'); pg && pg.live && pg.live();
+  }
   if (e.target.id === 'chat-input') syncSend();
 });
 function syncSend() { const b = $('#composer .send'), i = $('#chat-input'); if (b && i) b.disabled = !i.value.trim(); }
@@ -2979,7 +3389,7 @@ selectTab('today');
   const cls = k => k === 'blank' ? ' blank' : ['shift', 'del', '123', 'ABC', 'return'].includes(k) ? ' fn' : k === 'space' ? ' space' : '';
   const render = () => { kb.classList.toggle('pad', mode === 'pad'); kb.innerHTML = rows().map(r => `<div class="kb-row">${r.map(k => `<button type="button" tabindex="-1" class="kb-key${cls(k)}${k === 'return' ? ' ret' : ''}" data-k="${esc(k)}">${label(k)}</button>`).join('')}</div>`).join(''); };
   const show = el => {
-    target = el; mode = el.dataset.kb === 'code' ? 'pad' : 'abc'; shift = false; render();
+    target = el; mode = (el.dataset.kb === 'code' || el.dataset.kb === 'amount') ? 'pad' : 'abc'; shift = false; render();
     kb.hidden = false; app.classList.add('kb-open'); app.classList.toggle('kb-chat', isChat());
     if (isChat()) { const pnl = $('#tab-chat'); requestAnimationFrame(() => { pnl.scrollTop = pnl.scrollHeight; }); }
   };
