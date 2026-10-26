@@ -1147,6 +1147,27 @@ button.row[disabled] { cursor: default; }
 .mail-attach { margin: 0 16px 20px; display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 10px; background: #F2F2F7; color: #8E8E93; }
 .mail-attach b { display: block; color: #000000; font-weight: 500; font-size: 15px; }
 .mail-attach small { font-size: 12px; }
+
+/* Safe-to-spend card: label first, context as pills, the balance line inside */
+.safe { display: grid; gap: 12px; padding: 20px 20px 16px; border-radius: 30px; text-align: left; background: #12290A !important; box-shadow: 0 10px 30px rgba(18, 41, 10, .18) !important; }
+:root[data-theme="dark"] .safe { background: #102207 !important; box-shadow: none !important; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .safe { background: #102207 !important; box-shadow: none !important; } }
+.safe-top { display: flex; align-items: center; justify-content: space-between; min-height: 40px; margin-bottom: -10px; }
+.safe .cap { font-size: 15px; font-weight: 600; letter-spacing: 0; text-transform: none; color: rgba(255, 255, 255, .8); }
+.safe-ask { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .12); color: var(--lime); flex: none; }
+.safe-ask:active { background: rgba(255, 255, 255, .2); }
+.safe .num { line-height: 1; }
+.safe-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 !important; max-width: none !important; }
+.chip-s { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 11px; white-space: nowrap; border-radius: 14px; background: rgba(255, 255, 255, .12); color: #FFFFFF; font-size: 13px; font-weight: 600; text-shadow: none; }
+.chip-s svg { width: 14px; height: 14px; opacity: .85; margin-left: -2px; }
+.chip-s.warn { background: rgba(255, 184, 77, .2); color: #FFD08A; }
+.safe-chart { position: relative; display: grid; gap: 6px; width: 100%; padding: 6px 0 0; margin-top: 2px; text-align: left; color: #FFFFFF; border-radius: 12px; }
+.safe-chart svg { width: 100%; height: 74px; display: block; overflow: visible; }
+.spark-plot { position: relative; display: block; height: 74px; }
+.spark-dot { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 3px #12290A; pointer-events: none; }
+.spark-cap { display: flex; justify-content: space-between; font-size: 12px; font-weight: 500; color: rgba(255, 255, 255, .72); }
+.spark-cap > span { white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+.spark-cap svg { width: 6px; height: 10px; }
 </style>
 </head>
 <body>
@@ -1259,6 +1280,7 @@ const LUCIDE_EXTRA = {
   umbrella: '<path d="M22 12a10.06 10.06 1 0 0-20 0Z"/><path d="M12 12v8a2 2 0 0 0 4 0"/><path d="M12 2v1"/>',
   'graduation-cap': '<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>',
   zap: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+  calendar: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
   heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
 };
 const LUCIDE = {"sparkles": "<path d=\"M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z\" /> <path d=\"M20 2v4\" /> <path d=\"M22 4h-4\" /> <circle cx=\"4\" cy=\"20\" r=\"2\" />", "house": "<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />", "utensils": "<path d=\"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2\" /> <path d=\"M7 2v20\" /> <path d=\"M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7\" />", "car": "<path d=\"M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2\" /> <circle cx=\"7\" cy=\"17\" r=\"2\" /> <path d=\"M9 17h6\" /> <circle cx=\"17\" cy=\"17\" r=\"2\" />", "coffee": "<path d=\"M10 2v2\" /> <path d=\"M14 2v2\" /> <path d=\"M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1\" /> <path d=\"M6 2v2\" />", "shopping-basket": "<path d=\"m15 11-1 9\" /> <path d=\"m19 11-4-7\" /> <path d=\"M2 11h20\" /> <path d=\"m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4\" /> <path d=\"M4.5 15.5h15\" /> <path d=\"m5 11 4-7\" /> <path d=\"m9 11 1 9\" />", "fuel": "<path d=\"M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0v-6.998a2 2 0 0 0-.59-1.42L18 5\" /> <path d=\"M14 21V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v16\" /> <path d=\"M2 21h13\" /> <path d=\"M3 9h11\" />", "piggy-bank": "<path d=\"M11 17h3v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a3.16 3.16 0 0 0 2-2h1a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-1a5 5 0 0 0-2-4V3a4 4 0 0 0-3.2 1.6l-.3.4H11a6 6 0 0 0-6 6v1a5 5 0 0 0 2 4v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1z\" /> <path d=\"M16 10h.01\" /> <path d=\"M2 8v1a2 2 0 0 0 2 2h1\" />", "mountain-snow": "<path d=\"m8 3 4 8 5-5 5 15H2L8 3z\" /> <path d=\"M4.14 15.08c2.62-1.57 5.24-1.43 7.86.42 2.74 1.94 5.49 2 8.23.19\" />", "plane": "<path d=\"M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z\" />", "receipt": "<path d=\"M12 17V7\" /> <path d=\"M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8\" /> <path d=\"M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z\" />", "wallet": "<path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\" /> <path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\" />", "message-circle": "<path d=\"M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719\" />", "landmark": "<path d=\"M10 18v-7\" /> <path d=\"M11.119 2.205a2 2 0 0 1 1.762 0l7.84 3.846A.5.5 0 0 1 20.5 7h-17a.5.5 0 0 1-.22-.949z\" /> <path d=\"M14 18v-7\" /> <path d=\"M18 18v-7\" /> <path d=\"M3 22h18\" /> <path d=\"M6 18v-7\" />", "trending-up": "<path d=\"M16 7h6v6\" /> <path d=\"m22 7-8.5 8.5-5-5L2 17\" />", "credit-card": "<rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"2\" /> <line x1=\"2\" x2=\"22\" y1=\"10\" y2=\"10\" /> <path d=\"M6 14h2\" />", "stethoscope": "<path d=\"M11 2v2\" /> <path d=\"M5 2v2\" /> <path d=\"M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1\" /> <path d=\"M8 15a6 6 0 0 0 12 0v-3\" /> <circle cx=\"20\" cy=\"10\" r=\"2\" />"};
@@ -2142,6 +2164,28 @@ function keepFocus(fn) {
 const edge = '<div class="edge-top" aria-hidden="true"></div>';
 
 /* ---------------- Today ---------------- */
+// The balance to pay day, drawn small inside the safe-to-spend card; it opens The month ahead
+function safeSpark(sf) {
+  const fc = sf.fc, n = fc.payIdx + 1, W = 320, H = 74, padT = 8, padB = 6;
+  const days = fc.days.slice(0, n), vals = days.concat([fc.start]);
+  const hi = Math.max(...vals), lo = Math.min(...vals), span = Math.max(hi - lo, 400);
+  const max = hi + span * .08, min = Math.min(lo - span * .25, S.comfort > lo - span * .6 ? S.comfort - span * .08 : Infinity);
+  const x = i => i * W / Math.max(1, n - 1);
+  const y = v => padT + (max - v) * (H - padT - padB) / (max - min || 1);
+  let d = `M0,${y(fc.start).toFixed(1)}`;
+  days.forEach((v, i) => { d += ` L${x(i).toFixed(1)},${y(i ? days[i - 1] : fc.start).toFixed(1)} L${x(i).toFixed(1)},${y(v).toFixed(1)}`; });
+  const area = `${d} L${W},${H} L0,${H} Z`, cy = y(S.comfort).toFixed(1);
+  const low = fc.pre, lx = x(Math.min(low.day, n - 1)).toFixed(1), ly = y(low.bal).toFixed(1);
+  return `<button class="safe-chart" data-act="open-month" aria-label="The month ahead. Lowest before pay day: ${eur(low.bal)} ${onDay(low.day)}.">
+    <span class="spark-plot"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+      <defs><linearGradient id="sp-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+      <path d="${area}" fill="url(#sp-fill)"/>
+      ${+cy >= 0 && +cy <= H ? `<line x1="0" x2="${W}" y1="${cy}" y2="${cy}" stroke="rgba(255,255,255,.45)" stroke-dasharray="3 4" stroke-width="1" vector-effect="non-scaling-stroke"/>` : ''}
+      <path d="${d}" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    </svg><i class="spark-dot" style="left:${(lx / W * 100).toFixed(2)}%;top:${(ly / H * 100).toFixed(2)}%"></i></span>
+    <span class="spark-cap"><span>Lowest ${eur(low.bal)} ${onDay(low.day)}</span><span>Pay day ${dayLabel(fc.payIdx)} ${I.chev}</span></span>
+  </button>`;
+}
 function renderToday() {
   const sf = safety();
   const n = S.actions.length;
@@ -2171,9 +2215,13 @@ function renderToday() {
     <div class="content">
       <p class="greet">Good morning <span class="sun" aria-hidden="true">☀️</span> ${esc(S.user.first)}.<br><span class="sub">${lead}${tail}</span></p>
       <div class="safe">
+        <div class="safe-top"><span class="cap" id="safe-cap">Safe to spend today</span><button class="safe-ask" data-act="ask-chat" data-q="Why is my safe to spend ${eur(sf.safe, 2)} today?" aria-label="Ask Cushion why it's ${eur(sf.safe, 2)} today">${icon('sparkles', 18)}</button></div>
         <div class="num" id="safe-num" aria-label="${eur(sf.safe, 2)} safe to spend today"><span class="cur">€</span><span class="w">${whole}</span><span class="cents">.${cents}</span></div>
-        <div class="cap">Safe to spend today</div>
-        <p class="why">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day · ${sf.limitedByCash ? `held back to keep you above your ${eur(S.comfort)} comfort line until then` : `you stay above your ${eur(S.comfort)} comfort line`}</p>
+        <div class="safe-chips why">
+          <span class="chip-s">${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day</span>
+          <span class="chip-s${sf.limitedByCash ? ' warn' : ''}" title="Comfort line ${eur(S.comfort)}">${sf.limitedByCash ? `${I.info}Held back for comfort line` : `${I.check}Above comfort line`}</span>
+        </div>
+        ${safeSpark(sf)}
       </div>
       ${undo}<div class="actions" id="actions">${cards || done}</div>
       <div>
