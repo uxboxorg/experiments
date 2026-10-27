@@ -1389,6 +1389,7 @@ const S = {
   spotifyDelta: 0,
   payDay: 22,
   comfort: 1000,
+  idVerified: true, // the partner bank has seen Lena's ID; a new sign-up can skip it until money goes into the Stash
   parking: 'found', // duplicate Q-Park charge: found → requested → refunded
   carLate: false,
   chat: { title: null, emoji: null, msgs: [], busy: false },
@@ -2061,7 +2062,7 @@ function regIdPage() {
   return `${authNav(7)}
     <div class="auth">
       <div class="auth-art">${icon('credit-card', 64)}</div>
-      ${authHead('Confirm it’s you', 'Lena’s Stash is a savings account in your name at our partner bank. They need to see your ID before it opens.')}
+      ${authHead('Confirm it’s you', 'Your Stash is a savings account in your name at our partner bank. They need to see your ID before it opens.')}
       <button class="btn primary" data-act="auth-id-scan">Scan Your ID</button>
       <button class="btn plain" data-act="auth-id-skip">Do This Later</button>
       <p class="foot" style="text-align:left;margin:0">You can use Cushion without it. You’ll need it before you save into a goal.</p>
@@ -2090,6 +2091,18 @@ function idScan() {
     setTimeout(() => { if (done) return; el.classList.add('verified'); tip.textContent = 'ID confirmed'; }, reduced ? 700 : 3000);
     setTimeout(() => close(true), reduced ? 1000 : 3800);
   });
+}
+// Money can't go into the Stash until the partner bank has checked who you are
+async function ensureId() {
+  if (S.idVerified) return true;
+  const ok = await alertBox({ title: 'Confirm it’s you first', msg: 'Our partner bank needs to see your ID before money goes into your Stash. It takes about a minute.', actions: [{ label: 'Scan Your ID', style: 'prominent', value: true }, { label: 'Not Now', value: false }] });
+  if (!ok) return false;
+  await wait(reduced ? 0 : 280);
+  if (!await idScan()) return false;
+  S.idVerified = true;
+  toast('ID confirmed · your Stash is open');
+  await wait(reduced ? 0 : 900);
+  return true;
 }
 function regDonePage() {
   const first = authVal('regFirst') || S.user.first;
@@ -3509,6 +3522,7 @@ const once = fn => { let busy = false; return async el => { if (busy) return; bu
 const H = {
   'approve-save': once(async () => {
     if (!S.actions.includes('save')) return;
+    if (!await ensureId()) return;
     const before = safeNow(), after = forecast({ extra: 1200 }), afterSafe = safety(after).safe;
     const ok = await alertBox({ sheet: true, title: 'Move €1,200 into savings?', msg: `Moves money from your Sparkasse current account to Lena's Stash. Today's safe-to-spend ${afterSafe >= before ? `stays at ${eur(before, 2)}` : `drops to ${eur(afterSafe, 2)}`}.`, actions: [{ label: 'Continue in Sparkasse', style: 'prominent', value: true }, { label: 'Cancel', value: false }] });
     if (!ok || !S.actions.includes('save')) return;
@@ -3631,6 +3645,7 @@ const H = {
   'fix-new-goal'() { closeSheet(); setTimeout(() => { if (!sheetEl && !alertOpen) H['goal-new'](); }, 260); },
   'open-month'() { push(monthPage, { media: 'g-month', kind: 'month' }); },
   'send-fixes': once(async () => {
+    if (fixesAvailable() <= 0 || !await ensureId()) return;
     const amt = fixesAvailable(); if (amt <= 0) return;
     const before = safeNow(), afterSafe = safety(forecast({ extra: amt })).safe;
     const g = fixGoal(); if (!g) return;
@@ -3703,6 +3718,7 @@ const H = {
   'goal-create': once(async () => {
     const d = S.draft, start = +d.start || 0;
     if (start && moveImpact(start, d.from, { saved: 0 }).bad) return;
+    if (!await ensureId()) return;
     const lines = [];
     if (start && d.from === 'chk') lines.push(['Today', eur(start, 2)]);
     if (d.monthly > 0) lines.push(['Standing order', `${eur(d.monthly)} every month, on the ${ord(transferDay())}`]);
@@ -3716,7 +3732,7 @@ const H = {
     navBusy = false; openGoal(g.id, null, true); lockNav();
     setTimeout(() => toast(`${g.name} goal created`), T);
   }),
-  'goal-add'(el) { goalMoveFlow(el.dataset.id, 'add'); },
+  'goal-add': once(async el => { const id = el.dataset.id; if (await ensureId()) goalMoveFlow(id, 'add'); }),
   'goal-withdraw'(el) { goalMoveFlow(el.dataset.id, 'out'); },
   'goal-move': once(async el => {
     const g = goalById(el.dataset.id), mode = el.dataset.mode, amt = +S.draft.amt || 0;
@@ -3890,6 +3906,7 @@ const H = {
   'auth-id-skip'() { S.auth.idOk = false; authPush(regDonePage); },
   'auth-done'() {
     S.user = { first: authVal('regFirst') || 'Lena', last: authVal('regLast') || 'Hoffmann', email: authVal('regEmail') || S.user.email };
+    S.idVerified = !!S.auth.idOk;
     finishAuth(`Welcome to Cushion, ${S.user.first}`);
   },
   'chat-back'() { const t = S.prevTab && S.prevTab !== 'chat' ? S.prevTab : 'today'; selectTab(t); const b = $(`.tab[data-tab="${t}"]`); b && b.focus({ preventScroll: true }); },
