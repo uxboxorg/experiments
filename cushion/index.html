@@ -1194,6 +1194,11 @@ button.row[disabled] { cursor: default; }
 
 /* Safe-to-spend figure: semibold rather than extra bold */
 .safe .num { font-weight: 600 !important; letter-spacing: -.03em; }
+
+/* € and cents sit on the baseline of the safe-to-spend figure */
+.safe .num .cur, .safe .num .cents { vertical-align: baseline !important; font-size: 22px !important; font-weight: 500 !important; }
+.safe .num .cur { margin-right: 4px; }
+.safe .num .cents { margin-left: 2px; }
 </style>
 </head>
 <body>
