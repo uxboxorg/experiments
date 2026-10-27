@@ -1187,6 +1187,10 @@ button.row[disabled] { cursor: default; }
 :root[data-theme="dark"] .gs-fallback { background: rgba(40, 42, 38, .45) !important; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .gs-fallback { background: rgba(40, 42, 38, .45) !important; } }
 .gs-fallback::after { opacity: .7; }
+
+/* Selected tab in light mode looks like the primary button: lime pill, dark green icon and label */
+:root:not([data-theme="dark"]) .tabbar .lens { background: var(--lime) !important; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tabbar .lens { background: var(--nav-lens) !important; } }
 </style>
 </head>
 <body>
