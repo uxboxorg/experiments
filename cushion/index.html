@@ -611,27 +611,27 @@ button.row[disabled] { cursor: default; }
    become light pages, so text and controls keep their contrast. */
 :root {
   --display: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
-  --page: #E9ECE6; --page-ink: #0E0F0C; --page-muted: #4B4E47;
-  --bg: #FFFFFF; --card: #F2F4EF; --label: #0E0F0C; --label2: #4B4E47; --label3: rgba(14, 15, 12, .38);
-  --sep: rgba(14, 15, 12, .10); --fill: rgba(22, 51, 0, .07); --fill2: rgba(22, 51, 0, .14);
-  --lime: #A0E559; --forest: #163300; --accent: #163300; --blue: #163300;
+  --page: #E9ECE6; --page-ink: #121410; --page-muted: #4B4E47;
+  --bg: #FFFFFF; --card: #F2F4EF; --label: #121410; --label2: #4B4E47; --label3: rgba(18, 20, 16, .38);
+  --sep: rgba(18, 20, 16, .10); --fill: rgba(26, 58, 10, .07); --fill2: rgba(26, 58, 10, .14);
+  --lime: #A6E35C; --forest: #1A3A0A; --accent: #1A3A0A; --blue: #1A3A0A;
   --green: #34C759; --green-text: #2B6B00; --orange: #A65200;
   --on-media: var(--label); --on-media-2: var(--label2); --on-media-3: var(--label3); --media-sep: var(--sep);
   --glass: rgba(255, 255, 255, .62); --glass-strong: rgba(255, 255, 255, .84);
-  --sheet: rgba(255, 255, 255, .985); --bar-ink: #0E0F0C;
+  --sheet: rgba(255, 255, 255, .985); --bar-ink: #121410;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --page: #0A0B09; --page-ink: #F1F4EC; --page-muted: #A9AEA3;
   --bg: #0B0D0A; --card: #181B16; --label: #F1F4EC; --label2: #AEB3A8; --label3: rgba(241, 244, 236, .38);
   --sep: rgba(241, 244, 236, .12); --fill: rgba(241, 244, 236, .08); --fill2: rgba(241, 244, 236, .16);
-  --accent: #A0E559; --blue: #A0E559; --green-text: #A0E559; --orange: #FFB35C;
+  --accent: #A6E35C; --blue: #A6E35C; --green-text: #A6E35C; --orange: #FFB35C;
   --glass: rgba(30, 34, 28, .6); --glass-strong: rgba(30, 34, 28, .84); --sheet: rgba(24, 27, 22, .985); --bar-ink: #F1F4EC;
 } }
 :root[data-theme="dark"] {
   --page: #0A0B09; --page-ink: #F1F4EC; --page-muted: #A9AEA3;
   --bg: #0B0D0A; --card: #181B16; --label: #F1F4EC; --label2: #AEB3A8; --label3: rgba(241, 244, 236, .38);
   --sep: rgba(241, 244, 236, .12); --fill: rgba(241, 244, 236, .08); --fill2: rgba(241, 244, 236, .16);
-  --accent: #A0E559; --blue: #A0E559; --green-text: #A0E559; --orange: #FFB35C;
+  --accent: #A6E35C; --blue: #A6E35C; --green-text: #A6E35C; --orange: #FFB35C;
   --glass: rgba(30, 34, 28, .6); --glass-strong: rgba(30, 34, 28, .84); --sheet: rgba(24, 27, 22, .985); --bar-ink: #F1F4EC;
 }
 /* Type: heavy, tight display face for titles and figures */
@@ -666,7 +666,7 @@ button.row[disabled] { cursor: default; }
 .card-media.g-iceland svg { color: var(--accent); }
 .page.g-iceland, .page.g-month, .page.g-teal, .page.g-accounts { background: var(--bg) !important; --bar-bg: var(--bg); --edge: var(--bg); }
 .media { --edge: var(--bg); }
-.media .glass, .glass.on-media { background: var(--glass-strong); color: var(--label); box-shadow: inset 0 0 0 .5px var(--sep), 0 6px 18px rgba(14, 15, 12, .08); }
+.media .glass, .glass.on-media { background: var(--glass-strong); color: var(--label); box-shadow: inset 0 0 0 .5px var(--sep), 0 6px 18px rgba(18, 20, 16, .08); }
 .media .list { background: var(--card); }
 .media .row .s, .media .section-h { color: var(--label2); }
 .media .row .chev { color: var(--label3); }
@@ -734,11 +734,11 @@ button.row[disabled] { cursor: default; }
 :root[data-theme="dark"] { --cat-blue: #5B9BFF; --green-text: #63D68A; }
 :root[data-theme="dark"] .safe { background: #1E3A10; box-shadow: inset 0 0 0 1px rgba(241, 244, 236, .12); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --cat-blue: #5B9BFF; --green-text: #63D68A; } :root:not([data-theme="light"]) .safe { background: #1E3A10; box-shadow: inset 0 0 0 1px rgba(241, 244, 236, .12); } }
-:root { --stroke: rgba(14, 15, 12, .56); --red: #D70015; --green-text: var(--label); }
+:root { --stroke: rgba(18, 20, 16, .56); --red: #D70015; --green-text: var(--label); }
 :root[data-theme="dark"] { --stroke: rgba(241, 244, 236, .46); --red: #FF6961; --green-text: var(--label); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --stroke: rgba(241, 244, 236, .46); --red: #FF6961; --green-text: var(--label); } }
 @media (prefers-contrast: more) {
-  :root { --label2: #2A2C28; --sep: rgba(14, 15, 12, .3); --fill: rgba(22, 51, 0, .14); --stroke: rgba(14, 15, 12, .6); }
+  :root { --label2: #2A2C28; --sep: rgba(18, 20, 16, .3); --fill: rgba(26, 58, 10, .14); --stroke: rgba(18, 20, 16, .6); }
   :root[data-theme="dark"] { --label2: #DADED4; --sep: rgba(241, 244, 236, .3); --fill: rgba(241, 244, 236, .16); --stroke: rgba(241, 244, 236, .6); }
 }
 /* Lime marks things you can tap; figures and bubbles stay neutral */
@@ -777,7 +777,7 @@ button.row[disabled] { cursor: default; }
 }
 
 /* Round 15 */
-:root { --data: #163300; }
+:root { --data: #1A3A0A; }
 :root[data-theme="dark"] { --data: #D3DCC8; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --data: #D3DCC8; } }
 .composer .send:disabled { background: var(--fill2); color: var(--label3); }
@@ -828,8 +828,8 @@ button.row[disabled] { cursor: default; }
 .card-chev svg { color: var(--label3) !important; }
 .card-media.g-month .card-chev svg { color: rgba(255, 255, 255, .75) !important; }
 :root[data-theme="dark"] .chart rect { fill: #E9EEE2; }
-:root[data-theme="dark"] .chart text[font-weight="600"] { fill: #0E0F0C; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chart rect { fill: #E9EEE2; } :root:not([data-theme="light"]) .chart text[font-weight="600"] { fill: #0E0F0C; } }
+:root[data-theme="dark"] .chart text[font-weight="600"] { fill: #121410; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chart rect { fill: #E9EEE2; } :root:not([data-theme="light"]) .chart text[font-weight="600"] { fill: #121410; } }
 :root[data-theme="dark"] { --data: #8DBF63; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --data: #8DBF63; } }
 :root[data-theme="dark"] .card-media.g-iceland .logo-tile { background: #2F5A1A !important; }
@@ -870,13 +870,13 @@ button.row[disabled] { cursor: default; }
 .accounts-content .large-title { margin-bottom: -4px; }
 
 /* Navigation Liquid Glass, kept see-through but lit from inside: white rim and glow instead of a dark edge */
-:root { --nav-frost: .22; --nav-rim: rgba(255, 255, 255, .85); --nav-glow: rgba(255, 255, 255, .5); --nav-edge: rgba(14, 15, 12, .07); --nav-lens: rgba(14, 15, 12, .06); --nav-shadow: 0 8px 28px rgba(17, 17, 26, .08), 0 1px 3px rgba(17, 17, 26, .05); }
+:root { --nav-frost: .22; --nav-rim: rgba(255, 255, 255, .85); --nav-glow: rgba(255, 255, 255, .5); --nav-edge: rgba(18, 20, 16, .07); --nav-lens: rgba(18, 20, 16, .06); --nav-shadow: 0 8px 28px rgba(17, 17, 26, .08), 0 1px 3px rgba(17, 17, 26, .05); }
 :root[data-theme="dark"] { --nav-frost: .06; --nav-rim: rgba(255, 255, 255, .32); --nav-glow: rgba(255, 255, 255, .1); --nav-edge: rgba(255, 255, 255, .1); --nav-lens: rgba(255, 255, 255, .14); --nav-shadow: 0 8px 28px rgba(0, 0, 0, .45), 0 1px 3px rgba(0, 0, 0, .3); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --nav-frost: .06; --nav-rim: rgba(255, 255, 255, .32); --nav-glow: rgba(255, 255, 255, .1); --nav-edge: rgba(255, 255, 255, .1); --nav-lens: rgba(255, 255, 255, .14); --nav-shadow: 0 8px 28px rgba(0, 0, 0, .45), 0 1px 3px rgba(0, 0, 0, .3); } }
 .gs-svg { background: rgba(255, 255, 255, var(--nav-frost)) !important; box-shadow: 0 0 0 .5px var(--nav-edge), inset 0 0 2px 1px var(--nav-rim), inset 0 0 12px 3px var(--nav-glow), inset 0 1px 0 var(--nav-rim), var(--nav-shadow) !important; }
 .gs-fallback { background: rgba(255, 255, 255, calc(var(--nav-frost) + .12)) !important; box-shadow: 0 0 0 .5px var(--nav-edge), inset 0 0 2px 1px var(--nav-rim), inset 0 0 12px 3px var(--nav-glow), inset 0 1px 0 var(--nav-rim), var(--nav-shadow) !important; }
 .tabbar .lens, .app[data-tab="chat"] .tabbar .lens, .app.media-top .tabbar .lens { background: var(--nav-lens) !important; }
-@media (prefers-contrast: more) { :root { --nav-edge: rgba(14, 15, 12, .3); --nav-frost: .7; } }
+@media (prefers-contrast: more) { :root { --nav-edge: rgba(18, 20, 16, .3); --nav-frost: .7; } }
 
 /* Chat is a focused mode: no tab bar, a back button instead */
 .chat-title.pinned .circle-btn[data-act="chat-back"] { flex: none; }
@@ -990,8 +990,8 @@ button.row[disabled] { cursor: default; }
 .welcome-logo { color: var(--forest); }
 .welcome-hero h1 { color: var(--forest); }
 .welcome-hero p { color: var(--forest); }
-.welcome .btn.primary { background: var(--forest) !important; color: var(--lime) !important; box-shadow: 0 8px 20px rgba(22, 51, 0, .22), 0 2px 5px rgba(22, 51, 0, .16) !important; }
-.welcome-login { background: rgba(255, 255, 255, .85) !important; color: var(--forest) !important; box-shadow: 0 8px 20px rgba(22, 51, 0, .10), 0 2px 5px rgba(22, 51, 0, .08), inset 0 0 0 .5px rgba(22, 51, 0, .06) !important; }
+.welcome .btn.primary { background: var(--forest) !important; color: var(--lime) !important; box-shadow: 0 8px 20px rgba(26, 58, 10, .22), 0 2px 5px rgba(26, 58, 10, .16) !important; }
+.welcome-login { background: rgba(255, 255, 255, .85) !important; color: var(--forest) !important; box-shadow: 0 8px 20px rgba(26, 58, 10, .10), 0 2px 5px rgba(26, 58, 10, .08), inset 0 0 0 .5px rgba(26, 58, 10, .06) !important; }
 
 /* Toasts: a pill inside the safe area, just below the Dynamic Island. Apps can't draw in the island itself */
 .toast { top: calc(var(--top) + 6px); width: auto; min-width: 0; max-width: calc(100% - 32px); height: auto; min-height: 44px;
@@ -1199,6 +1199,20 @@ button.row[disabled] { cursor: default; }
 .safe .num .cur, .safe .num .cents { vertical-align: 4px !important; font-size: 22px !important; font-weight: 500 !important; }
 .safe .num .cur { margin-right: 4px; }
 .safe .num .cents { margin-left: 2px; }
+
+/* Accounts grouped: Cushion's own account, then connected banks */
+.acct-group { display: grid; gap: 0; }
+.kv .iban { font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+/* ID scan camera view */
+.id-app .bank-screen { background: #0B0B0B; color: #FFFFFF; }
+.id-bar { padding: calc(var(--top) + 8px) 16px 8px; }
+.id-bar button { color: #FFFFFF; font-size: 17px; }
+.id-body { flex: 1; display: grid; align-content: center; justify-items: center; gap: 22px; padding: 0 24px 80px; }
+.id-tip { margin: 0; font-size: 17px; font-weight: 600; text-align: center; min-height: 2.6em; }
+.id-frame { position: relative; width: 100%; aspect-ratio: 1.586; border-radius: 16px; border: 3px solid rgba(255, 255, 255, .85); display: grid; place-items: center; transition: border-color .3s; }
+.id-card { width: 86%; height: 78%; border-radius: 10px; background: linear-gradient(135deg, #3B4A5C, #6C7E90); opacity: .55; transition: opacity .3s; }
+.id-app.captured .id-card { opacity: .9; }
+.id-app.verified .id-frame { border-color: #34C759; }
 </style>
 </head>
 <body>
@@ -1355,7 +1369,7 @@ const S = {
   spotifyCancelled: false,
   accounts: [
     { id: 'chk', name: 'Current account', sub: 'Sparkasse', mask: '4659', kind: 'cash', bal: 7400, logo: { brand: 'sparkasse', bg: '#FF0000' } },
-    { id: 'stash', name: "Lena's Stash", sub: 'Cushion savings · 3.1%', mask: '6839', kind: 'saved', bal: 9140, logo: { icon: 'piggy-bank', bg: '#2E9E55' } },
+    { id: 'stash', name: "Lena's Stash", sub: 'Savings · 3.1%', mask: '6839', kind: 'saved', bal: 9140, logo: { icon: 'piggy-bank', bg: '#2E9E55' } },
     { id: 'brk', name: 'ETF portfolio', sub: 'Trade Republic', mask: '1120', kind: 'saved', bal: 4395, logo: { icon: 'trending-up', bg: '#4B4BC8' } },
     { id: 'amex', name: 'Mastercard Gold', sub: 'Credit card', mask: '9002', kind: 'owed', bal: -612, logo: { mc: true, bg: '#1C1C1E' } },
     { id: 'visa', name: 'Visa Card', sub: 'Credit card', mask: '4088', kind: 'owed', bal: -698, logo: { brand: 'visa', bg: '#1A1F71' } },
@@ -1661,6 +1675,14 @@ function accountPage(id) {
         <div class="big"><span class="num"><span class="cur">€</span>${fmt(a.bal, 2)}</span></div>
         ${owed ? `<p class="body" style="margin-top:8px">${eur(spent, 2)} spent on this card in August.</p>` : ''}
       </div>
+      ${id === 'stash' ? `<div class="kv">
+        <div><span>Held at</span><span>Our partner bank</span></div>
+        <div><span>Protected</span><span>Up to €100,000</span></div>
+        <div><span>Interest</span><span>3.1% a year, paid monthly</span></div>
+        <div><span>IBAN</span><span class="iban">${STASH_IBAN}</span></div>
+        <div><span>Set aside for goals</span><span>${eur(goalsSaved(), 2)}</span></div>
+      </div>
+      <p class="foot" style="text-align:left;margin:-6px 4px 0">Lena’s Stash is a savings account in your name. Cushion runs it for you, and our partner bank holds the money.</p>` : ''}
       ${list.length ? `${txDays(list, subCat)}<div class="list"><div class="row"><span class="grow"><div class="t">Opening balance</div><div class="s">Before ${dShort(list[list.length - 1].d)}</div></span><span class="v">${eur(r2(a.bal - list.reduce((t, x) => t + x.amt, 0)), 2)}</span></div></div>` : `<p class="empty-note">Transactions from ${esc(a.name)} show up here after the first sync.</p>`}
       ${PROTECTED[id] ? '' : `<button class="btn destructive" data-act="remove-account" data-id="${id}">Remove Account</button>`}
     </div>`;
@@ -1898,7 +1920,7 @@ function faceId() {
     setTimeout(() => { d.classList.remove('show'); setTimeout(() => d.remove(), 250); res(); }, reduced ? 400 : 1500);
   });
 }
-const authNav = (step, back = true) => `<div class="nav">${back ? `<button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button>` : '<span style="width:44px"></span>'}${step ? `<div class="auth-progress" role="progressbar" aria-label="Step ${step} of 6" aria-valuemin="1" aria-valuemax="6" aria-valuenow="${step}"><i style="width:${step / 6 * 100}%"></i></div>` : ''}<span style="width:44px"></span></div>`;
+const authNav = (step, back = true) => `<div class="nav">${back ? `<button class="circle-btn glass" data-act="back" aria-label="Back">${I.back}</button>` : '<span style="width:44px"></span>'}${step ? `<div class="auth-progress" role="progressbar" aria-label="Step ${step} of 7" aria-valuemin="1" aria-valuemax="7" aria-valuenow="${step}"><i style="width:${step / 7 * 100}%"></i></div>` : ''}<span style="width:44px"></span></div>`;
 const authHead = (title, sub) => `<div><h1>${title}</h1>${sub ? `<p class="body">${sub}</p>` : ''}</div>`;
 function authField(key, label, o = {}) {
   return `<label class="auth-field"><span>${label}</span>
@@ -2035,12 +2057,46 @@ function regNotifyPage() {
       <button class="btn plain" data-act="auth-notify-skip">Not Now</button>
     </div>`;
 }
+function regIdPage() {
+  return `${authNav(7)}
+    <div class="auth">
+      <div class="auth-art">${icon('credit-card', 64)}</div>
+      ${authHead('Confirm it’s you', 'Lena’s Stash is a savings account in your name at our partner bank. They need to see your ID before it opens.')}
+      <button class="btn primary" data-act="auth-id-scan">Scan Your ID</button>
+      <button class="btn plain" data-act="auth-id-skip">Do This Later</button>
+      <p class="foot" style="text-align:left;margin:0">You can use Cushion without it. You’ll need it before you save into a goal.</p>
+    </div>`;
+}
+// A camera view for the ID card: frame, capture, then the bank's check
+function idScan() {
+  if (alertOpen) return Promise.resolve(false);
+  hideToast();
+  return new Promise(resolve => {
+    const opener = document.activeElement, key = focusKey(opener);
+    const el = document.createElement('div');
+    el.className = 'bank-app id-app';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Scan your ID');
+    el.innerHTML = `<div class="bank-screen"><div class="id-bar"><button data-w="cancel">Cancel</button></div>
+      <div class="id-body"><p class="id-tip" aria-live="polite">Place the front of your ID card in the frame</p><div class="id-frame"><span class="id-card"></span></div></div></div>`;
+    $('#layer').append(el);
+    let done = false;
+    const close = v => { if (done) return; done = true; alertOpen = null; el.closing = true; el.classList.add('leaving'); setTimeout(() => { el.remove(); syncInert(); restoreFocus(opener, key, FALLBACK); resolve(v); }, reduced ? 0 : 380); };
+    alertOpen = { cancel: () => close(false) };
+    syncInert();
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show', 'open')));
+    el.addEventListener('click', e => { if (e.target.closest('[data-w="cancel"]')) close(false); });
+    const tip = $('.id-tip', el);
+    setTimeout(() => { if (done) return; el.classList.add('captured'); tip.textContent = 'Got it. Checking with our partner bank…'; }, reduced ? 300 : 1600);
+    setTimeout(() => { if (done) return; el.classList.add('verified'); tip.textContent = 'ID confirmed'; }, reduced ? 700 : 3000);
+    setTimeout(() => close(true), reduced ? 1000 : 3800);
+  });
+}
 function regDonePage() {
   const first = authVal('regFirst') || S.user.first;
   return `${authNav(0, false)}
     <div class="auth">
       <div class="auth-art ok">${CHECK_SVG}</div>
-      ${authHead(`You’re all set, ${esc(first)}`, 'We’ve loaded sample accounts so you can look around. Add your own any time from Accounts.')}
+      ${authHead(`You’re all set, ${esc(first)}`, `${S.auth.idOk ? 'Your Stash is open. ' : ''}We’ve loaded sample accounts so you can look around. Add your own any time from Accounts.`)}
       <button class="btn primary" data-act="auth-done">Start Using Cushion</button>
     </div>`;
 }
@@ -2920,7 +2976,8 @@ function renderAccounts() {
     <div class="nav"><span class="inline" aria-hidden="true">Accounts</span>${S.accounts.some(a => !PROTECTED[a.id]) ? `<button class="pill glass" data-act="edit-accounts" aria-pressed="${ed}">${ed ? 'Done' : 'Edit'}</button>` : '<span style="height:44px"></span>'}</div>
     <div class="content accounts-content" style="padding-top:0">
       <h1 class="large-title">Accounts</h1>
-      <div class="list" style="border-radius:28px">${S.accounts.map(a => `
+      ${[['Cushion', S.accounts.filter(a => a.id === 'stash')], ['Connected', S.accounts.filter(a => a.id !== 'stash')]].filter(([, l]) => l.length).map(([h, list]) => `<div class="acct-group"><h2 class="section-h" style="margin:0">${h}</h2>
+      <div class="list" style="border-radius:28px">${list.map(a => `
         <div class="swipe${PROTECTED[a.id] ? ' locked' : ''}" style="--inset:${ed ? 98 : 64}px">${!ed && !PROTECTED[a.id] ? `<button class="swipe-action" data-act="remove-account" data-id="${a.id}" tabindex="-1" aria-hidden="true">Remove</button>` : ''}
         <div class="row${ed ? ' editing' : ''}" data-acct="${a.id}" ${ed ? 'tabindex="-1"' : `data-act="open-account" data-id="${a.id}" role="button" tabindex="0" aria-label="${esc(a.name)}, ${eur(a.bal)}"`} style="--inset:${ed ? 98 : 64}px;min-height:64px">
           ${ed ? (PROTECTED[a.id] ? '<span class="rm-spacer" aria-hidden="true"></span>' : `<button class="row-remove" data-act="remove-account" data-id="${a.id}" aria-label="Remove ${esc(a.name)}">${MINUS}</button>`) : ''}
@@ -2928,8 +2985,8 @@ function renderAccounts() {
           <span class="grow"><div class="t" style="font-size:16px">${esc(a.name)}</div><div class="s">${ed && PROTECTED[a.id] ? PROTECTED[a.id] : `${esc(a.sub)} ···· ${a.mask}`}</div></span>
           <span class="v">${eur(a.bal)}</span>${ed ? '' : `<span class="chev" aria-hidden="true">${I.chev}</span>`}
         </div></div>`).join('')}
-      </div>
-      ${ed ? `<p class="foot" style="text-align:left;margin-top:-10px">Your current account and Lena's Stash stay connected, because your pay and your savings goals depend on them.</p>` : ''}
+      </div></div>`).join('')}
+      ${ed ? `<p class="foot" style="text-align:left;margin-top:-10px">Your current account and Lena's Stash stay, because your pay and your savings goals depend on them.</p>` : ''}
       <div class="list accounts-total" style="border-radius:22px"><div class="row"><span class="grow t" style="font-size:16px">Total</span><span class="v" style="font-weight:600">${eur(net())}</span></div></div>
       <button class="btn tinted" data-act="add-account">${I.plus} Add Account</button>
     </div>`;
@@ -3826,9 +3883,11 @@ const H = {
   'auth-notify': once(async () => {
     const ok = await alertBox({ title: '“Cushion” Would Like to Send You Notifications', msg: 'Notifications may include alerts, sounds and icon badges. These can be configured in Settings.', actions: [{ label: 'Don’t Allow', value: false }, { label: 'Allow', value: true }] });
     if (ok === undefined) return;
-    S.prefs.bills = S.prefs.spending = ok; authPush(regDonePage);
+    S.prefs.bills = S.prefs.spending = ok; authPush(regIdPage);
   }),
-  'auth-notify-skip'() { S.prefs.bills = S.prefs.spending = false; authPush(regDonePage); },
+  'auth-notify-skip'() { S.prefs.bills = S.prefs.spending = false; authPush(regIdPage); },
+  'auth-id-scan': once(async () => { if (await idScan()) { S.auth.idOk = true; authPush(regDonePage); } }),
+  'auth-id-skip'() { S.auth.idOk = false; authPush(regDonePage); },
   'auth-done'() {
     S.user = { first: authVal('regFirst') || 'Lena', last: authVal('regLast') || 'Hoffmann', email: authVal('regEmail') || S.user.email };
     finishAuth(`Welcome to Cushion, ${S.user.first}`);
