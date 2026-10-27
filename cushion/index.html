@@ -1484,6 +1484,15 @@ const cashStay = () => cashWord() === 'your current account' ? 'stays' : 'stay';
 
 
 /* ---------------- Transactions: one ledger behind Home, Accounts, categories and search ---------------- */
+// Move money between the current account and Lena's Stash, and write it into both histories
+function transfer(amt, from, to, note) {
+  const names = { chk: 'Current account', stash: 'Lena’s Stash' };
+  [[from, -amt, `To ${names[to]}`], [to, amt, `From ${names[from].replace('Current', 'current')}`]].forEach(([id, v, name]) => {
+    const a = acct(id); if (!a) return;
+    a.bal = r2(a.bal + v);
+    S.tx.unshift({ id: 'm' + (++uid), name, grp: name, note, amt: v, cat: 'Transfers', cat0: 'Transfers', d: 24, acct: id, oneoff: false, logo: { icon: 'wallet', bg: '#636366' } });
+  });
+}
 // Days count within August 2026 (24 = today); 0 and below reach back into July
 const OTHER_CATS = [
   { name: 'Subscriptions', icon: 'receipt', color: '#8E5BD6' },
@@ -1495,8 +1504,9 @@ const OTHER_CATS = [
 ];
 const CAT_LIST = () => SPEND.map(c => ({ name: c.name, icon: c.icon, color: c.color })).concat(OTHER_CATS);
 const catInfo = name => CAT_LIST().find(c => c.name === name) || OTHER_CATS[OTHER_CATS.length - 1];
-const dLabel = d => d === 24 ? 'Today' : d === 23 ? 'Yesterday' : d >= 1 ? `${d} August` : `${31 + d} July`;
-const dShort = d => d >= 1 ? `${d} Aug` : `${31 + d} Jul`;
+// d counts days in August 2026 (24 = today); 0 to −30 is July, −31 and below is June
+const dLabel = d => d === 24 ? 'Today' : d === 23 ? 'Yesterday' : d >= 1 ? `${d} August` : d >= -30 ? `${31 + d} July` : `${61 + d} June`;
+const dShort = d => d >= 1 ? `${d} Aug` : d >= -30 ? `${31 + d} Jul` : `${61 + d} Jun`;
 const MERCHANT_LOGO = {
   'Hausverwaltung Kramer': { icon: 'house', bg: 'var(--olive)' },
   'Deutschlandticket': { icon: 'car', bg: '#E30613' },
@@ -1534,6 +1544,13 @@ function buildLedger() {
   extra({ name: 'Lena’s Stash', note: 'Iceland transfer', amt: -140, d: -8, acct: 'chk' }, 'Transfers');
   extra({ name: 'From current account', note: 'Iceland transfer', amt: 140, d: -8, acct: 'stash' }, 'Transfers');
   extra({ name: 'Interest', amt: 23.10, d: 1, acct: 'stash' }, 'Income');
+  // The rest of Lena's Stash since June, so the account reads as a real history
+  extra({ name: 'From current account', note: 'Iceland transfer', amt: 140, d: -38, acct: 'stash' }, 'Transfers');
+  extra({ name: 'Interest', amt: 21.84, d: -31, acct: 'stash' }, 'Income');
+  extra({ name: 'Round-ups', note: 'June card payments', amt: 112.60, d: -30, acct: 'stash' }, 'Transfers');
+  extra({ name: 'To current account', note: 'Moved back', amt: -300, d: -17, acct: 'stash' }, 'Transfers');
+  extra({ name: 'Lena’s Stash', note: 'Moved back', amt: 300, d: -17, acct: 'chk' }, 'Transfers');
+  extra({ name: 'Round-ups', note: 'July card payments', amt: 118.30, d: 1, acct: 'stash' }, 'Transfers');
   extra({ name: 'Trade Republic', note: 'Savings plan', amt: -150, d: 2, acct: 'chk' }, 'Transfers');
   extra({ name: 'MSCI World savings plan', amt: 150, d: 2, acct: 'brk' }, 'Transfers');
   extra({ name: 'Spotify Family', amt: -17.99, d: 5, acct: 'amex', logo: { brand: 'spotify', bg: '#191414', fg: '#1ED760' } }, 'Subscriptions');
@@ -1609,7 +1626,7 @@ function txDays(list, sub) {
   list.forEach(t => { const last = days[days.length - 1]; if (last && last.d === t.d) last.items.push(t); else days.push({ d: t.d, items: [t] }); });
   return days.map(g => `<div class="tx-day"><h2 class="section-h">${dLabel(g.d)}</h2><div class="list">${g.items.map(t => txRow(t, sub)).join('')}</div></div>`).join('');
 }
-const subCat = t => `${t.cat}${t.oneoff ? ' · One-off' : ''}`;
+const subCat = t => `${t.note && t.cat === 'Transfers' ? `${t.note} · ` : ''}${t.cat}${t.oneoff ? ' · One-off' : ''}`;
 const subAcct = t => `${acctName(t.acct)} · ${t.cat}${t.oneoff ? ' · One-off' : ''}`;
 
 // All transactions, with search
@@ -1644,7 +1661,7 @@ function accountPage(id) {
         <div class="big"><span class="num"><span class="cur">€</span>${fmt(a.bal, 2)}</span></div>
         ${owed ? `<p class="body" style="margin-top:8px">${eur(spent, 2)} spent on this card in August.</p>` : ''}
       </div>
-      ${list.length ? txDays(list, subCat) : `<p class="empty-note">Transactions from ${esc(a.name)} show up here after the first sync.</p>`}
+      ${list.length ? `${txDays(list, subCat)}<div class="list"><div class="row"><span class="grow"><div class="t">Opening balance</div><div class="s">Before ${dShort(list[list.length - 1].d)}</div></span><span class="v">${eur(r2(a.bal - list.reduce((t, x) => t + x.amt, 0)), 2)}</span></div></div>` : `<p class="empty-note">Transactions from ${esc(a.name)} show up here after the first sync.</p>`}
       ${PROTECTED[id] ? '' : `<button class="btn destructive" data-act="remove-account" data-id="${id}">Remove Account</button>`}
     </div>`;
 }
@@ -2507,9 +2524,9 @@ function moveImpact(amt, from, g) {
   return { bad: false, text: after >= before ? `Today's safe-to-spend stays at ${eur(before, 2)}.` : `Today's safe-to-spend goes from ${eur(before, 2)} to ${eur(after, 2)}.` };
 }
 function moveMoney(g, amt, from) {
-  if (from === 'out') { g.saved = r2(g.saved - amt); acct('stash').bal = r2(acct('stash').bal - amt); acct('chk').bal = r2(acct('chk').bal + amt); return; }
+  if (from === 'out') { g.saved = r2(g.saved - amt); transfer(amt, 'stash', 'chk', g.name); return; }
   g.saved = r2(g.saved + amt);
-  if (from === 'chk') { acct('chk').bal = r2(acct('chk').bal - amt); acct('stash').bal = r2(acct('stash').bal + amt); }
+  if (from === 'chk') transfer(amt, 'chk', 'stash', g.name);
 }
 
 // Shared form parts
@@ -3441,7 +3458,7 @@ const H = {
     if (!await bankApprove({ lines: [['Amount', '€1,200.00']], ref: 'Cushion · Savings' })) { toast('Nothing moved'); return; }
     if (!S.actions.includes('save')) return;
     await removeAction('save');
-    acct('chk').bal -= 1200; acct('stash').bal += 1200;
+    transfer(1200, 'chk', 'stash', 'Savings');
     refresh();
     restoreFocus(null, null, ['.action .review-pill', '#all-done']);
     toast('Moved €1,200 to Lena\'s Stash');
@@ -3567,7 +3584,7 @@ const H = {
     if (amt2 <= 0) return;
     const from = g.saved;
     g.saved = r2(from + amt2); S.fixesSent = r2(S.fixesSent + amt2);
-    acct('chk').bal = r2(acct('chk').bal - amt2); acct('stash').bal = r2(acct('stash').bal + amt2);
+    transfer(amt2, 'chk', 'stash', `${g.name} · from Fixes`);
     refresh();
     const w = $('.page:last-child #ice-num .w, .page:last-child #goal-num .w'); w && tween(w, from, g.saved, 1100);
     restoreFocus(null, null, ['.page:last-child [data-act="change-monthly"]']);
