@@ -1250,6 +1250,10 @@ button.row[disabled] { cursor: default; }
 .cw-edit select { flex: 1; font-size: 16px; color: var(--label); background: none; border: 0; -webkit-appearance: none; appearance: none; }
 .cw-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .cw-chips .chip { padding: 9px 14px; border-radius: 18px; background: var(--fill); color: var(--label); font-size: 14px; font-weight: 500; text-align: left; }
+
+/* Suggested questions carry the AI sparkle */
+.suggest .chip, .cw-chips .chip { display: inline-flex; align-items: center; gap: 8px; }
+.suggest .chip svg, .cw-chips .chip svg { flex: none; color: var(--accent); }
 </style>
 </head>
 <body>
@@ -1264,7 +1268,7 @@ button.row[disabled] { cursor: default; }
       <ul>
         <li>Approve “Move €1,200 into savings”, then check The month ahead</li>
         <li>Open “Cancel the second Spotify” and cancel it on Spotify’s site</li>
-        <li>In Fixes, email Q-Park about the duplicate parking charge, then put the refund towards Iceland</li>
+        <li>In Fixes, email Q-Park about the duplicate parking charge, then put the refund towards Japan</li>
         <li>Move car insurance to the 6th in The month ahead</li>
         <li>Ask Chat “Can I afford a €600 flight in March?” or try the voice demo</li>
         <li>Open the Accounts tab to add a sample N26 account or swipe one away</li>
@@ -1419,7 +1423,7 @@ const S = {
   auth: {},
   prefs: { theme: 'system', faceId: true, approve: true, bills: true, spending: true, paydayNote: false },
   // Savings goals all live in Lena's Stash. `goal` is the target; `by` counts months from August 2026 (0 = no date)
-  iceland: { id: 'iceland', name: 'Iceland', sub: 'February trip', icon: 'mountain-snow', color: 'var(--forest)', saved: 1400, goal: 2400, monthly: 140, paused: false, by: 6 },
+  iceland: { id: 'iceland', name: 'Japan', sub: 'February trip', icon: 'mountain-snow', color: 'var(--forest)', saved: 1400, goal: 2400, monthly: 140, paused: false, by: 6 },
   draft: {},
   fixesSent: 0,
   dismissed: [],
@@ -1593,11 +1597,11 @@ function buildLedger() {
   // Pay, transfers and subscriptions that aren't part of the four tracked categories
   const extra = (o, cat) => out.push(Object.assign({ id: `t${++k}`, grp: o.name, oneoff: false, cat, cat0: cat, logo: MERCHANT_LOGO[o.name] || { icon: catInfo(cat).icon, bg: catInfo(cat).color } }, o));
   extra({ name: 'Kessler GmbH', note: 'Salary', amt: 3482, d: -9, acct: 'chk' }, 'Income');
-  extra({ name: 'Lena’s Stash', note: 'Iceland transfer', amt: -140, d: -8, acct: 'chk' }, 'Transfers');
-  extra({ name: 'From current account', note: 'Iceland transfer', amt: 140, d: -8, acct: 'stash' }, 'Transfers');
+  extra({ name: 'Lena’s Stash', note: 'Japan transfer', amt: -140, d: -8, acct: 'chk' }, 'Transfers');
+  extra({ name: 'From current account', note: 'Japan transfer', amt: 140, d: -8, acct: 'stash' }, 'Transfers');
   extra({ name: 'Interest', amt: 23.10, d: 1, acct: 'stash' }, 'Income');
   // The rest of Lena's Stash since June, so the account reads as a real history
-  extra({ name: 'From current account', note: 'Iceland transfer', amt: 140, d: -38, acct: 'stash' }, 'Transfers');
+  extra({ name: 'From current account', note: 'Japan transfer', amt: 140, d: -38, acct: 'stash' }, 'Transfers');
   extra({ name: 'Interest', amt: 21.84, d: -31, acct: 'stash' }, 'Income');
   extra({ name: 'Round-ups', note: 'June card payments', amt: 112.60, d: -30, acct: 'stash' }, 'Transfers');
   extra({ name: 'To current account', note: 'Moved back', amt: -300, d: -17, acct: 'stash' }, 'Transfers');
@@ -2833,8 +2837,8 @@ function renderChat() {
     : `<div class="chat-title pinned chat-top">${chatBack()}</div><div class="chat-title"><h1 class="large-title">Chat</h1></div><p class="lede" style="margin:-10px 0 0;max-width:30ch">Ask about a purchase, a bill or a goal. I answer from your connected accounts.</p>`;
   const body = c.msgs.map((m, i) => m.role === 'user'
     ? `<div class="bubble-user">${esc(m.text)}</div>`
-    : `<div class="ai" id="ai-${i}">${m.typing ? '<div class="typing" aria-label="Cushion is typing"><i></i><i></i><i></i></div>' : m.paras.map(p => `<p>${esc(p)}</p>`).join('')}${m.done ? widgetHtml(m, i) : ''}${m.done && m.chips && i === c.msgs.length - 1 && !c.busy ? `<div class="cw-chips">${m.chips.map(q => `<button class="chip" data-act="ask" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div>` : ''}</div>`).join('');
-  const sug = c.msgs.length ? '' : `<div class="suggest">${suggestions().map(s => `<button class="chip" data-act="ask" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>`;
+    : `<div class="ai" id="ai-${i}">${m.typing ? '<div class="typing" aria-label="Cushion is typing"><i></i><i></i><i></i></div>' : m.paras.map(p => `<p>${esc(p)}</p>`).join('')}${m.done ? widgetHtml(m, i) : ''}${m.done && m.chips && i === c.msgs.length - 1 && !c.busy ? `<div class="cw-chips">${m.chips.map(q => `<button class="chip" data-act="ask" data-q="${esc(q)}">${icon('sparkles', 15)}<span>${esc(q)}</span></button>`).join('')}</div>` : ''}</div>`).join('');
+  const sug = c.msgs.length ? '' : `<div class="suggest">${suggestions().map(s => `<button class="chip" data-act="ask" data-q="${esc(s)}">${icon('sparkles', 15)}<span>${esc(s)}</span></button>`).join('')}</div>`;
   keepFocus(() => {
     $('#tab-chat').innerHTML = `<div class="chat-wrap" style="padding-top:0">${head}${body}${sug}</div>`;
   });
@@ -2892,7 +2896,7 @@ function icelandPage() {
   const avail = fixesAvailable();
   const plan = ic.paused
     ? `Transfers are paused. You're ${eur(rem)} away, and nothing moves until you resume.`
-    : rem === 0 ? 'You reached the goal. Enjoy the northern lights.'
+    : rem === 0 ? 'You reached the goal. Enjoy Japan.'
     : `At ${eur(ic.monthly)} a month, you'd reach this goal in about ${months} month${months === 1 ? '' : 's'}, before interest or extra contributions.`;
   return `
     <div class="nav">
@@ -2902,7 +2906,7 @@ function icelandPage() {
     <div class="detail">
       <div>
         <h1 data-short="${esc(ic.name)}">${esc(goalTitle(ic))}</h1>
-        ${ic.sub ? '<p class="body" style="margin-top:6px">Flights, a week of car hire and the northern-lights tour in February.</p>' : ic.by ? `<p class="body" style="margin-top:6px">Target date ${monthLong(ic.by)}</p>` : ''}
+        ${ic.sub ? '<p class="body" style="margin-top:6px">Flights, a rail pass and two weeks in Tokyo and Kyoto in February.</p>' : ic.by ? `<p class="body" style="margin-top:6px">Target date ${monthLong(ic.by)}</p>` : ''}
       </div>
       <div>
         <div class="big"><span class="num" id="ice-num"><span class="cur">€</span><span class="w">${fmt(ic.saved)}</span></span><span class="of">of ${eur(ic.goal)}</span>${ic.paused ? '<span class="paused-badge">Paused</span>' : ''}</div>
@@ -3376,7 +3380,7 @@ function reply(q) {
   const lowDay = k === fc.payIdx - 1 ? 'just before pay day' : k === 0 ? 'today' : `on ${dayLabel(k)}`;
   if (/dental|1,?430|dentist/.test(s)) {
     const split = { type: 'split', name: 'Dental bill', total: 1430, now: Math.max(0, Math.min(1430, Math.floor(room / 10) * 10)), base: preBal - spendToLow, payLabel: dayLabel(fc.payIdx), state: 'draft' };
-    const dchips = ['How much is safe to spend today?', 'When will I reach the Iceland goal?'];
+    const dchips = ['How much is safe to spend today?', 'When will I reach the Japan goal?'];
     const dental = r => Object.assign(r, { widget: split, chips: dchips });
     if (room >= 1430) return dental({ title: 'The dental bill', emoji: 'stethoscope', paras: [`Yes. Paying €1,430 now and spending your safe-to-spend each day still leaves ${eur(preBal - spendToLow - 1430)} ${lowDay}, ${room === 1430 ? 'right at' : 'above'} your comfort line.`] });
     const now = Math.max(0, Math.floor(room / 10) * 10);
@@ -3386,9 +3390,9 @@ function reply(q) {
       `Not all at once. Before everyday spending you'd have ${eur(preBal)} ${lowDay}. Take off ${eur(spendToLow)} of spending at your safe-to-spend pace and €1,430 for the bill, and ${preBal - spendToLow - 1430 < 0 ? `you'd be overdrawn by ${eur(-(preBal - spendToLow - 1430))}` : `you'd be at ${eur(preBal - spendToLow - 1430)}, under your ${eur(S.comfort)} comfort line`}.`,
       now > 0 ? `Pay ${eur(now)} now and the other ${eur(1430 - now)} after pay day on the ${pay}. Or take it from Lena's Stash, which has ${eur(stashFree())} outside ${goalsWord()}.` : `Ask the office to bill you after pay day on the ${pay}, or take it from Lena's Stash, which has ${eur(stashFree())} outside ${goalsWord()}.`] });
   }
-  if (/\b(flights?|march|book|booking)\b|(?<![\d,.])€?600(?!\d|[,.]\d|[a-z])/.test(s) && !/iceland/.test(s)) {
+  if (/\b(flights?|march|book|booking)\b|(?<![\d,.])€?600(?!\d|[,.]\d|[a-z])/.test(s) && !/japan|iceland/.test(s)) {
     const after = preBal - spendToLow - 600;
-    const flight = r => Object.assign(r, { widget: { type: 'afford', amt: 600, name: 'March flight', okNow: room >= 600, low: after, lowDay, payLabel: dayLabel(fc.payIdx), by: 7, state: 'draft' }, chips: ['How much is safe to spend today?', 'When will I reach the Iceland goal?'] });
+    const flight = r => Object.assign(r, { widget: { type: 'afford', amt: 600, name: 'March flight', okNow: room >= 600, low: after, lowDay, payLabel: dayLabel(fc.payIdx), by: 7, state: 'draft' }, chips: ['How much is safe to spend today?', 'When will I reach the Japan goal?'] });
     if (room >= 600) return flight({ title: 'The March flight', emoji: 'plane', paras: [`Yes. Even if you pay the €600 now, with your usual daily spending you'd keep ${eur(after)} ${lowDay}, ${room === 600 ? 'right at' : 'still above'} your comfort line.`] });
     const hits = fc.ev.filter(e => e.day <= k && e.amt < 0).map(e => e.phrase);
     const list = hits.length > 1 ? `${hits.slice(0, -1).join(', ')} and ${hits[hits.length - 1]}` : hits[0];
@@ -3416,9 +3420,9 @@ function reply(q) {
   if (/\b(transport|fuel|petrol|shell|commute|deutschlandticket)\b/.test(s)) {
     return { title: 'Transport', emoji: 'car', paras: categoryAnswer(spendOf('trans')), widget: { type: 'cat', cat: 'trans' }, chips: ['Why is eating out up this month?', 'How much is safe to spend today?'] };
   }
-  if (/iceland|goal|saving/.test(s)) {
+  if (/iceland|japan|goal|saving/.test(s)) {
     const live = S.goals.filter(g => !g.done);
-    const ic = (/iceland/.test(s) && live.find(g => g === S.iceland)) || live[0];
+    const ic = (/japan|iceland/.test(s) && live.find(g => g === S.iceland)) || live[0];
     if (!ic) return { title: 'Savings goals', emoji: 'piggy-bank', paras: [`You don't have a goal yet. Lena's Stash has ${eur(stashFree())} you could put towards one.`, "Tap New Goal on the Money tab, and I'll work out a monthly amount that fits."] };
     const rem = r2(Math.max(0, ic.goal - ic.saved)), m = Math.ceil(rem / ic.monthly), byName = ic.by ? MONTH_NAMES[(7 + ic.by) % 12] : '';
     const others = live.filter(g => g !== ic).map(g => { const p = pace(g); return g.paused ? `${esc(g.name)} is paused at ${eur(g.saved)} of ${eur(g.goal)}` : p.rem ? `${esc(g.name)} is ${eur(g.saved)} of ${eur(g.goal)}, about ${plural(p.m, 'month')} to go${p.late ? `, after your ${monthLong(g.by)} date` : ''}` : `${esc(g.name)} has reached ${eur(g.goal)}`; });
@@ -3434,7 +3438,7 @@ function reply(q) {
       ? `You can spend ${eur(sf.safe, 2)} today. Your budget allows ${eur(sf.budget, 2)}, but I held it back so ${cashWord()} ${cashWord() === 'your current account' ? "doesn't" : "don't"} drop below ${eur(S.comfort)} before pay day.`
       : `You can spend ${eur(sf.safe, 2)} today. That's your flexible budget for the day, and ${cashWord()} ${cashStay()} above ${eur(S.comfort)} until pay day.`] };
   }
-  return { title: 'Your question', emoji: 'message-circle', chips: ['Can I afford a €600 flight in March?', 'Put €50 towards Iceland', 'I spent €12 cash at the market'], paras: ['I can help with purchases, bills and goals, and I can set things up for you to confirm. Try a €600 flight, the dental bill, eating out, “put €50 towards Iceland” or “I spent €12 cash at the market”.'] };
+  return { title: 'Your question', emoji: 'message-circle', chips: ['Can I afford a €600 flight in March?', 'Put €50 towards Japan', 'I spent €12 cash at the market'], paras: ['I can help with purchases, bills and goals, and I can set things up for you to confirm. Try a €600 flight, the dental bill, eating out, “put €50 towards Japan” or “I spent €12 cash at the market”.'] };
 }
 
 /* ---------------- Chat widgets: drafts you confirm, answer cards with a next step, follow-up chips ---------------- */
