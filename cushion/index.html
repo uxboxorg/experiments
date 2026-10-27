@@ -1254,11 +1254,6 @@ button.row[disabled] { cursor: default; }
 /* Suggested questions carry the AI sparkle */
 .suggest .chip, .cw-chips .chip { display: inline-flex; align-items: center; gap: 8px; }
 .suggest .chip svg, .cw-chips .chip svg { flex: none; color: var(--accent); }
-
-/* Welcome lockup: icon and wordmark side by side, the icon sized to the word */
-.welcome-hero h1.welcome-lockup { display: flex; align-items: center; gap: 12px; }
-.welcome-lockup .welcome-logo { display: flex; flex: none; }
-.welcome-lockup .welcome-logo svg { width: 58px; height: 58px; }
 </style>
 </head>
 <body>
@@ -1995,7 +1990,8 @@ function welcomePage() {
     <div class="welcome">
       <video class="welcome-video" muted loop playsinline preload="auto" ${reduced ? '' : 'autoplay'} aria-hidden="true"><source src="coin-flip.webm" type="video/webm"><source src="coin-flip.mp4" type="video/mp4"></video>
       <div class="welcome-hero">
-        <h1 class="welcome-lockup"><span class="welcome-logo">${logo}</span>Cushion</h1>
+        <span class="welcome-logo">${logo}</span>
+        <h1>Cushion</h1>
         <p>Know what’s safe to spend, every day.</p>
       </div>
       <div class="welcome-actions">
