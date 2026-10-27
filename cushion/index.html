@@ -1213,51 +1213,12 @@ button.row[disabled] { cursor: default; }
 .id-card { width: 86%; height: 78%; border-radius: 10px; background: linear-gradient(135deg, #3B4A5C, #6C7E90); opacity: .55; transition: opacity .3s; }
 .id-app.captured .id-card { opacity: .9; }
 .id-app.verified .id-frame { border-color: #34C759; }
-
-/* ================= Coral palette: coral, coral claro, arena, blanco, azul claro, negro ================= */
-:root[data-palette="forest"] .pal-coral, :root[data-palette="coral"] .pal-forest { display: none !important; }
-:root[data-palette="coral"] {
-  --page: #EFECE4; --page-ink: #000000; --page-muted: #55524B;
-  --bg: #FFFFFF; --card: #F7F5EF; --label: #000000; --label2: #55524B; --label3: rgba(0, 0, 0, .38);
-  --sep: rgba(0, 0, 0, .10); --fill: rgba(0, 0, 0, .06); --fill2: rgba(0, 0, 0, .12);
-  --lime: #ED735E; --forest: #000000; --accent: #000000; --blue: #000000; --data: #ED735E;
-  --bar-ink: #000000; --coral-claro: #F3B79E; --azul: #B0C3FA;
-}
-:root[data-palette="coral"][data-theme="dark"] {
-  --page: #0A0A0A; --page-ink: #F7F5EF; --page-muted: #B0ACA3;
-  --bg: #0B0B0B; --card: #1A1918; --label: #F7F5EF; --label2: #B3AFA6; --label3: rgba(247, 245, 239, .38);
-  --sep: rgba(247, 245, 239, .12); --fill: rgba(247, 245, 239, .08); --fill2: rgba(247, 245, 239, .16);
-  --accent: #ED735E; --blue: #ED735E; --data: #F3B79E; --green-text: #6FD08C;
-  --glass: rgba(28, 27, 26, .6); --glass-strong: rgba(28, 27, 26, .84); --sheet: rgba(26, 25, 24, .985); --bar-ink: #F7F5EF;
-}
-@media (prefers-color-scheme: dark) { :root[data-palette="coral"]:not([data-theme="light"]) {
-  --page: #0A0A0A; --page-ink: #F7F5EF; --page-muted: #B0ACA3;
-  --bg: #0B0B0B; --card: #1A1918; --label: #F7F5EF; --label2: #B3AFA6; --label3: rgba(247, 245, 239, .38);
-  --sep: rgba(247, 245, 239, .12); --fill: rgba(247, 245, 239, .08); --fill2: rgba(247, 245, 239, .16);
-  --accent: #ED735E; --blue: #ED735E; --data: #F3B79E; --green-text: #6FD08C;
-  --glass: rgba(28, 27, 26, .6); --glass-strong: rgba(28, 27, 26, .84); --sheet: rgba(26, 25, 24, .985); --bar-ink: #F7F5EF;
-} }
-/* Dark surfaces: black cards in light mode, raised charcoal in dark mode */
-:root[data-palette="coral"] .safe { background: #000000 !important; box-shadow: 0 10px 30px rgba(0, 0, 0, .16) !important; }
-:root[data-palette="coral"] .card-media.g-month { background: #000000 !important; }
-:root[data-palette="coral"][data-theme="dark"] .safe, :root[data-palette="coral"][data-theme="dark"] .card-media.g-month { background: #1F1D1B !important; box-shadow: none !important; }
-@media (prefers-color-scheme: dark) { :root[data-palette="coral"]:not([data-theme="light"]) .safe, :root[data-palette="coral"]:not([data-theme="light"]) .card-media.g-month { background: #1F1D1B !important; box-shadow: none !important; } }
-:root[data-palette="coral"] .card-media.g-iceland .logo-tile { background: #ED735E !important; }
-:root[data-palette="coral"] .card-media.g-iceland .logo-tile svg { color: #000000 !important; }
-/* Welcome: coin flip on azul claro, black type, black button with coral text */
-:root[data-palette="coral"] .page.welcome-page { background: #AFC1F9 !important; --bar-bg: #AFC1F9; --edge: #AFC1F9; }
-:root[data-palette="coral"] .welcome .btn.primary { box-shadow: 0 8px 20px rgba(0, 0, 0, .22), 0 2px 5px rgba(0, 0, 0, .16) !important; }
-/* Selected-tab pill and primary fills take coral with black on top */
-:root[data-palette="coral"] .auth-art.ok { color: #ED735E; }
-
-:root[data-palette="coral"] { --save: #ED735E; --olive: #ED735E; --cat-blue: #7F9BF0; }
-:root[data-palette="coral"] .logo-tile[style*="--save"] svg { color: #000000; }
 </style>
 </head>
 <body>
 <main class="stage">
   <section class="about" aria-labelledby="about-title">
-    <img class="app-icon pal-forest" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImNnIiB4MT0iMCIgeDI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0I2RUI3MiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJFOEIzQSIvPjwvbGluZWFyR3JhZGllbnQ+PG1hc2sgaWQ9ImNtIiBtYXNrVW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4PSIwIiB5PSIwIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiNmZmYiLz48ZyBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMTYiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xMDMuNSAxMDMuNUMxNjMuMiAxMTQuMyAxODIuMyA4Ny41IDI1NiA4Ny41QzMyOS43IDg3LjUgMzQ4LjggMTE0LjMgNDA4LjUgMTAzLjVDMzk3LjcgMTYzLjIgNDI0LjUgMTgyLjMgNDI0LjUgMjU2QzQyNC41IDMyOS43IDM5Ny43IDM0OC44IDQwOC41IDQwOC41QzM0OC44IDM5Ny43IDMyOS43IDQyNC41IDI1NiA0MjQuNUMxODIuMyA0MjQuNSAxNjMuMiAzOTcuNyAxMDMuNSA0MDguNUMxMTQuMyAzNDguOCA4Ny41IDMyOS43IDg3LjUgMjU2Qzg3LjUgMTgyLjMgMTE0LjMgMTYzLjIgMTAzLjUgMTAzLjVaIi8+PHBhdGggZD0iTTI1NiAxNzdMMjc5LjEgMjAwLjFMMzExLjkgMjAwLjFMMzExLjkgMjMyLjlMMzM1IDI1NkwzMTEuOSAyNzkuMUwzMTEuOSAzMTEuOUwyNzkuMSAzMTEuOUwyNTYgMzM1TDIzMi45IDMxMS45TDIwMC4xIDMxMS45TDIwMC4xIDI3OS4xTDE3NyAyNTZMMjAwLjEgMjMyLjlMMjAwLjEgMjAwLjFMMjMyLjkgMjAwLjFaIi8+PC9nPjwvbWFzaz48L2RlZnM+PHBhdGggZD0iTTU3IDU3QzEyOS43IDc4LjQgMTU2LjkgMzkuNSAyNTYgMzkuNUMzNTUuMSAzOS41IDM4Mi4zIDc4LjQgNDU1IDU3QzQzMy42IDEyOS43IDQ3Mi41IDE1Ni45IDQ3Mi41IDI1NkM0NzIuNSAzNTUuMSA0MzMuNiAzODIuMyA0NTUgNDU1QzM4Mi4zIDQzMy42IDM1NS4xIDQ3Mi41IDI1NiA0NzIuNUMxNTYuOSA0NzIuNSAxMjkuNyA0MzMuNiA1NyA0NTVDNzguNCAzODIuMyAzOS41IDM1NS4xIDM5LjUgMjU2QzM5LjUgMTU2LjkgNzguNCAxMjkuNyA1NyA1N1oiIGZpbGw9InVybCgjY2cpIiBzdHJva2U9InVybCgjY2cpIiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBtYXNrPSJ1cmwoI2NtKSIvPjwvc3ZnPg==" alt="" width="64" height="64"><img class="app-icon pal-coral" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImNnIiB4MT0iMCIgeDI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0YzQjc5RSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0VENzM1RSIvPjwvbGluZWFyR3JhZGllbnQ+PG1hc2sgaWQ9ImNtIiBtYXNrVW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4PSIwIiB5PSIwIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiNmZmYiLz48ZyBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMTYiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xMDMuNSAxMDMuNUMxNjMuMiAxMTQuMyAxODIuMyA4Ny41IDI1NiA4Ny41QzMyOS43IDg3LjUgMzQ4LjggMTE0LjMgNDA4LjUgMTAzLjVDMzk3LjcgMTYzLjIgNDI0LjUgMTgyLjMgNDI0LjUgMjU2QzQyNC41IDMyOS43IDM5Ny43IDM0OC44IDQwOC41IDQwOC41QzM0OC44IDM5Ny43IDMyOS43IDQyNC41IDI1NiA0MjQuNUMxODIuMyA0MjQuNSAxNjMuMiAzOTcuNyAxMDMuNSA0MDguNUMxMTQuMyAzNDguOCA4Ny41IDMyOS43IDg3LjUgMjU2Qzg3LjUgMTgyLjMgMTE0LjMgMTYzLjIgMTAzLjUgMTAzLjVaIi8+PHBhdGggZD0iTTI1NiAxNzdMMjc5LjEgMjAwLjFMMzExLjkgMjAwLjFMMzExLjkgMjMyLjlMMzM1IDI1NkwzMTEuOSAyNzkuMUwzMTEuOSAzMTEuOUwyNzkuMSAzMTEuOUwyNTYgMzM1TDIzMi45IDMxMS45TDIwMC4xIDMxMS45TDIwMC4xIDI3OS4xTDE3NyAyNTZMMjAwLjEgMjMyLjlMMjAwLjEgMjAwLjFMMjMyLjkgMjAwLjFaIi8+PC9nPjwvbWFzaz48L2RlZnM+PHBhdGggZD0iTTU3IDU3QzEyOS43IDc4LjQgMTU2LjkgMzkuNSAyNTYgMzkuNUMzNTUuMSAzOS41IDM4Mi4zIDc4LjQgNDU1IDU3QzQzMy42IDEyOS43IDQ3Mi41IDE1Ni45IDQ3Mi41IDI1NkM0NzIuNSAzNTUuMSA0MzMuNiAzODIuMyA0NTUgNDU1QzM4Mi4zIDQzMy42IDM1NS4xIDQ3Mi41IDI1NiA0NzIuNUMxNTYuOSA0NzIuNSAxMjkuNyA0MzMuNiA1NyA0NTVDNzguNCAzODIuMyAzOS41IDM1NS4xIDM5LjUgMjU2QzM5LjUgMTU2LjkgNzguNCAxMjkuNyA1NyA1N1oiIGZpbGw9InVybCgjY2cpIiBzdHJva2U9InVybCgjY2cpIiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBtYXNrPSJ1cmwoI2NtKSIvPjwvc3ZnPg==" alt="" width="64" height="64">
+    <img class="app-icon" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImNnIiB4MT0iMCIgeDI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0I2RUI3MiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzJFOEIzQSIvPjwvbGluZWFyR3JhZGllbnQ+PG1hc2sgaWQ9ImNtIiBtYXNrVW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4PSIwIiB5PSIwIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiNmZmYiLz48ZyBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMTYiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xMDMuNSAxMDMuNUMxNjMuMiAxMTQuMyAxODIuMyA4Ny41IDI1NiA4Ny41QzMyOS43IDg3LjUgMzQ4LjggMTE0LjMgNDA4LjUgMTAzLjVDMzk3LjcgMTYzLjIgNDI0LjUgMTgyLjMgNDI0LjUgMjU2QzQyNC41IDMyOS43IDM5Ny43IDM0OC44IDQwOC41IDQwOC41QzM0OC44IDM5Ny43IDMyOS43IDQyNC41IDI1NiA0MjQuNUMxODIuMyA0MjQuNSAxNjMuMiAzOTcuNyAxMDMuNSA0MDguNUMxMTQuMyAzNDguOCA4Ny41IDMyOS43IDg3LjUgMjU2Qzg3LjUgMTgyLjMgMTE0LjMgMTYzLjIgMTAzLjUgMTAzLjVaIi8+PHBhdGggZD0iTTI1NiAxNzdMMjc5LjEgMjAwLjFMMzExLjkgMjAwLjFMMzExLjkgMjMyLjlMMzM1IDI1NkwzMTEuOSAyNzkuMUwzMTEuOSAzMTEuOUwyNzkuMSAzMTEuOUwyNTYgMzM1TDIzMi45IDMxMS45TDIwMC4xIDMxMS45TDIwMC4xIDI3OS4xTDE3NyAyNTZMMjAwLjEgMjMyLjlMMjAwLjEgMjAwLjFMMjMyLjkgMjAwLjFaIi8+PC9nPjwvbWFzaz48L2RlZnM+PHBhdGggZD0iTTU3IDU3QzEyOS43IDc4LjQgMTU2LjkgMzkuNSAyNTYgMzkuNUMzNTUuMSAzOS41IDM4Mi4zIDc4LjQgNDU1IDU3QzQzMy42IDEyOS43IDQ3Mi41IDE1Ni45IDQ3Mi41IDI1NkM0NzIuNSAzNTUuMSA0MzMuNiAzODIuMyA0NTUgNDU1QzM4Mi4zIDQzMy42IDM1NS4xIDQ3Mi41IDI1NiA0NzIuNUMxNTYuOSA0NzIuNSAxMjkuNyA0MzMuNiA1NyA0NTVDNzguNCAzODIuMyAzOS41IDM1NS4xIDM5LjUgMjU2QzM5LjUgMTU2LjkgNzguNCAxMjkuNyA1NyA1N1oiIGZpbGw9InVybCgjY2cpIiBzdHJva2U9InVybCgjY2cpIiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBtYXNrPSJ1cmwoI2NtKSIvPjwvc3ZnPg==" alt="" width="64" height="64">
     <div class="eyebrow">iOS concept · Interactive prototype</div>
     <h1 id="about-title">Cushion, a budget that tells you what's safe to spend</h1>
     <p>Cushion turns balances, bills and pay day into one number for today, then suggests fixes you can approve with a tap. Every screen reads from the same sample forecast, so a change in one place shows up everywhere. Built for a European launch: euros, European banks and 24-hour time.</p>
@@ -1408,7 +1369,7 @@ const S = {
   spotifyCancelled: false,
   accounts: [
     { id: 'chk', name: 'Current account', sub: 'Sparkasse', mask: '4659', kind: 'cash', bal: 7400, logo: { brand: 'sparkasse', bg: '#FF0000' } },
-    { id: 'stash', name: "Lena's Stash", sub: 'Savings · 3.1%', mask: '6839', kind: 'saved', bal: 9140, logo: { icon: 'piggy-bank', bg: 'var(--save, #2E9E55)' } },
+    { id: 'stash', name: "Lena's Stash", sub: 'Savings · 3.1%', mask: '6839', kind: 'saved', bal: 9140, logo: { icon: 'piggy-bank', bg: '#2E9E55' } },
     { id: 'brk', name: 'ETF portfolio', sub: 'Trade Republic', mask: '1120', kind: 'saved', bal: 4395, logo: { icon: 'trending-up', bg: '#4B4BC8' } },
     { id: 'amex', name: 'Mastercard Gold', sub: 'Credit card', mask: '9002', kind: 'owed', bal: -612, logo: { mc: true, bg: '#1C1C1E' } },
     { id: 'visa', name: 'Visa Card', sub: 'Credit card', mask: '4088', kind: 'owed', bal: -698, logo: { brand: 'visa', bg: '#1A1F71' } },
@@ -1419,7 +1380,7 @@ const S = {
   wheel: null,     // which inline pay-day wheel is open
   user: { first: 'Lena', last: 'Hoffmann', email: 'lena.hoffmann@posteo.de' },
   auth: {},
-  prefs: { palette: 'coral', theme: 'system', faceId: true, approve: true, bills: true, spending: true, paydayNote: false },
+  prefs: { theme: 'system', faceId: true, approve: true, bills: true, spending: true, paydayNote: false },
   // Savings goals all live in Lena's Stash. `goal` is the target; `by` counts months from August 2026 (0 = no date)
   iceland: { id: 'iceland', name: 'Iceland', sub: 'February trip', icon: 'mountain-snow', color: 'var(--forest)', saved: 1400, goal: 2400, monthly: 140, paused: false, by: 6 },
   draft: {},
@@ -1926,10 +1887,6 @@ function profilePage() {
             <label class="grow t" for="pref-theme">Theme</label>
             <span class="picker"><select id="pref-theme" data-pref-select="theme" aria-label="Theme">${[['system', 'Match device'], ['light', 'Light'], ['dark', 'Dark']].map(([v, l]) => `<option value="${v}" ${P.theme === v ? 'selected' : ''}>${l}</option>`).join('')}</select>${UPDOWN}</span>
           </div>
-          <div class="row pref-row">
-            <label class="grow t" for="pref-palette">Colours</label>
-            <span class="picker"><select id="pref-palette" data-pref-select="palette" aria-label="Colours">${[['coral', 'Coral'], ['forest', 'Forest']].map(([v, l]) => `<option value="${v}" ${P.palette === v ? 'selected' : ''}>${l}</option>`).join('')}</select>${UPDOWN}</span>
-          </div>
         </div>
       </div>
       <div>
@@ -1990,7 +1947,7 @@ function welcomePage() {
   const logo = "<svg viewBox=\"0 0 512 512\" aria-hidden=\"true\" width=\"76\" height=\"76\"><defs><mask id=\"cush-logo\" maskUnits=\"userSpaceOnUse\" x=\"0\" y=\"0\" width=\"512\" height=\"512\"><rect width=\"512\" height=\"512\" fill=\"#fff\"/><g fill=\"none\" stroke=\"#000\" stroke-width=\"16\" stroke-linejoin=\"round\"><path d=\"M103.5 103.5C163.2 114.3 182.3 87.5 256 87.5C329.7 87.5 348.8 114.3 408.5 103.5C397.7 163.2 424.5 182.3 424.5 256C424.5 329.7 397.7 348.8 408.5 408.5C348.8 397.7 329.7 424.5 256 424.5C182.3 424.5 163.2 397.7 103.5 408.5C114.3 348.8 87.5 329.7 87.5 256C87.5 182.3 114.3 163.2 103.5 103.5Z\"/><path d=\"M256 177L279.1 200.1L311.9 200.1L311.9 232.9L335 256L311.9 279.1L311.9 311.9L279.1 311.9L256 335L232.9 311.9L200.1 311.9L200.1 279.1L177 256L200.1 232.9L200.1 200.1L232.9 200.1Z\"/></g></mask></defs><path d=\"M57 57C129.7 78.4 156.9 39.5 256 39.5C355.1 39.5 382.3 78.4 455 57C433.6 129.7 472.5 156.9 472.5 256C472.5 355.1 433.6 382.3 455 455C382.3 433.6 355.1 472.5 256 472.5C156.9 472.5 129.7 433.6 57 455C78.4 382.3 39.5 355.1 39.5 256C39.5 156.9 78.4 129.7 57 57Z\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"16\" stroke-linejoin=\"round\" mask=\"url(#cush-logo)\"/></svg>";
   return `
     <div class="welcome">
-      <video class="welcome-video" muted loop playsinline preload="auto" ${reduced ? '' : 'autoplay'} aria-hidden="true"><source src="coin-flip${S.prefs.palette === 'coral' ? '-coral' : ''}.webm" type="video/webm"><source src="coin-flip${S.prefs.palette === 'coral' ? '-coral' : ''}.mp4" type="video/mp4"></video>
+      <video class="welcome-video" muted loop playsinline preload="auto" ${reduced ? '' : 'autoplay'} aria-hidden="true"><source src="coin-flip.webm" type="video/webm"><source src="coin-flip.mp4" type="video/mp4"></video>
       <div class="welcome-hero">
         <span class="welcome-logo">${logo}</span>
         <h1>Cushion</h1>
@@ -2337,7 +2294,7 @@ function renderToday() {
   const undo = S.lastDismissed ? `<article class="action undo-row"><span>${undoN > 1 ? `${undoN} suggestions dismissed` : 'Suggestion dismissed'}</span><button class="pill neutral" data-act="undo-dismiss">Undo</button></article>` : '';
   const cards = S.actions.map(id => id === 'save' ? `
       <article class="action glass" data-card="save">
-        ${tile({ icon: 'piggy-bank', bg: 'var(--save, #2E9E55)' }, 44)}
+        ${tile({ icon: 'piggy-bank', bg: '#2E9E55' }, 44)}
         <h3>Move €1,200 into savings</h3>
         <p>It has sat in your Sparkasse current account for 41 days. You'd earn about €37 a year, and ${saveLine}.</p>
         <div class="btns"><button class="review-pill" data-act="approve-save">Move €1,200</button><button class="pill neutral" style="height:44px" data-act="dismiss" data-id="save">Not Now</button></div>
@@ -3997,15 +3954,12 @@ app.addEventListener('click', e => {
   const fn = H[el.dataset.act];
   if (fn) fn(el);
 });
-function applyPalette(v) { document.documentElement.dataset.palette = v; }
-applyPalette('coral');
 function applyTheme(t) { const r = document.documentElement; if (t === 'system') delete r.dataset.theme; else r.dataset.theme = t; }
 app.addEventListener('change', e => {
   if (e.target.dataset.authSelect === 'country') { S.auth.country = e.target.value; return; }
   if (e.target.dataset.authSelect === 'payday') { S.payDay = +e.target.value; refresh(); return; }
   if (e.target.dataset.pref) { S.prefs[e.target.dataset.pref] = e.target.checked; return; }
   if (e.target.dataset.prefSelect === 'theme') { S.prefs.theme = e.target.value; applyTheme(e.target.value); return; }
-  if (e.target.dataset.prefSelect === 'palette') { S.prefs.palette = e.target.value; applyPalette(e.target.value); refresh(); return; }
   if (e.target.id === 'payday-pick' || e.target.dataset.prefSelect === 'payday') { const v = +e.target.value; if (v >= 1 && v <= PAY_MAX && v !== S.payDay) { S.payDay = v; refresh(); toast(`Pay day set to the ${payOn(v)}`); } }
 });
 app.addEventListener('input', e => {
