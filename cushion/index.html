@@ -1191,6 +1191,9 @@ button.row[disabled] { cursor: default; }
 /* Selected tab in light mode looks like the primary button: lime pill, dark green icon and label */
 :root:not([data-theme="dark"]) .tabbar .lens { background: var(--lime) !important; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tabbar .lens { background: var(--nav-lens) !important; } }
+
+/* Safe-to-spend figure: semibold rather than extra bold */
+.safe .num { font-weight: 600 !important; letter-spacing: -.03em; }
 </style>
 </head>
 <body>
