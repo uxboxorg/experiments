@@ -3445,8 +3445,8 @@ const guessCat = where => (CASH_CATS.find(([, re]) => re.test(where || '')) || [
 // Drafts: Cushion prepares the action, nothing happens until you confirm
 function draftReply(s) {
   let m;
-  if ((m = /\bspent\s+€?\s*([\d.,]+)\s*(?:euros?|€)?\s*(?:in\s+)?cash\b(?:\s+(?:at|on|for|in)\s+(?:the\s+)?(.+?))?[.!?]*$/.exec(s))) {
-    const amt = r2(numIn(m[1])), where = (m[2] || '').trim();
+  if ((m = /\bspent\s+€?\s*([\d.,]+)\s*(?:euros?|€)?\s*(?:in\s+)?cash\b(?:\s+(?:at|on|for|in)\s+(?:the\s+)?(.+?))?["“”'’.!?]*$/.exec(s))) {
+    const amt = r2(numIn(m[1])), where = (m[2] || '').replace(/["“”‘’'«».,!?]+/g, '').trim();
     if (amt > 0) return { title: 'Cash expense', emoji: 'wallet', paras: ['Cash never shows up in your bank feed, so I’ve drafted it for you. Check it and save.'],
       widget: { type: 'cash', amt, where: where ? where.replace(/^./, c => c.toUpperCase()) : 'Cash', cat: guessCat(where), state: 'draft' }, chips: ['Why is eating out up this month?', 'How much is safe to spend today?'] };
   }
@@ -3594,6 +3594,19 @@ function cwInput(t) {
   const sb = $(`#ai-${i} [data-do="stash"]`); if (sb) { sb.hidden = !(later > 0 && stashFree() >= later); sb.textContent = `Cover ${eur(later)} from Stash`; }
 }
 
+// Bring a finished answer fully into view: its card and chips sit above the composer and keyboard.
+// If it's taller than the space, show the card from its top instead.
+function chatReveal(i) {
+  const panel = $('#tab-chat'), msg = $('#ai-' + i); if (!panel || !msg) return;
+  const pr = panel.getBoundingClientRect();
+  let limit = pr.bottom;
+  ['#composer', '#kb'].forEach(sel => { const el = $(sel); if (!el || el.hidden || getComputedStyle(el).display === 'none' || getComputedStyle(el).visibility === 'hidden') return; const r = el.getBoundingClientRect(); if (r.height && r.top < limit && r.bottom > pr.top) limit = r.top; });
+  limit -= 14;
+  const head = $('#tab-chat .chat-title.pinned'), top = (head ? head.getBoundingClientRect().bottom : pr.top) + 10;
+  const card = msg.querySelector('.cw') || msg, mr = msg.getBoundingClientRect(), cr = card.getBoundingClientRect();
+  const delta = mr.bottom - cr.top <= limit - top ? mr.bottom - limit : cr.top - top;
+  if (Math.abs(delta) > 1) panel.scrollTo({ top: panel.scrollTop + delta, behavior: reduced ? 'auto' : 'smooth' });
+}
 async function send(text) {
   text = (text || '').trim();
   if (!text) return;
@@ -3632,6 +3645,7 @@ async function send(text) {
   S.chat.busy = false;
   renderChat();
   panel.scrollTop = panel.scrollHeight;
+  requestAnimationFrame(() => chatReveal(idx));
   if (S.chat.queue && S.chat.queue.length) return send(S.chat.queue.shift());
   const ae2 = document.activeElement;
   if (S.tab === 'chat' && !stack.length && (S.chat.refocus || !ae2 || ae2 === document.body)) $('#chat-input').focus({ preventScroll: true });
