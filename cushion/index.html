@@ -2319,6 +2319,7 @@ function renderToday() {
         </div>
       </div>
       ${undo}<div class="actions" id="actions">${cards || done}</div>
+      ${savingsSection()}
       <div>
         <div class="section-row"><h2 class="section-h" style="margin:0">Recent transactions</h2><button class="see-all" data-act="see-all-tx">See All</button></div>
         <div class="list">${TX.map(t => `
