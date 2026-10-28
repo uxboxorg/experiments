@@ -289,7 +289,12 @@ p { margin: 0; }
 }
 @media (max-width: 460px) {
   .g2, .g3, .g4 { grid-template-columns: 1fr; }
-  .phone, .phone.lg { width: 100%; max-width: 280px; }
+  /* Screens swipe sideways on phones instead of stacking */
+  .phones { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px; margin: 0 -16px; padding: 4px 16px 12px; scrollbar-width: none; }
+  .phones::-webkit-scrollbar { display: none; }
+  .phone, .phone.lg { width: 72%; max-width: 260px; flex: none; scroll-snap-align: center; }
+  .phone.up { margin-top: 0; }
+  .persona > .phone { display: none; }
 }
 @media (prefers-reduced-motion: no-preference) {
   .hero .shot { animation: rise .9s cubic-bezier(.2, .8, .2, 1) both; }
