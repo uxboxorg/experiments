@@ -1200,6 +1200,8 @@ button.row[disabled] { cursor: default; }
 .safe .num .cur { margin-right: 4px; }
 .safe .num .cents { margin-left: 2px; }
 .safe { isolation: isolate; overflow: hidden; }
+.safe { aspect-ratio: 4 / 3; grid-template-rows: auto 1fr auto; }
+.safe .num { align-self: end; }
 .safe::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: #8EEADB; opacity: .35; -webkit-mask: url(dither-2.svg) right top / cover no-repeat; mask: url(dither-2.svg) right top / cover no-repeat; }
 
 /* Accounts grouped: Cushion's own account, then connected banks */
