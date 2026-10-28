@@ -33,6 +33,7 @@ section.tight { padding-block: 40px 96px; }
 
 /* Section head: label column + two-tone headline */
 .head { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 24px; margin-bottom: 48px; }
+.head > .label { padding-top: .75em; }
 .label { font-size: 13px; color: var(--forest); font-weight: 500; line-height: 1.4; }
 .label .n { display: block; color: var(--muted); font-weight: 400; margin-top: 4px; font-variant-numeric: tabular-nums; }
 .dark .label { color: var(--mint); }
@@ -320,8 +321,12 @@ p { margin: 0; }
 .map .f { font-size: 15px; font-weight: 500; display: flex; justify-content: space-between; gap: 10px; }
 .map .f span { color: var(--muted); font-weight: 400; font-size: 12px; white-space: nowrap; }
 .map .to { color: var(--forest); text-align: center; }
-.map a:hover .f span, .map a:focus-visible .f span { font-size: 0; }
-.map a:hover .f span::after, .map a:focus-visible .f span::after { content: "Go to feature →"; font-size: 12px; color: var(--forest); font-weight: 500; }
+.map .f { align-items: center; }
+.map .f span { display: grid; justify-items: end; align-items: center; line-height: 1.2; }
+.map .f span i { grid-area: 1 / 1; font-style: normal; }
+.map .f span::after { content: "Go to feature →"; grid-area: 1 / 1; color: var(--forest); font-weight: 500; opacity: 0; }
+.map a:hover .f span, .map a:focus-visible .f span { color: transparent; }
+.map a:hover .f span::after, .map a:focus-visible .f span::after { opacity: 1; }
 @media (max-width: 760px) { .pf, .feats { grid-template-columns: 1fr; } .map a { grid-template-columns: 1fr; gap: 4px; } .map .to { display: none; } }
 </style>
 
@@ -401,17 +406,17 @@ p { margin: 0; }
     </div>
 
     <div class="head" style="margin-top:96px;margin-bottom:32px">
-      <div class="label">What Cushion does instead</div>
-      <div><h2>Seven problems<span class="sub">and the features that solve them.</span></h2></div>
+      <div class="label">Overview</div>
+      <div><h2>Features</h2></div>
     </div>
     <div class="map">
-      <a href="#f1"><span class="p">“My balance doesn’t know rent is coming.”</span><span class="to" aria-hidden="true">→</span><span class="f">Safe to spend <span>Feature 01</span></span></a>
-      <a href="#f2"><span class="p">“Two big bills land on the same week.”</span><span class="to" aria-hidden="true">→</span><span class="f">The month ahead <span>Feature 02</span></span></a>
-      <a href="#f3"><span class="p">“Charts show what happened, not what to do.”</span><span class="to" aria-hidden="true">→</span><span class="f">AI coach <span>Feature 03</span></span></a>
-      <a href="#f4"><span class="p">“I don’t want an app moving my money.”</span><span class="to" aria-hidden="true">→</span><span class="f">Bank approval <span>Feature 04</span></span></a>
-      <a href="#f5"><span class="p">“Money leaks where I never look.”</span><span class="to" aria-hidden="true">→</span><span class="f">Fixes <span>Feature 05</span></span></a>
-      <a href="#f6"><span class="p">“Saving feels like admin.”</span><span class="to" aria-hidden="true">→</span><span class="f">Savings goals <span>Feature 06</span></span></a>
-      <a href="#f7"><span class="p">“My spending is spread over cards and cash.”</span><span class="to" aria-hidden="true">→</span><span class="f">Accounts and transactions <span>Feature 07</span></span></a>
+      <a href="#f1"><span class="p">“My balance doesn’t know rent is coming.”</span><span class="to" aria-hidden="true">→</span><span class="f">Safe to spend <span><i>Feature 01</i></span></span></a>
+      <a href="#f2"><span class="p">“Two big bills land on the same week.”</span><span class="to" aria-hidden="true">→</span><span class="f">The month ahead <span><i>Feature 02</i></span></span></a>
+      <a href="#f3"><span class="p">“Charts show what happened, not what to do.”</span><span class="to" aria-hidden="true">→</span><span class="f">AI coach <span><i>Feature 03</i></span></span></a>
+      <a href="#f4"><span class="p">“I don’t want an app moving my money.”</span><span class="to" aria-hidden="true">→</span><span class="f">Bank approval <span><i>Feature 04</i></span></span></a>
+      <a href="#f5"><span class="p">“Money leaks where I never look.”</span><span class="to" aria-hidden="true">→</span><span class="f">Fixes <span><i>Feature 05</i></span></span></a>
+      <a href="#f6"><span class="p">“Saving feels like admin.”</span><span class="to" aria-hidden="true">→</span><span class="f">Savings goals <span><i>Feature 06</i></span></span></a>
+      <a href="#f7"><span class="p">“My spending is spread over cards and cash.”</span><span class="to" aria-hidden="true">→</span><span class="f">Accounts and transactions <span><i>Feature 07</i></span></span></a>
     </div>
   </div>
 </section>
