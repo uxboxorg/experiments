@@ -320,6 +320,8 @@ p { margin: 0; }
 .map .f { font-size: 15px; font-weight: 500; display: flex; justify-content: space-between; gap: 10px; }
 .map .f span { color: var(--muted); font-weight: 400; font-size: 12px; white-space: nowrap; }
 .map .to { color: var(--forest); text-align: center; }
+.map a:hover .f span, .map a:focus-visible .f span { font-size: 0; }
+.map a:hover .f span::after, .map a:focus-visible .f span::after { content: "Go to feature →"; font-size: 12px; color: var(--forest); font-weight: 500; }
 @media (max-width: 760px) { .pf, .feats { grid-template-columns: 1fr; } .map a { grid-template-columns: 1fr; gap: 4px; } .map .to { display: none; } }
 </style>
 
