@@ -448,7 +448,7 @@ p { margin: 0; }
         <p class="intro-quote"><span class="qm" aria-hidden="true">“</span>Most budgeting apps show where money <span class="ic emoji" aria-hidden="true"><i>💸</i></span> went. <span class="ic forest" aria-hidden="true"><svg viewBox="0 0 512 512"><use href="#cush"/></svg></span> Cushion tells you what is safe to spend today and an AI advisor <span class="ic forest" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#spark"/></svg></span> helps with every money decision.</p>
       </div>
       <div class="intro-shot">
-        <img class="mock-video anim" src="img/mockup-anim.webp" alt="Cushion welcome screen on an iPhone">
+        <img class="mock-video" data-sheet="img/mockup-sheet.webp" data-frame="540x720x11x66x80" src="img/mockup-anim.webp" alt="Cushion welcome screen on an iPhone">
         <a class="proto-btn" href="https://claude.ai/artifact/UCyDsxiMhATAbDJt7HwtUa" target="_blank" rel="noopener">Open interactive prototype<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
       </div>
     </div>
@@ -752,7 +752,7 @@ p { margin: 0; }
         <span class="brand"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg>Cushion</span>
         <h2>Thanks for reading.</h2>
       </div>
-      <img class="coin-flip anim" src="img/coin-anim.webp" alt="">
+      <img class="coin-flip" data-sheet="img/coin-sheet.webp" data-frame="330x600x11x66x80" src="img/coin-anim.webp" alt="">
     </div>
   </div>
 </section>
@@ -788,31 +788,19 @@ p { margin: 0; }
 }
 </style>
 <script>
-function playAnim(img) {
-  // Some viewers (the Claude desktop app's preview) freeze animated images and video; drawing each frame onto a canvas still animates
-  if (img.dataset.anim || !('ImageDecoder' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  img.dataset.anim = '1';
-  fetch(img.currentSrc || img.src).then(r => r.arrayBuffer()).then(async buf => {
-    const dec = new ImageDecoder({ data: buf, type: 'image/webp' });
-    await dec.tracks.ready;
-    const n = dec.tracks.selectedTrack.frameCount;
-    if (n < 2) return;
-    const c = document.createElement('canvas'), ctx = c.getContext('2d');
-    c.className = img.className;
+/* The loops step through a sheet of frames on a canvas: the Claude desktop preview freezes video and animated images */
+document.querySelectorAll('img[data-sheet]').forEach(img => {
+  const [w, h, cols, n, ms] = img.dataset.frame.split('x').map(Number);
+  const sheet = new Image();
+  sheet.onload = () => {
+    const c = document.createElement('canvas'); c.width = w; c.height = h; c.className = img.className;
     if (img.alt) { c.setAttribute('role', 'img'); c.setAttribute('aria-label', img.alt); } else c.setAttribute('aria-hidden', 'true');
-    let i = 0, next = performance.now();
-    const step = async () => {
-      if (!c.isConnected && i) return dec.close();
-      const { image } = await dec.decode({ frameIndex: i });
-      if (!c.dataset.sized) { c.width = image.displayWidth; c.height = image.displayHeight; c.dataset.sized = '1'; }
-      ctx.drawImage(image, 0, 0);
-      if (!c.isConnected) img.replaceWith(c);
-      next += (image.duration || 40000) / 1000; image.close();
-      i = (i + 1) % n;
-      setTimeout(step, Math.max(0, next - performance.now()));
-    };
-    step();
-  }).catch(() => {});
-}
-document.querySelectorAll('img.anim').forEach(playAnim);
+    const ctx = c.getContext('2d'); let i = 0;
+    const draw = () => ctx.drawImage(sheet, (i % cols) * w, Math.floor(i / cols) * h, w, h, 0, 0, w, h);
+    draw(); img.replaceWith(c);
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    setInterval(() => { i = (i + 1) % n; draw(); }, ms);
+  };
+  sheet.src = img.dataset.sheet;
+});
 </script>
