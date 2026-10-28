@@ -4527,7 +4527,14 @@ selectTab('today');
   // false hides; anything else re-checks that the field is still on screen and focused
   kbShow = on => { if (on === false) return hide(); if (target && (!target.isConnected || target.closest('[inert]') || document.activeElement !== target || !wants(target))) hide(); };
   app.addEventListener('focusin', e => { if (wants(e.target)) show(e.target); });
-  app.addEventListener('focusout', e => { if (e.target === target) setTimeout(() => { if (document.activeElement !== target) hide(); }, 0); });
+  // Closing the keyboard moves the page. If that happens mid-tap, the release lands somewhere else and the tap is lost,
+  // so while a finger or mouse is down the keyboard waits until the tap has finished.
+  let pressing = false, hideLater = false;
+  const settle = () => { if (document.activeElement !== target) hide(); };
+  app.addEventListener('pointerdown', () => { pressing = true; }, true);
+  document.addEventListener('pointerup', () => setTimeout(() => { pressing = false; if (hideLater) { hideLater = false; settle(); } }, 0), true);
+  document.addEventListener('pointercancel', () => { pressing = false; if (hideLater) { hideLater = false; settle(); } }, true);
+  app.addEventListener('focusout', e => { if (e.target === target) setTimeout(() => { if (pressing) hideLater = true; else settle(); }, 0); });
   app.addEventListener('input', e => { if (e.target === target) render(); });
   kb.addEventListener('mousedown', e => e.preventDefault()); // keys never take focus from the field
   const changed = () => target.dispatchEvent(new Event('input', { bubbles: true }));
