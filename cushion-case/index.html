@@ -448,7 +448,7 @@ p { margin: 0; }
         <p class="intro-quote"><span class="qm" aria-hidden="true">“</span>Most budgeting apps show where money <span class="ic emoji" aria-hidden="true"><i>💸</i></span> went. <span class="ic forest" aria-hidden="true"><svg viewBox="0 0 512 512"><use href="#cush"/></svg></span> Cushion tells you what is safe to spend today and an AI advisor <span class="ic forest" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#spark"/></svg></span> helps with every money decision.</p>
       </div>
       <div class="intro-shot">
-        <video class="mock-video" autoplay muted loop playsinline preload="auto" poster="img/mockup-poster.webp" aria-label="Cushion welcome screen on an iPhone"><source src="img/mockup.mp4" type="video/mp4"><source src="img/mockup.webm" type="video/webm"></video>
+        <video class="mock-video" autoplay muted loop playsinline poster="img/mockup-poster.webp" aria-label="Cushion welcome screen on an iPhone" data-mp4="img/mockup.mp4" data-webm="img/mockup.webm"></video>
         <a class="proto-btn" href="https://claude.ai/artifact/UCyDsxiMhATAbDJt7HwtUa" target="_blank" rel="noopener">Open interactive prototype<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
       </div>
     </div>
@@ -752,10 +752,26 @@ p { margin: 0; }
         <span class="brand"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg>Cushion</span>
         <h2>Thanks for reading.</h2>
       </div>
-      <video class="coin-flip" autoplay muted loop playsinline preload="auto" aria-hidden="true"><source src="img/coin.webm" type="video/webm"><source src="img/coin.mp4" type="video/mp4"></video>
+      <video class="coin-flip" autoplay muted loop playsinline aria-hidden="true" data-mp4="img/coin.mp4" data-webm="img/coin.webm"></video>
     </div>
   </div>
 </section>
+<script>
+/* Videos load in full and play from memory: Safari won't stream MP4 from a host without byte-range support */
+(() => {
+  for (const v of document.querySelectorAll('video[data-mp4]')) {
+    const webm = v.canPlayType('video/webm; codecs="vp9"') && !/^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    const url = webm ? v.dataset.webm : v.dataset.mp4;
+    const start = src => { v.src = src; v.muted = true; const p = v.play(); if (p) p.catch(() => {}); };
+    fetch(url).then(r => { if (!r.ok) throw 0; return r.blob(); })
+      .then(b => start(URL.createObjectURL(b.type ? b : new Blob([b], { type: webm ? 'video/webm' : 'video/mp4' }))))
+      .catch(() => start(url));
+    // Some browsers pause offscreen or background videos; resume when it comes back into view
+    new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && v.paused && v.src) v.play().catch(() => {}); })).observe(v);
+  }
+})();
+</script>
+
 
 <style>
 /* Language pills */
