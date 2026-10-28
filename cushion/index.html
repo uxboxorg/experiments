@@ -841,7 +841,8 @@ button.row[disabled] { cursor: default; }
 .card-media.g-iceland.photo-japan { isolation: isolate; }
 .card-media.g-iceland.photo-japan::before { content: ""; position: absolute; inset: 0; z-index: -2; background: url(japan.jpg) right 40% / auto 135% no-repeat; filter: brightness(1.18) saturate(1.05); }
 .card-media.g-iceland.photo-japan::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--card) 28%, color-mix(in srgb, var(--card) 62%, transparent) 58%, color-mix(in srgb, var(--card) 38%, transparent) 100%); }
-.card-media.g-iceland.photo-japan .card-chev { opacity: 1; color: var(--label); }
+.card-media.g-iceland .card-chev.inline { opacity: 1; }
+.card-media.g-iceland .card-chev.inline svg { color: var(--accent) !important; }
 /* Goal cards: the arrow sits level with the goal icon */
 .goal-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .card-chev.inline { position: static; flex: none; margin-right: 2px; }
