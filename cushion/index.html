@@ -2879,7 +2879,7 @@ function savingsSection() {
 }
 
 /* ---------------- Chat ---------------- */
-const suggestions = () => { const g = fixGoal(); return ['Can I afford a €600 flight in March?', 'Why is eating out up this month?', g ? `When will I reach the ${g.name} goal?` : 'Should I start a savings goal?', 'I spent €12 cash at the market', 'What does One-off do on a transaction?']; };
+const suggestions = () => { const g = fixGoal(); return ['Can I afford a €600 flight in March?', 'Why is eating out up this month?', g ? `When will I reach the ${g.name} goal?` : 'Should I start a savings goal?', 'What does One-off do on a transaction?']; };
 const TAB_NAMES = { today: 'Home', money: 'Money', accounts: 'Accounts' };
 const chatBack = () => `<button class="circle-btn glass" data-act="chat-back" aria-label="Back to ${TAB_NAMES[S.prevTab] || 'Home'}">${I.back}</button>`;
 function renderChat() {
@@ -3463,7 +3463,7 @@ function reply(q) {
       sf.limitedByCash ? `After pay day the flight no longer competes with this stretch.` : `Wait until then and you keep your full ${eur(sf.safe, 2)} a day.`] });
   }
   if (/\b(eat|eating|ate|coffee|bonanza|café|cafe|cafes|restaurants?|dining)\b/.test(s)) {
-    return { title: 'Eating out', emoji: 'coffee', paras: categoryAnswer(spendOf('eat')), widget: { type: 'cat', cat: 'eat' }, chips: ['How are my groceries?', 'I spent €12 cash at the market'] };
+    return { title: 'Eating out', emoji: 'coffee', paras: categoryAnswer(spendOf('eat')), widget: { type: 'cat', cat: 'eat' }, chips: ['How are my groceries?', 'What does One-off do on a transaction?'] };
   }
   if (/\brent\b/.test(s)) {
     const c = spendOf('rent'), bill = billById('rent');
@@ -3499,7 +3499,7 @@ function reply(q) {
       ? `You can spend ${eur(sf.safe, 2)} today. Your budget allows ${eur(sf.budget, 2)}, but I held it back so ${cashWord()} ${cashWord() === 'your current account' ? "doesn't" : "don't"} drop below ${eur(S.comfort)} before pay day.`
       : `You can spend ${eur(sf.safe, 2)} today. That's your flexible budget for the day, and ${cashWord()} ${cashStay()} above ${eur(S.comfort)} until pay day.`] };
   }
-  return { title: 'Your question', emoji: 'message-circle', chips: ['Can I afford a €600 flight in March?', 'Put €50 towards Japan', 'I spent €12 cash at the market'], paras: ['I can help with purchases, bills and goals, and I can set things up for you to confirm. Try a €600 flight, the dental bill, eating out, “put €50 towards Japan” or “I spent €12 cash at the market”.'] };
+  return { title: 'Your question', emoji: 'message-circle', chips: ['Can I afford a €600 flight in March?', 'Put €50 towards Japan', 'How much is safe to spend today?'], paras: ['I can help with purchases, bills and goals, and I can set things up for you to confirm. Try a €600 flight, the dental bill, eating out, “put €50 towards Japan” or “I spent €12 cash at the market”.'] };
 }
 
 /* ---------------- Chat widgets: drafts you confirm, answer cards with a next step, follow-up chips ---------------- */
