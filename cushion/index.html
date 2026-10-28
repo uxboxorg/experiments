@@ -2004,7 +2004,7 @@ function comfortMax(fc = forecast()) {
 function safeWithComfort(c) { const old = S.comfort; S.comfort = c; const sf = safety(); S.comfort = old; return sf.safe; }
 const comfortTooHigh = m => m.lo < 0
   ? `Your current account goes below zero ${onDay(m.day)} before pay day, even with no everyday spending, so a comfort line can't be kept this month. Set it to €0 for now.`
-  : `Too high. Even with no everyday spending, your current account dips to ${eur(m.max)} ${onDay(m.day)} before pay day, so the most you can set is ${eur(m.max)}.`;
+  : `Too high. Even with no everyday spending, your current account dips to ${eur(m.lo, 2)} ${onDay(m.day)} before pay day, so the most you can set is ${eur(m.max)}.`;
 function comfortPage() {
   return `<div class="nav"><button class="pill glass" data-act="back">Cancel</button><button class="pill glass" data-act="comfort-save"><b>Save</b></button></div>
     <div class="auth">

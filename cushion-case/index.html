@@ -212,7 +212,16 @@ p { margin: 0; }
 .ts-name { font-size: 13px; color: var(--ink); display: grid; gap: 2px; }
 .ts-name em { font-style: normal; color: var(--muted); font-variant-numeric: tabular-nums; }
 .ts-demo { color: var(--ink); line-height: 1.15; min-width: 0; overflow-wrap: anywhere; }
-.money-type { align-content: space-between; gap: 20px; }
+.money-type { align-content: space-between; gap: 28px; }
+.mt-rows { display: grid; font-family: var(--sf); font-size: 15px; }
+.mt-rows div { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0; border-top: 1px solid rgba(255, 255, 255, .1); color: #B9C7C1; }
+.mt-rows b { font-family: var(--sans); font-weight: 500; color: #fff; font-variant-numeric: tabular-nums; }
+.mt-rows b.in { color: var(--lime); }
+.tf { display: grid; gap: 12px; align-content: center; align-self: stretch; padding-bottom: 24px; }
+.tf + .tf { border-top: 1px solid var(--line); padding: 24px 0 0; }
+.tf .aa { font-size: 88px; }
+.tf h3 { font-size: 24px; font-weight: 400; margin: 0 0 4px; }
+.tf.sf, .tf.sf h3, .tf.sf .aa, .tf.sf .small { font-family: var(--sf); }
 .money-type .cap { font-size: 15px; font-weight: 500; font-family: var(--sf); }
 .big-num { font-size: 88px; font-weight: 500; letter-spacing: -.03em; line-height: 1; color: #fff; }
 .big-num .cur { font-size: .32em; vertical-align: .95em; font-weight: 400; margin-right: 4px; letter-spacing: .02em; opacity: .9; }
@@ -397,7 +406,7 @@ p { margin: 0; }
 .intro-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 60px 28px 26px; color: #fff; background: linear-gradient(0deg, rgba(12, 26, 24, .85), transparent); display: grid; gap: 6px; }
 .intro-cap h3 { font-size: 20px; font-weight: 500; }
 .intro-cap p { font-size: 13px; line-height: 1.5; color: #D3DFDA; max-width: 46ch; }
-@media (max-width: 760px) { .intro-grid { grid-template-columns: 1fr; } .intro-card, .intro-shot { min-height: 460px; } .intro-card { padding: 22px; } }
+@media (max-width: 760px) { .intro-grid { grid-template-columns: 1fr; } .intro-shot { min-height: 460px; } .intro-card { min-height: 0; padding: 32px 22px; } }
 </style>
 
 <!-- The Cushion mark, drawn once and reused -->
@@ -467,7 +476,7 @@ p { margin: 0; }
         <div class="float" style="right:14px;bottom:14px"><span class="k">Current account</span><span class="v" style="font-size:22px">€7,412.36</span><span class="k">Rent and insurance due in 8 days</span></div>
       </div>
       <div class="card" style="padding:24px;gap:18px;align-content:space-between">
-        <div style="display:grid;gap:10px"><span class="label">Lena, before Cushion</span>
+        <div style="display:grid;gap:10px"><span class="label">Before Cushion</span>
         <p class="quote">“I’m fine most of the month. It’s the <em>week before pay day</em> I can’t read.”</p></div>
         <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="chip" style="background:#EFF1EC;color:var(--body)">Bills land together</span><span class="chip" style="background:#EFF1EC;color:var(--body)">Buffer lives in her head</span><span class="chip" style="background:#EFF1EC;color:var(--body)">Forgotten subscriptions</span></div>
       </div>
@@ -658,16 +667,16 @@ p { margin: 0; }
       </div>
     </div>
     <div class="grid ty-grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1.4fr)">
-      <div class="card type-card" style="padding:28px;grid-template-columns:1fr;align-content:space-between;gap:28px">
-        <div style="display:grid;gap:10px">
+      <div class="card type-card" style="padding:28px;grid-template-columns:1fr;grid-template-rows:1fr 1fr;gap:0">
+        <div class="tf">
           <span class="aa">Aa</span>
-          <h3 style="font-size:28px;font-weight:400">General Sans</h3>
-          <p class="small">Screen titles, amounts and buttons.</p>
+          <div><h3>General Sans</h3><p class="small">Screen titles, amounts and buttons.</p></div>
           <div class="weights"><span style="font-weight:400">Regular</span><span style="font-weight:500">Medium</span></div>
         </div>
-        <div style="display:grid;gap:10px;border-top:1px solid var(--line);padding-top:24px;font-family:var(--sf)">
-          <h3 style="font-size:28px;font-weight:400;font-family:var(--sf)">SF Pro</h3>
-          <p class="small" style="font-family:var(--sf)">Everything else. Scales with Dynamic Type.</p>
+        <div class="tf sf">
+          <span class="aa">Aa</span>
+          <div><h3>SF Pro</h3><p class="small">Everything else. Scales with Dynamic Type.</p></div>
+          <div class="weights"><span style="font-weight:400">Regular</span><span style="font-weight:600">Semibold</span></div>
         </div>
       </div>
       <div class="card ts" style="padding:8px 24px"><div class="ts-row"><span class="ts-name">Large title<em>34 / 500 · General Sans</em></span><span class="ts-demo" style="font-size:34px;font-weight:500;letter-spacing:-.02em">Screen titles</span></div><div class="ts-row"><span class="ts-name">Title<em>22 / 500 · General Sans</em></span><span class="ts-demo" style="font-size:22px;font-weight:500;letter-spacing:-.01em">Sheet and card titles</span></div><div class="ts-row"><span class="ts-name">Amount<em>17 / 500 · General Sans</em></span><span class="ts-demo" style="font-size:17px;font-weight:500;font-variant-numeric:tabular-nums">€1,340.00</span></div><div class="ts-row"><span class="ts-name">Headline<em>17 / 600 · SF Pro</em></span><span class="ts-demo" style="font-family:var(--sf);font-size:17px;font-weight:600">Row titles</span></div><div class="ts-row"><span class="ts-name">Body<em>17 / 400 · SF Pro</em></span><span class="ts-demo" style="font-family:var(--sf);font-size:17px">Advisor answers, settings</span></div><div class="ts-row"><span class="ts-name">Subhead<em>15 / 400 · SF Pro</em></span><span class="ts-demo" style="font-family:var(--sf);font-size:15px">Transaction details</span></div><div class="ts-row"><span class="ts-name">Footnote<em>13 / 400 · SF Pro</em></span><span class="ts-demo" style="font-family:var(--sf);font-size:13px">Dates, hints under fields</span></div><div class="ts-row"><span class="ts-name">Caption<em>12 / 500 · SF Pro</em></span><span class="ts-demo" style="font-family:var(--sf);font-size:12px;font-weight:500">Labels on charts and pills</span></div></div>
@@ -676,6 +685,11 @@ p { margin: 0; }
       <div class="card money-type" style="padding:28px;background:var(--night);color:#fff">
         <span class="cap" style="color:var(--lime)">Safe to spend today</span>
         <span class="big-num"><span class="cur">€</span>88<span class="cents">.05</span></span>
+        <div class="mt-rows">
+          <div><span>REWE</span><b>−€48.20</b></div>
+          <div><span>Miete Oktober</span><b>−€1,150.00</b></div>
+          <div><span>Gehalt</span><b class="in">+€3,482.00</b></div>
+        </div>
       </div>
       <div class="card" style="padding:28px">
         <span class="pill-aa">WCAG 2.1 AA</span>
