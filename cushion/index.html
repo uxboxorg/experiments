@@ -4873,6 +4873,34 @@ const i18nObs = new MutationObserver(recs => {
 });
 i18nObs.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
 locTree(document.body);
+function playAnim(img) {
+  // Some viewers (the Claude desktop app's preview) freeze animated images and video; drawing each frame onto a canvas still animates
+  if (img.dataset.anim || !('ImageDecoder' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  img.dataset.anim = '1';
+  fetch(img.currentSrc || img.src).then(r => r.arrayBuffer()).then(async buf => {
+    const dec = new ImageDecoder({ data: buf, type: 'image/webp' });
+    await dec.tracks.ready;
+    const n = dec.tracks.selectedTrack.frameCount;
+    if (n < 2) return;
+    const c = document.createElement('canvas'), ctx = c.getContext('2d');
+    c.className = img.className;
+    if (img.alt) { c.setAttribute('role', 'img'); c.setAttribute('aria-label', img.alt); } else c.setAttribute('aria-hidden', 'true');
+    let i = 0, next = performance.now();
+    const step = async () => {
+      if (!c.isConnected && i) return dec.close();
+      const { image } = await dec.decode({ frameIndex: i });
+      if (!c.dataset.sized) { c.width = image.displayWidth; c.height = image.displayHeight; c.dataset.sized = '1'; }
+      ctx.drawImage(image, 0, 0);
+      if (!c.isConnected) img.replaceWith(c);
+      next += (image.duration || 40000) / 1000; image.close();
+      i = (i + 1) % n;
+      setTimeout(step, Math.max(0, next - performance.now()));
+    };
+    step();
+  }).catch(() => {});
+}
+new MutationObserver(() => document.querySelectorAll('img.welcome-video').forEach(playAnim)).observe(document.body, { subtree: true, childList: true });
+document.querySelectorAll('img.welcome-video').forEach(playAnim);
 /* Big numbers: General Sans's comma and point are heavy and get squeezed by the tight tracking, so separators get their own lighter style */
 function sepWrap(num) {
   for (const n of [...num.childNodes]) {
