@@ -10,7 +10,7 @@
   --paper: #F1F2EE;      /* page */
   --card: #FFFFFF;       /* cards on paper */
   --ink: #121410;        /* text */
-  --muted: #8A8F86;      /* second half of headlines, captions */
+  --muted: #666C63;      /* second half of headlines, captions */
   --body: #5B6158;       /* running text */
   --line: #DFE2DA;
   --forest: #1A3A0A;     /* brand */
@@ -107,7 +107,7 @@ p { margin: 0; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 500; letter-spacing: -.01em; }
 .brand .mark { width: 30px; height: 30px; color: var(--lime); }
 .tags { display: flex; gap: 6px; flex-wrap: wrap; }
-.tags span { height: 30px; padding: 0 13px; border-radius: 99px; display: inline-flex; align-items: center; font-size: 13px; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .14); }
+.tags span { height: 30px; padding: 0 13px; border-radius: 99px; display: inline-flex; align-items: center; font-size: 13px; background: rgba(12, 26, 24, .55); border: 1px solid rgba(255, 255, 255, .18); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .hero h1 { font-size: clamp(40px, 5.6vw, 56px); line-height: 1.02; letter-spacing: -.035em; font-weight: 400; }
 .hero h1 .soft { color: #8FA59D; }
 .ask { display: grid; gap: 4px; max-width: 250px; margin-bottom: 26px; padding: 12px 14px; border-radius: 14px; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .18); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); font-size: 13px; }
@@ -347,7 +347,7 @@ p { margin: 0; }
     <div class="inner">
       <div class="top">
         <span class="brand"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg>Cushion</span>
-        <span class="tags"><span>Fintech</span><span>iOS app</span><span>AI coach</span><span>2026</span></span>
+        <span class="tags"><span>Fintech</span><span>iOS app</span><span>AI Advisor</span><span>2026</span></span>
       </div>
       <div>
         <div class="ask"><b><svg width="14" height="14" aria-hidden="true"><use href="#spark"/></svg>Ask Cushion</b><span>“Can I afford a €600 flight in March?”</span></div>
@@ -364,7 +364,7 @@ p { margin: 0; }
     <div class="head">
       <div class="label">Introduction<span class="n">01 / 12</span></div>
       <div>
-        <p class="big"><b>Cushion</b> is an AI budgeting app for people on a salary who juggle a few accounts and bills that land at awkward times. It <span class="soft">works out what is safe to spend today,</span> and a coach you can ask turns every answer into a next step.</p>
+        <p class="big"><b>Cushion</b> is an AI budgeting app for people on a salary who juggle a few accounts and bills that land at awkward times. It <span class="soft">works out what is safe to spend today,</span> and an advisor you can ask turns every answer into a next step.</p>
         <div class="grid g3" style="margin-top:32px">
           <div class="stat"><span class="v">€88.05</span><span class="small">safe to spend today, after every bill before pay day</span></div>
           <div class="stat"><span class="v">5 answer cards</span><span class="small">afford, split, transfer, category and goal, each with one action</span></div>
@@ -385,7 +385,7 @@ p { margin: 0; }
     <div class="head">
       <div class="label">The problem<span class="n">02 / 12</span></div>
       <div>
-        <h2>Your balance doesn’t include<br><span class="soft">upcoming bills.</span></h2>
+        <h2>Your balance doesn’t include upcoming bills.</h2>
         <p class="lede">A balance shows what is there today. It says nothing about rent on the 1st, car insurance on the 2nd or the salary on the 22nd. So people keep a buffer in their head, and still get caught out.</p>
       </div>
     </div>
@@ -408,7 +408,7 @@ p { margin: 0; }
     <div class="map">
       <a href="#f1"><span class="p">“My balance doesn’t know rent is coming.”</span><span class="to" aria-hidden="true">→</span><span class="f">Safe to spend <span><i>Feature 01</i></span></span></a>
       <a href="#f2"><span class="p">“Two big bills land on the same week.”</span><span class="to" aria-hidden="true">→</span><span class="f">The month ahead <span><i>Feature 02</i></span></span></a>
-      <a href="#f3"><span class="p">“Charts show what happened, not what to do.”</span><span class="to" aria-hidden="true">→</span><span class="f">AI coach <span><i>Feature 03</i></span></span></a>
+      <a href="#f3"><span class="p">“Charts show what happened, not what to do.”</span><span class="to" aria-hidden="true">→</span><span class="f">AI Advisor <span><i>Feature 03</i></span></span></a>
       <a href="#f4"><span class="p">“I don’t want an app moving my money.”</span><span class="to" aria-hidden="true">→</span><span class="f">Bank approval <span><i>Feature 04</i></span></span></a>
       <a href="#f5"><span class="p">“Money leaks where I never look.”</span><span class="to" aria-hidden="true">→</span><span class="f">Fixes <span><i>Feature 05</i></span></span></a>
       <a href="#f6"><span class="p">“Saving feels like admin.”</span><span class="to" aria-hidden="true">→</span><span class="f">Savings goals <span><i>Feature 06</i></span></span></a>
@@ -467,7 +467,7 @@ p { margin: 0; }
     <div class="pf"><div class="prob"><span class="k">The problem</span><p>A balance doesn’t know rent is due on the 1st. People have to subtract upcoming bills in their head.</p></div><div class="sol"><span class="k">What Cushion does</span><p>Every bill and transfer before pay day comes off first. What’s left, spread over the days to pay day, is safe to spend today.</p></div></div>
     <div class="phones glow"><div class="phone"><img src="img/home.webp" alt="Home with €88.05 safe to spend"><span class="step">1 See today’s number</span></div><div class="phone up"><img src="img/comfort-ok.webp" alt="Comfort line editor showing the effect on today"><span class="step">2 Set your comfort line</span></div><div class="phone"><img src="img/comfort-error.webp" alt="Comfort line editor refusing a line that is too high"><span class="step">3 Know when it can’t hold</span></div></div>
     
-    <div class="feats"><div><h3>Bills already counted</h3><p class="small">Rent, insurance, transfers and the salary on the 22nd are all in the number.</p></div><div><h3>A comfort line you choose</h3><p class="small">Type the balance you never want to go below. Cushion keeps you above it until pay day.</p></div><div><h3>Ask why</h3><p class="small">The sparkle on the card asks the coach to explain today’s number in plain words.</p></div></div>
+    <div class="feats"><div><h3>Bills already counted</h3><p class="small">Rent, insurance, transfers and the salary on the 22nd are all in the number.</p></div><div><h3>A comfort line you choose</h3><p class="small">Type the balance you never want to go below. Cushion keeps you above it until pay day.</p></div><div><h3>Ask why</h3><p class="small">The sparkle on the card asks the advisor to explain today’s number in plain words.</p></div></div>
   </div>
 </section>
 <section class="" id="f2">
@@ -486,9 +486,9 @@ p { margin: 0; }
   <div class="wrap">
     <div class="head">
       <div class="label">Feature 03<span class="n">06 / 12</span></div>
-      <h2>AI coach<span class="sub">Answers that end in a card you can act on.</span></h2>
+      <h2>AI Advisor<span class="sub">Answers that end in a card you can act on.</span></h2>
     </div>
-    <div class="pf"><div class="prob"><span class="k">The problem</span><p>Charts show what happened. People still have to work out what to do next.</p></div><div class="sol"><span class="k">What Cushion does</span><p>Ask in your own words. The coach answers in plain language, then ends with a card that holds the live numbers and one action.</p></div></div>
+    <div class="pf"><div class="prob"><span class="k">The problem</span><p>Charts show what happened. People still have to work out what to do next.</p></div><div class="sol"><span class="k">What Cushion does</span><p>Ask in your own words. The advisor answers in plain language, then ends with a card that holds the live numbers and one action.</p></div></div>
     <div class="phones glow"><div class="phone"><img src="img/chat-empty.webp" alt="Chat with suggested questions"><span class="step">1 Ask in your own words</span></div><div class="phone lg up"><img src="img/chat-flight.webp" alt="Answer about a €600 flight with an afford card"><span class="step">2 Get the answer and why</span></div><div class="phone"><img src="img/chat-dental.webp" alt="Answer that splits a dental bill across pay day"><span class="step">3 Act on it in the card</span></div></div>
     <div class="answers">
       <figure><img src="img/w-flight.webp" alt="Afford card"><figcaption><b>Can I afford it?</b>When it fits, and when it doesn’t</figcaption></figure>
@@ -598,12 +598,12 @@ p { margin: 0; }
       </div>
     </div>
     <div class="grid g3">
-      <div class="comp"><div class="stage night"><img src="img/safe-card.webp" alt="Safe to spend card showing €88.05"></div><div class="txt"><h3>Safe-to-spend card</h3><p class="small">One number, the days to pay day and the comfort line. The sparkle asks the coach why.</p></div></div>
+      <div class="comp"><div class="stage night"><img src="img/safe-card.webp" alt="Safe to spend card showing €88.05"></div><div class="txt"><h3>Safe-to-spend card</h3><p class="small">One number, the days to pay day and the comfort line. The sparkle asks the advisor why.</p></div></div>
       <div class="comp"><div class="stage"><img src="img/w-dental.webp" alt="Answer card that splits a dental bill with a slider"></div><div class="txt"><h3>Answer card</h3><p class="small">Live numbers you can adjust, with the effect on your line shown as you drag.</p></div></div>
       <div class="comp"><div class="stage"><img src="img/action-card.webp" alt="Suggestion card to move €1,200 into savings"></div><div class="txt"><h3>Suggestion card</h3><p class="small">One finding, the reason and a single action. Swipe through them on Home.</p></div></div>
       <div class="comp"><div class="stage"><img src="img/goal-card.webp" alt="Japan goal card with a photo of a pagoda"></div><div class="txt"><h3>Goal card</h3><p class="small">Progress at a glance, with a cover photo you choose. The photo fades so the text stays readable.</p></div></div>
       <div class="comp"><div class="stage"><img src="img/coming-card.webp" alt="Coming up card with pay day and the thinnest moment"></div><div class="txt"><h3>Coming up card</h3><p class="small">Pay day and the lowest point before it, in plain words.</p></div></div>
-      <div class="comp"><div class="stage"><img src="img/w-move.webp" alt="Transfer draft card with Confirm and Edit buttons"></div><div class="txt"><h3>Draft card</h3><p class="small">Every action the coach suggests starts as a draft. Confirm hands it to your bank.</p></div></div>
+      <div class="comp"><div class="stage"><img src="img/w-move.webp" alt="Transfer draft card with Confirm and Edit buttons"></div><div class="txt"><h3>Draft card</h3><p class="small">Every action the advisor suggests starts as a draft. Confirm hands it to your bank.</p></div></div>
     </div>
   </div>
 </section>
@@ -616,8 +616,6 @@ p { margin: 0; }
       <div style="display:grid;gap:18px">
         <span class="brand"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg>Cushion</span>
         <h2>Thanks for reading.</h2>
-        <p class="lede">To talk about a project, message me through this profile.</p>
-        <p class="credit">Photos from Pexels.</p>
       </div>
       <div style="display:grid;gap:10px;justify-items:center"><span class="app-icon"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg></span><span class="small">Cushion</span></div>
     </div>
