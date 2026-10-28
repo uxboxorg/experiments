@@ -837,7 +837,10 @@ button.row[disabled] { cursor: default; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .card-media.g-iceland .logo-tile { background: #2F5A1A !important; } }
 
 /* Japan goal card: photo on the right, fading into the card colour behind the text */
-.card-media.g-iceland.photo-japan { background: linear-gradient(90deg, var(--card) 28%, color-mix(in srgb, var(--card) 62%, transparent) 58%, color-mix(in srgb, var(--card) 38%, transparent) 100%), url(japan.jpg) right 40% / auto 135% no-repeat, var(--card) !important; }
+/* The photo sits on its own layer so it can be brightened; the fade sits on top of it */
+.card-media.g-iceland.photo-japan { isolation: isolate; }
+.card-media.g-iceland.photo-japan::before { content: ""; position: absolute; inset: 0; z-index: -2; background: url(japan.jpg) right 40% / auto 135% no-repeat; filter: brightness(1.18) saturate(1.05); }
+.card-media.g-iceland.photo-japan::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--card) 28%, color-mix(in srgb, var(--card) 62%, transparent) 58%, color-mix(in srgb, var(--card) 38%, transparent) 100%); }
 .card-media.g-iceland.photo-japan .card-chev { opacity: 1; color: var(--label); }
 /* Goal cards: the arrow sits level with the goal icon */
 .goal-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
