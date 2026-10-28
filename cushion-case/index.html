@@ -25,6 +25,7 @@
   --night-line: rgba(255, 255, 255, .12);
   --night-muted: #8FA59D;
   --mint: #8EEADB;
+  --sf: -apple-system, BlinkMacSystemFont, "SF Pro Text", "General Sans", "Helvetica Neue", Arial, sans-serif;
   --sans: "General Sans", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   color-scheme: light;
 }
@@ -212,7 +213,7 @@ p { margin: 0; }
 .ts-name em { font-style: normal; color: var(--muted); font-variant-numeric: tabular-nums; }
 .ts-demo { color: var(--ink); line-height: 1.15; min-width: 0; overflow-wrap: anywhere; }
 .money-type { align-content: space-between; gap: 20px; }
-.money-type .cap { font-size: 15px; font-weight: 500; }
+.money-type .cap { font-size: 15px; font-weight: 500; font-family: var(--sf); }
 .big-num { font-size: 88px; font-weight: 500; letter-spacing: -.03em; line-height: 1; color: #fff; }
 .big-num .cur { font-size: .32em; vertical-align: .95em; font-weight: 400; margin-right: 4px; letter-spacing: .02em; opacity: .9; }
 .big-num .cents { font-size: 22px; vertical-align: 4px; margin-left: -3px; letter-spacing: normal; opacity: .9; }
@@ -381,7 +382,7 @@ p { margin: 0; }
 .intro-tag svg { color: var(--forest); }
 .intro-quote { align-self: center; font-size: clamp(24px, 3vw, 32px); line-height: 1.45; letter-spacing: -.02em; font-weight: 500; color: var(--ink); }
 .intro-quote .qm { color: var(--forest); font-size: 1.4em; line-height: 0; display: inline-block; height: 0; vertical-align: -.15em; margin-right: 6px; font-weight: 700; }
-.ic { display: inline-grid; place-items: center; width: 1.2em; height: 1.2em; border-radius: .32em; vertical-align: -.22em; margin: -.3em 2px; }
+.ic { display: inline-grid; place-items: center; width: 1.2em; height: 1.2em; border-radius: .32em; vertical-align: -.22em; margin: -.3em 2px; position: relative; top: -.23em; }
 .ic svg { width: .7em; height: .7em; }
 .ic.dark { background: var(--ink); color: #fff; }
 .ic.lime { background: var(--lime); color: var(--forest); }
@@ -435,7 +436,7 @@ p { margin: 0; }
     <div class="label" style="margin-bottom:20px">Introduction<span class="n">01 / 14</span></div>
     <div class="intro-grid">
       <div class="intro-card">
-        <p class="intro-quote"><span class="qm" aria-hidden="true">”</span>Most budgeting apps show where money <span class="ic emoji" aria-hidden="true"><i>💸</i></span> went. <span class="ic forest" aria-hidden="true"><svg viewBox="0 0 512 512"><use href="#cush"/></svg></span> Cushion tells you what is safe to spend today and an AI advisor <span class="ic forest" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#spark"/></svg></span> helps with every money decision.</p>
+        <p class="intro-quote"><span class="qm" aria-hidden="true">“</span>Most budgeting apps show where money <span class="ic emoji" aria-hidden="true"><i>💸</i></span> went. <span class="ic forest" aria-hidden="true"><svg viewBox="0 0 512 512"><use href="#cush"/></svg></span> Cushion tells you what is safe to spend today and an AI advisor <span class="ic forest" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#spark"/></svg></span> helps with every money decision.</p>
       </div>
       <div class="intro-shot">
         <video class="mock-video" autoplay muted loop playsinline preload="auto" poster="img/mockup-poster.webp" aria-label="Cushion welcome screen on an iPhone"><source src="img/mockup.webm" type="video/webm"><source src="img/mockup.mp4" type="video/mp4"></video>
@@ -653,18 +654,23 @@ p { margin: 0; }
     <div class="head">
       <div class="label">Typography<span class="n">12 / 14</span></div>
       <div>
-        <h2>Typography<span class="sub">One typeface, iOS text sizes.</span></h2>
+        <h2>Typography<span class="sub">General Sans for titles and money, SF Pro for reading.</span></h2>
       </div>
     </div>
     <div class="grid ty-grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1.4fr)">
-      <div class="card type-card" style="padding:28px;grid-template-columns:1fr;align-content:space-between">
-        <span class="aa">Aa</span>
-        <div style="display:grid;gap:12px">
+      <div class="card type-card" style="padding:28px;grid-template-columns:1fr;align-content:space-between;gap:28px">
+        <div style="display:grid;gap:10px">
+          <span class="aa">Aa</span>
           <h3 style="font-size:28px;font-weight:400">General Sans</h3>
+          <p class="small">Screen titles, amounts and buttons.</p>
           <div class="weights"><span style="font-weight:400">Regular</span><span style="font-weight:500">Medium</span><span style="font-weight:600">Semi Bold</span></div>
         </div>
+        <div style="display:grid;gap:10px;border-top:1px solid var(--line);padding-top:24px;font-family:var(--sf)">
+          <h3 style="font-size:28px;font-weight:400;font-family:var(--sf)">SF Pro</h3>
+          <p class="small" style="font-family:var(--sf)">Everything you read. Scales with Dynamic Type.</p>
+        </div>
       </div>
-      <div class="card ts" style="padding:8px 24px"><div class="ts-row"><span class="ts-name">Large title<em>34 / 600</em></span><span class="ts-demo" style="font-size:34px;font-weight:600;letter-spacing:-.02em">Screen titles</span></div><div class="ts-row"><span class="ts-name">Title<em>22 / 600</em></span><span class="ts-demo" style="font-size:22px;font-weight:600;letter-spacing:-.01em">Sheet and card titles</span></div><div class="ts-row"><span class="ts-name">Headline<em>17 / 600</em></span><span class="ts-demo" style="font-size:17px;font-weight:600">Row titles, buttons</span></div><div class="ts-row"><span class="ts-name">Body<em>17 / 400</em></span><span class="ts-demo" style="font-size:17px">Advisor answers, settings</span></div><div class="ts-row"><span class="ts-name">Subhead<em>15 / 400</em></span><span class="ts-demo" style="font-size:15px">Transaction details</span></div><div class="ts-row"><span class="ts-name">Footnote<em>13 / 400</em></span><span class="ts-demo" style="font-size:13px">Dates, hints under fields</span></div><div class="ts-row"><span class="ts-name">Caption<em>12 / 500</em></span><span class="ts-demo" style="font-size:12px;font-weight:500">Labels on charts and pills</span></div></div>
+      <div class="card ts" style="padding:8px 24px"><div class="ts-row"><span class="ts-name">Large title<em>34 / 600 · General Sans</em></span><span class="ts-demo" style="font-size:34px;font-weight:600;letter-spacing:-.02em">Screen titles</span></div><div class="ts-row"><span class="ts-name">Title<em>22 / 600 · General Sans</em></span><span class="ts-demo" style="font-size:22px;font-weight:600;letter-spacing:-.01em">Sheet and card titles</span></div><div class="ts-row"><span class="ts-name">Amount<em>17 / 500 · General Sans</em></span><span class="ts-demo" style="font-size:17px;font-weight:500;font-variant-numeric:tabular-nums">€1,340.00</span></div><div class="ts-row"><span class="ts-name">Headline<em>17 / 600 · SF Pro</em></span><span class="ts-demo" style="font-family:var(--sf);font-size:17px;font-weight:600">Row titles</span></div><div class="ts-row"><span class="ts-name">Body<em>17 / 400 · SF Pro</em></span><span class="ts-demo" style="font-family:var(--sf);font-size:17px">Advisor answers, settings</span></div><div class="ts-row"><span class="ts-name">Subhead<em>15 / 400 · SF Pro</em></span><span class="ts-demo" style="font-family:var(--sf);font-size:15px">Transaction details</span></div><div class="ts-row"><span class="ts-name">Footnote<em>13 / 400 · SF Pro</em></span><span class="ts-demo" style="font-family:var(--sf);font-size:13px">Dates, hints under fields</span></div><div class="ts-row"><span class="ts-name">Caption<em>12 / 500 · SF Pro</em></span><span class="ts-demo" style="font-family:var(--sf);font-size:12px;font-weight:500">Labels on charts and pills</span></div></div>
     </div>
     <div class="grid ty-grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);margin-top:12px">
       <div class="card money-type" style="padding:28px;background:var(--night);color:#fff">

@@ -15,7 +15,7 @@
 <style>
 /* Layout: a portfolio stage with a short case-study column beside a live iPhone. On phones the app fills the screen and the notes follow below. */
 :root {
-  --font: "General Sans", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "General Sans", "Helvetica Neue", Arial, sans-serif;
   --font-num: "General Sans", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
 
   /* Portfolio page around the device */
@@ -168,7 +168,7 @@ svg { display: block; }
   display: flex; align-items: center; justify-content: space-between;
   padding: 6px 34px 0 46px; pointer-events: none;
   color: var(--bar-ink); transition: color .3s;
-  font-family: var(--font-num); font-weight: 600; font-size: 16px; letter-spacing: -.01em;
+  font-family: var(--font); font-weight: 600; font-size: 16px; letter-spacing: -.01em;
 }
 .app[data-bar="light"] .statusbar { color: #FFFFFF; }
 .statusbar .icons { display: flex; gap: 6px; align-items: center; }
@@ -654,6 +654,8 @@ button.row[disabled] { cursor: default; }
 /* Type: heavy, tight display face for titles and figures */
 .large-title, .detail h1, .page-title, .chat-title h1, .sheet h2 { font-family: var(--display); font-weight: 800; letter-spacing: -.03em; }
 .num { font-family: var(--display); font-weight: 700; letter-spacing: -.04em; }
+/* Type split: General Sans for titles, amounts and buttons; SF Pro (system) for everything you read */
+.btn, .pill, .row .v:not(.s-val) { font-family: var(--display); }
 .greet { font-family: var(--display); font-weight: 700; color: var(--label); letter-spacing: -.02em; }
 .greet .sub { color: var(--label2); opacity: 1; font-weight: 600; }
 .greet .avatar { box-shadow: 0 0 0 2px var(--lime); }
