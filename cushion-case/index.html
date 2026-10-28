@@ -632,14 +632,14 @@ p { margin: 0; }
 
 /* Photo cover */
 .hero { position: relative; isolation: isolate; }
-.hero-photo { position: absolute; inset: 0; width: 100%; height: 100% !important; object-fit: cover; object-position: 80% 30%; z-index: -2; }
-.hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(12, 26, 24, .92) 0%, rgba(12, 26, 24, .7) 38%, rgba(12, 26, 24, .1) 70%, rgba(12, 26, 24, 0) 100%), linear-gradient(0deg, rgba(12, 26, 24, .55), transparent 45%); }
+.hero-photo { position: absolute; top: 0; bottom: 0; right: 0; left: auto; width: 70%; height: 100% !important; object-fit: cover; object-position: 75% 30%; z-index: -2; }
+.hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--night) 30%, rgba(12, 26, 24, .75) 45%, rgba(12, 26, 24, .15) 65%, rgba(12, 26, 24, 0) 100%), linear-gradient(0deg, rgba(12, 26, 24, .45), transparent 40%); }
 .hero .inner { grid-template-columns: minmax(0, 1fr); min-height: 640px; padding-block: 110px 64px; }
 .hero h1 .soft { color: #C9D8D2; }
 .credit { font-size: 12px; color: var(--night-muted); margin-top: 28px; }
 @media (max-width: 760px) {
   .hero .inner { min-height: 560px; padding-block: 28px 40px; align-content: space-between; }
-  .hero-photo { object-position: 85% 30%; }
+  .hero-photo { width: 100%; object-position: 85% 30%; }
   .hero::after { background: linear-gradient(0deg, rgba(12, 26, 24, .95) 10%, rgba(12, 26, 24, .45) 55%, rgba(12, 26, 24, .55) 100%); }
 }
 </style>
