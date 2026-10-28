@@ -342,9 +342,9 @@ p { margin: 0; }
 
 <!-- Hero -->
 <header class="hero">
+  <img class="hero-photo" src="img/cover.webp" alt="" aria-hidden="true">
   <div class="wrap">
     <div class="inner">
-      <div class="dither" aria-hidden="true"></div>
       <div class="top">
         <span class="brand"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg>Cushion</span>
         <span class="tags"><span>Fintech</span><span>iOS app</span><span>AI coach</span><span>2026</span></span>
@@ -353,16 +353,13 @@ p { margin: 0; }
         <div class="ask"><b><svg width="14" height="14" aria-hidden="true"><use href="#spark"/></svg>Ask Cushion</b><span>“Can I afford a €600 flight in March?”</span></div>
         <h1>Know what’s safe<br>to spend <span class="soft">today.</span></h1>
       </div>
-      <div class="shot">
-        <img src="img/home.webp" alt="Cushion home screen showing €88.05 safe to spend today, with two suggestions below" width="640" height="1340">
-      </div>
     </div>
   </div>
 </header>
 
 <main>
 <!-- 01 Intro -->
-<section class="intro" style="padding-top:150px">
+<section class="intro">
   <div class="wrap">
     <div class="head">
       <div class="label">Introduction<span class="n">01 / 12</span></div>
@@ -375,7 +372,6 @@ p { margin: 0; }
         </div>
         <dl class="meta">
           <div><dt>Platform</dt><dd>iOS mobile app</dd></div>
-          <div><dt>Role</dt><dd>Product Designer</dd></div>
           <div><dt>Scope</dt><dd>UX, UI, AI interactions, interactive prototype</dd></div>
         </dl>
       </div>
@@ -395,7 +391,7 @@ p { margin: 0; }
     </div>
     <div class="grid g2">
       <div class="photo">
-        <div class="ph-empty"><svg width="28" height="28" aria-hidden="true"><use href="#cam"/></svg><b>Pexels photo</b>Person checking a banking app, close up, low light</div>
+        <img class="ph" src="img/problem.webp" alt="Woman checking her phone on a city street" style="object-position:50% 30%">
         <div class="float" style="right:14px;bottom:14px"><span class="k">Current account</span><span class="v" style="font-size:22px">€7,412.36</span><span class="k">Rent and insurance due in 8 days</span></div>
       </div>
       <div class="card" style="padding:24px;gap:18px;align-content:space-between">
@@ -432,7 +428,7 @@ p { margin: 0; }
     </div>
     <div class="persona">
       <div class="photo">
-        <div class="ph-empty"><svg width="28" height="28" aria-hidden="true"><use href="#cam"/></svg><b>Pexels photo</b>Woman around 30 on her phone, warm indoor light</div>
+        <img class="ph" src="img/lena.webp" alt="Woman in a yellow raincoat looking at her phone by the water" style="object-position:47% 40%">
         <span class="who">Lena · 31 · Berlin</span>
       </div>
       <div style="display:grid;gap:18px;min-width:0">
@@ -451,12 +447,10 @@ p { margin: 0; }
     </div>
     <div class="grid g2" style="margin-top:24px">
       <div class="card" style="padding:12px;gap:14px">
-        <div class="photo" style="min-height:190px;border-radius:14px"><div class="ph-empty"><svg width="24" height="24" aria-hidden="true"><use href="#cam"/></svg><b>Pexels photo</b>Freelancer at a laptop in a café</div></div>
-        <div style="padding:0 8px 8px;display:grid;gap:8px"><h3 style="font-size:20px;font-weight:400">Jonas</h3><span class="cap">34 · Freelance designer · Leipzig</span><span class="small" style="color:var(--forest)">€2,000 to €5,500 a month, variable</span><p class="small" style="color:var(--ink);font-size:15px">“Some months are great. I need to know if this one is.”</p><div class="helps"><b>How Cushion helps</b>The forecast uses invoices that are actually due, not an average month.</div></div>
+        <div style="padding:8px;display:grid;gap:8px"><div class="pers"><img class="avatar" src="img/jonas.webp" alt="Jonas"><div><h3 style="font-size:20px;font-weight:400">Jonas</h3><span class="cap">34 · Freelance designer · Leipzig</span></div></div><span class="small" style="color:var(--forest)">€2,000 to €5,500 a month, variable</span><p class="small" style="color:var(--ink);font-size:15px">“Some months are great. I need to know if this one is.”</p><div class="helps"><b>How Cushion helps</b>The forecast uses invoices that are actually due, not an average month.</div></div>
       </div>
       <div class="card" style="padding:12px;gap:14px">
-        <div class="photo" style="min-height:190px;border-radius:14px"><div class="ph-empty"><svg width="24" height="24" aria-hidden="true"><use href="#cam"/></svg><b>Pexels photo</b>Nurse paying at a market stall</div></div>
-        <div style="padding:0 8px 8px;display:grid;gap:8px"><h3 style="font-size:20px;font-weight:400">Amira</h3><span class="cap">27 · Nurse on shifts · Hamburg</span><span class="small" style="color:var(--forest)">€2,700 a month, stable</span><p class="small" style="color:var(--ink);font-size:15px">“I take out cash and then it just disappears.”</p><div class="helps"><b>How Cushion helps</b>Cash withdrawals can be sorted into categories, so markets and taxis still count.</div></div>
+        <div style="padding:8px;display:grid;gap:8px"><div class="pers"><img class="avatar" src="img/amira.webp" alt="Amira"><div><h3 style="font-size:20px;font-weight:400">Amira</h3><span class="cap">27 · Nurse on shifts · Hamburg</span></div></div><span class="small" style="color:var(--forest)">€2,700 a month, stable</span><p class="small" style="color:var(--ink);font-size:15px">“I take out cash and then it just disappears.”</p><div class="helps"><b>How Cushion helps</b>Cash withdrawals can be sorted into categories, so markets and taxis still count.</div></div>
       </div>
     </div>
   </div>
@@ -623,8 +617,29 @@ p { margin: 0; }
         <span class="brand"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg>Cushion</span>
         <h2>Thanks for reading.</h2>
         <p class="lede">To talk about a project, message me through this profile.</p>
+        <p class="credit">Photos from Pexels.</p>
       </div>
       <div style="display:grid;gap:10px;justify-items:center"><span class="app-icon"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg></span><span class="small">Cushion</span></div>
     </div>
   </div>
 </section>
+
+<style>
+/* Persona avatars */
+.pers { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
+.pers > div { display: grid; gap: 2px; min-width: 0; }
+.avatar { width: 56px; height: 56px !important; border-radius: 50%; object-fit: cover; flex: none; }
+
+/* Photo cover */
+.hero { position: relative; isolation: isolate; }
+.hero-photo { position: absolute; inset: 0; width: 100%; height: 100% !important; object-fit: cover; object-position: 80% 30%; z-index: -2; }
+.hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(12, 26, 24, .92) 0%, rgba(12, 26, 24, .7) 38%, rgba(12, 26, 24, .1) 70%, rgba(12, 26, 24, 0) 100%), linear-gradient(0deg, rgba(12, 26, 24, .55), transparent 45%); }
+.hero .inner { grid-template-columns: minmax(0, 1fr); min-height: 640px; padding-block: 110px 64px; }
+.hero h1 .soft { color: #C9D8D2; }
+.credit { font-size: 12px; color: var(--night-muted); margin-top: 28px; }
+@media (max-width: 760px) {
+  .hero .inner { min-height: 560px; padding-block: 28px 40px; align-content: space-between; }
+  .hero-photo { object-position: 85% 30%; }
+  .hero::after { background: linear-gradient(0deg, rgba(12, 26, 24, .95) 10%, rgba(12, 26, 24, .45) 55%, rgba(12, 26, 24, .55) 100%); }
+}
+</style>
