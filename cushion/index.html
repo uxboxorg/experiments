@@ -1379,6 +1379,7 @@ const I = {
 };
 
 const LUCIDE_EXTRA = {
+  banknote: '<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
   laptop: '<path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/>',
   gift: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/>',
   umbrella: '<path d="M22 12a10.06 10.06 1 0 0-20 0Z"/><path d="M12 12v8a2 2 0 0 0 4 0"/><path d="M12 2v1"/>',
@@ -1574,6 +1575,7 @@ const OTHER_CATS = [
   { name: 'Health', icon: 'stethoscope', color: '#0E8A7E' },
   { name: 'Income', icon: 'trending-up', color: '#2E9E55' },
   { name: 'Transfers', icon: 'wallet', color: '#636366' },
+  { name: 'Cash', icon: 'banknote', color: '#4E7D3A' },
   { name: 'Other', icon: 'receipt', color: '#8E8E93' },
 ];
 const CAT_LIST = () => SPEND.map(c => ({ name: c.name, icon: c.icon, color: c.color })).concat(OTHER_CATS);
@@ -1629,6 +1631,7 @@ function buildLedger() {
   extra({ name: 'MSCI World savings plan', amt: 150, d: 2, acct: 'brk' }, 'Transfers');
   extra({ name: 'Spotify Family', amt: -17.99, d: 5, acct: 'amex', logo: { brand: 'spotify', bg: '#191414', fg: '#1ED760' } }, 'Subscriptions');
   extra({ name: 'Netflix', amt: -13.99, d: 12, acct: 'visa', logo: { icon: 'receipt', bg: '#E50914' } }, 'Subscriptions');
+  extra({ name: 'Sparkasse ATM', note: 'Cash withdrawal', amt: -100, d: 19, acct: 'chk' }, 'Cash');
   extra({ name: 'Apotheke am Markt', amt: -23.80, d: 14, acct: 'visa' }, 'Health');
   if (!out.includes(TX[2])) out.push(TX[2]);
   return out.sort((a, b) => b.d - a.d);
