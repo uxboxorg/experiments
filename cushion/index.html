@@ -1342,6 +1342,7 @@ button.chip-s:active { background: rgba(255, 255, 255, .2); }
 .welcome-logo svg { width: 62px; height: 62px; }
 .welcome-hero p { font-size: 28px !important; line-height: 1.04 !important; }
 .welcome-hero .welcome-logo { margin-bottom: -4px; } /* 10px gap + 6px above the cap = 16px you see */
+.num .sep { font-weight: 500; font-size: .7em; letter-spacing: 0; margin: 0 .06em 0 .03em; }
 /* General Sans runs heavy: titles, amounts and buttons use Medium */
 .large-title, .detail h1, .page-title, .chat-title h1, .sheet h2, .auth h1, .welcome-hero h1, .greet, .greet .sub, .num, .plan-h .num, .cw-split-h .num, .cw-goal .num, .card-media .ttl { font-weight: 500 !important; }
 .btn, .btn.plain, .media .btn.plain, .pill { font-weight: 500; }
@@ -4871,6 +4872,26 @@ const i18nObs = new MutationObserver(recs => {
 });
 i18nObs.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
 locTree(document.body);
+/* Big numbers: General Sans's comma and point are heavy and get squeezed by the tight tracking, so separators get their own lighter style */
+function sepWrap(num) {
+  for (const n of [...num.childNodes]) {
+    if (n.nodeType !== 3 || !/[,.]/.test(n.data)) continue;
+    const frag = document.createDocumentFragment();
+    n.data.split(/([,.])/).forEach(part => {
+      if (!part) return;
+      if (part === ',' || part === '.') { const s = document.createElement('span'); s.className = 'sep'; s.textContent = part; frag.append(s); }
+      else frag.append(part);
+    });
+    n.replaceWith(frag);
+  }
+}
+const sepScan = root => { if (root.nodeType !== 1) root = root.parentElement; if (!root) return; const own = root.closest('.num'); if (own) sepWrap(own); root.querySelectorAll('.num').forEach(sepWrap); };
+const sepObs = new MutationObserver(recs => {
+  for (const r of recs) { if (r.type === 'characterData') sepScan(r.target); else r.addedNodes.forEach(sepScan); }
+  sepObs.takeRecords();
+});
+sepObs.observe(document.body, { subtree: true, childList: true, characterData: true });
+sepScan(document.body);
 // Switch language: re-render so amounts and dates pick up the new format, then translate everything again
 function setLang(l) {
   if (!LANGS[l] || l === LANG) return;
