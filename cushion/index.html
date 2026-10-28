@@ -1237,10 +1237,10 @@ button.chip-s:active { background: rgba(255, 255, 255, .2); }
 .safe .num .cur, .safe .num .cents { vertical-align: 4px !important; font-size: 22px !important; font-weight: 500 !important; }
 .safe .num .cur { margin-right: 4px; font-size: .32em !important; vertical-align: .95em !important; font-weight: 400 !important; }
 .safe .num .cents { margin-left: -3px; }
-.safe { isolation: isolate; overflow: hidden; }
+.safe { isolation: isolate; }
 .safe { aspect-ratio: 4 / 3; grid-template-rows: auto 1fr auto; }
 .safe .num { align-self: end; }
-.safe::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: #8EEADB; opacity: .35; -webkit-mask: url(dither-2.svg) right top / cover no-repeat; mask: url(dither-2.svg) right top / cover no-repeat; }
+.safe::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; background: #8EEADB; opacity: .35; -webkit-mask: url(dither-2.svg) right top / cover no-repeat; mask: url(dither-2.svg) right top / cover no-repeat; }
 
 /* Accounts grouped: Cushion's own account, then connected banks */
 .acct-group { display: grid; gap: 0; }
@@ -1889,10 +1889,12 @@ function liveBill(el, id) {
 function comfortMax(fc = forecast()) {
   let lo = Infinity, day = 0;
   for (let i = 0; i < fc.payIdx; i++) if (fc.days[i] < lo) { lo = fc.days[i]; day = i; }
-  return { max: Math.max(0, Math.floor(lo)), day };
+  return { max: Math.max(0, Math.floor(lo)), day, lo };
 }
 function safeWithComfort(c) { const old = S.comfort; S.comfort = c; const sf = safety(); S.comfort = old; return sf.safe; }
-const comfortTooHigh = m => `Too high. Even with no everyday spending, your current account dips to ${eur(m.max)} ${onDay(m.day)} before pay day, so the most you can set is ${eur(m.max)}.`;
+const comfortTooHigh = m => m.lo < 0
+  ? `Your current account goes below zero ${onDay(m.day)} before pay day, even with no everyday spending, so a comfort line can't be kept this month. Set it to €0 for now.`
+  : `Too high. Even with no everyday spending, your current account dips to ${eur(m.max)} ${onDay(m.day)} before pay day, so the most you can set is ${eur(m.max)}.`;
 function comfortPage() {
   return `<div class="nav"><button class="pill glass" data-act="back">Cancel</button><button class="pill glass" data-act="comfort-save"><b>Save</b></button></div>
     <div class="auth">
@@ -2290,11 +2292,10 @@ const monthLong = m => { const o = monthOf(m); return `${o.name} ${o.y}`; };
 // One wheel component, two kinds of value
 const WHEEL_CFG = {
   payday: { label: 'Pay day', aria: 'Pay day of each month', min: 1, max: PAY_MAX, get: () => S.payDay, set: v => { S.payDay = v; }, short: payShort, long: payLong, suffix: 'of the month' },
-  comfort: { label: 'Comfort line', aria: 'Comfort line', min: 0, max: 30, get: () => Math.round(S.comfort / 100), set: v => { S.comfort = v * 100; }, short: v => eur(v * 100), long: v => eur(v * 100) },
   billday: { label: 'Due on', aria: 'Day of the month it’s due', min: 1, max: PAY_MAX, get: () => S.draft.day, set: v => { S.draft.day = v; }, short: payShort, long: payLong, suffix: 'of the month' },
   goaldate: { label: 'Target date', aria: 'Target date', min: 0, max: GOAL_MONTHS, get: () => S.draft.by, set: v => { S.draft.by = v; }, short: m => m ? monthShort(m) : 'No date', long: m => m ? monthLong(m) : 'No date' },
 };
-const wheelCfg = key => WHEEL_CFG[key.startsWith('goal') ? 'goaldate' : key.startsWith('comfort') ? 'comfort' : key.startsWith('bill') ? 'billday' : 'payday'];
+const wheelCfg = key => WHEEL_CFG[key.startsWith('goal') ? 'goaldate' : key.startsWith('bill') ? 'billday' : 'payday'];
 function wheelRow(key, flush = false) {
   const c = wheelCfg(key), open = S.wheel === key, cur = c.get();
   const items = Array.from({ length: c.max - c.min + 1 }, (_, i) => `<div class="wheel-item${i + c.min === cur ? ' on' : ''}" data-v="${i + c.min}">${c.short(i + c.min)}</div>`).join('');
@@ -2910,6 +2911,8 @@ function coverPick() {
       ${ph ? '<button class="btn tinted" data-act="goal-photo-remove">Remove Photo</button>' : ''}
     </div>`;
 }
+// Re-draw the form after the photo changes, keeping focus on the photo box so keyboard users stay in place
+function coverRerender(pg) { if (!pg) return; pg.render(); const c = pg.querySelector('.cover-prev'); c && c.focus({ preventScroll: true }); }
 function shrinkPhoto(file) {
   return new Promise((res, rej) => {
     const url = URL.createObjectURL(file), img = new Image();
@@ -4123,7 +4126,7 @@ const H = {
     navBusy = false; pop(true); refresh();
     toast('Changes saved');
   },
-  'goal-photo-remove'() { S.draft.photo = ''; S.draft.photoPos = ''; const pg = stack[stack.length - 1]; pg && pg.render(); },
+  'goal-photo-remove'() { S.draft.photo = ''; S.draft.photoPos = ''; coverRerender(stack[stack.length - 1]); },
   'goal-delete': once(async el => {
     const g = goalById(el.dataset.id); if (!g) return;
     const ok = await alertBox({ sheet: true, title: `Delete ${esc(g.name)}?`, msg: g.saved > 0 ? `The ${eur(g.saved)} you saved stays in Lena’s Stash.` : 'Monthly transfers for this goal stop.', actions: [{ label: 'Delete Goal', style: 'destructive', value: true }, { label: 'Cancel', value: false }] });
@@ -4184,7 +4187,7 @@ const H = {
       const clr = $('.search-clear', el);
       const upd = () => { el.q = inp.value; res.innerHTML = addAccountPage(inp.value); clr.hidden = !inp.value; };
       inp.oninput = upd; clr.hidden = !inp.value;
-      clr.onclick = () => { inp.value = ''; upd(); inp.focus({ preventScroll: true }); };
+      clr.onclick = () => { inp.value = ''; upd(); inp.focus(); };
     } });
   },
   'pick-bank'(el) { const b = BANKS.find(x => x.id === el.dataset.id); if (b) push(() => bankPage(b), { kind: 'bank' }); },
@@ -4282,7 +4285,7 @@ const H = {
   'send-voice'() {
     if (S.chat.busy) return;
     const t = $('#voice-text').value.trim();
-    if (!t) { $('#voice-err').textContent = 'Type a question to send.'; $('#voice-text').setAttribute('aria-invalid', 'true'); $('#voice-text').focus({ preventScroll: true }); return; }
+    if (!t) { $('#voice-err').textContent = 'Type a question to send.'; $('#voice-text').setAttribute('aria-invalid', 'true'); $('#voice-text').focus(); return; }
     closeSheet(true); send(t);
     setTimeout(() => $('#chat-input').focus({ preventScroll: true }), 30);
   },
@@ -4347,7 +4350,11 @@ function syncSend() { const b = $('#composer .send'), i = $('#chat-input'); if (
 app.addEventListener('change', e => {
   if (e.target.dataset && 'goalPhoto' in e.target.dataset) {
     const f = e.target.files && e.target.files[0]; if (!f) return;
-    shrinkPhoto(f).then(d => { S.draft.photo = d; S.draft.photoPos = 'center / cover'; const pg = stack[stack.length - 1]; pg && pg.render(); }).catch(() => toast('That photo couldn’t be opened'));
+    const draft = S.draft, pg = e.target.closest('.page');
+    shrinkPhoto(f).then(d => {
+      if (S.draft !== draft || stack[stack.length - 1] !== pg) return; // the flow was closed or moved on while the photo loaded
+      draft.photo = d; draft.photoPos = 'center / cover'; coverRerender(pg);
+    }).catch(() => toast('That photo couldn’t be opened'));
     return;
   }
   if (e.target.id === 'car-late') H['toggle-car'](e.target);
@@ -4377,8 +4384,8 @@ document.addEventListener('keydown', e => {
       const f = $$('button:not([disabled]), input, textarea, [tabindex="0"]', box).filter(x => x.offsetParent !== null);
       if (f.length) {
         const i = f.indexOf(document.activeElement);
-        if (e.shiftKey && (i <= 0)) { e.preventDefault(); f[f.length - 1].focus({ preventScroll: true }); }
-        else if (!e.shiftKey && (i === f.length - 1 || i === -1)) { e.preventDefault(); f[0].focus({ preventScroll: true }); }
+        if (e.shiftKey && (i <= 0)) { e.preventDefault(); f[f.length - 1].focus(); }
+        else if (!e.shiftKey && (i === f.length - 1 || i === -1)) { e.preventDefault(); f[0].focus(); }
       }
     }
   }
@@ -4387,7 +4394,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target.dataset && e.target.dataset.kb) {
     e.preventDefault();
     const next = e.target.dataset.kbNext && $(e.target.dataset.kbNext, e.target.closest('.page') || app);
-    if (next) next.focus({ preventScroll: true }); else { const go = e.target.closest('.page') && e.target.closest('.page').querySelector('[data-kb-submit]'); go && go.click(); }
+    if (next) next.focus(); else { const go = e.target.closest('.page') && e.target.closest('.page').querySelector('[data-kb-submit]'); go && go.click(); }
   }
   if (e.key === 'Enter' && e.target.id === 'chat-input') { e.preventDefault(); send(e.target.value); }
   if (e.key === 'Escape') {
@@ -4577,7 +4584,7 @@ selectTab('today');
       mode = 'abc';
       if (isChat()) { send(target.value); render(); return; }
       const next = target.dataset.kbNext && $(target.dataset.kbNext, target.closest('.page') || app);
-      if (next) { next.focus({ preventScroll: true }); return; }
+      if (next) { next.focus(); return; }
       const go = target.closest('.page') && target.closest('.page').querySelector('[data-kb-submit]');
       if (go) { go.click(); return; }
       target.blur(); return;
@@ -4664,11 +4671,18 @@ let swipedAt = 0;
 
 // Safari can scroll a clipped container to reveal a focused field, which slides the whole screen up
 // and leaves a blank strip at the bottom. Containers that aren't meant to scroll snap straight back.
+const noScroll = new WeakMap(); // element -> [x locked, y locked], looked up once per element
 document.addEventListener('scroll', e => {
   const el = e.target;
-  if (!(el instanceof Element) || !el.closest('.app')) return;
-  const o = getComputedStyle(el).overflowY;
-  if ((o === 'hidden' || o === 'clip') && (el.scrollTop || el.scrollLeft)) { el.scrollTop = 0; el.scrollLeft = 0; }
+  if (!(el instanceof Element) || !(el.scrollTop || el.scrollLeft)) return;
+  let lock = noScroll.get(el);
+  if (!lock) {
+    if (!el.closest('.app')) return;
+    const cs = getComputedStyle(el), shut = v => v === 'hidden' || v === 'clip';
+    lock = [shut(cs.overflowX), shut(cs.overflowY)]; noScroll.set(el, lock);
+  }
+  if (lock[0] && el.scrollLeft) el.scrollLeft = 0;
+  if (lock[1] && el.scrollTop) el.scrollTop = 0;
 }, true);
 </script>
 </body>
