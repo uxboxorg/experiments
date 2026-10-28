@@ -330,6 +330,12 @@ p { margin: 0; }
 @media (max-width: 760px) { .pf, .feats { grid-template-columns: 1fr; } .map a { grid-template-columns: 1fr; gap: 4px; } .map .to { display: none; } }
 
 /* Intro: statement card + app mockup */
+.proto-btn { position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 22px; border-radius: 99px; white-space: nowrap;
+  color: #fff; font-size: 15px; font-weight: 500; text-decoration: none; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 10px 30px rgba(0, 0, 0, .3); backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4); transition: background .2s, transform .2s; }
+.proto-btn svg { color: var(--lime); }
+.proto-btn:hover { background: rgba(255, 255, 255, .2); }
+.proto-btn:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
 .intro-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
 .intro-card { background: #E8EAE4; border-radius: 28px; padding: 32px; display: grid; align-content: center; min-height: 560px; }
 .intro-meta { margin-top: 24px !important; }
@@ -345,7 +351,7 @@ p { margin: 0; }
 .ic.forest { background: var(--forest); color: var(--lime); }
 .intro-card .meta { margin-top: 0; }
 .intro-shot { position: relative; border-radius: 28px; overflow: hidden; min-height: 560px; background: radial-gradient(90% 70% at 60% 35%, #2C4B41 0%, #16261F 60%, #0F1B17 100%); isolation: isolate; }
-.mock-ph { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 40%; aspect-ratio: 9 / 19; border-radius: 36px; border: 1.5px dashed rgba(255, 255, 255, .35); display: grid; place-content: center; justify-items: center; gap: 6px; color: #C7D6D0; font-size: 12px; text-align: center; }
+.mock-ph { position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%); width: 40%; aspect-ratio: 9 / 19; border-radius: 36px; border: 1.5px dashed rgba(255, 255, 255, .35); display: grid; place-content: center; justify-items: center; gap: 6px; color: #C7D6D0; font-size: 12px; text-align: center; }
 .mock-ph b { font-weight: 500; font-size: 14px; color: #fff; }
 .intro-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 60px 28px 26px; color: #fff; background: linear-gradient(0deg, rgba(12, 26, 24, .85), transparent); display: grid; gap: 6px; }
 .intro-cap h3 { font-size: 20px; font-weight: 500; }
@@ -391,6 +397,7 @@ p { margin: 0; }
       </div>
       <div class="intro-shot">
         <div class="mock-ph" aria-label="App mockup placeholder"><svg width="30" height="30" aria-hidden="true"><use href="#cam"/></svg><b>App mockup</b><span>Placeholder</span></div>
+        <a class="proto-btn" href="https://claude.ai/artifact/UCyDsxiMhATAbDJt7HwtUa" target="_blank" rel="noopener">Open interactive prototype<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
       </div>
     </div>
         <dl class="meta intro-meta">
