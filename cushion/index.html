@@ -854,6 +854,9 @@ button.row[disabled] { cursor: default; }
 .cover-empty { display: grid; justify-items: center; gap: 6px; color: var(--label2); font-weight: 500; }
 .cover-tag { position: absolute; right: 10px; bottom: 10px; padding: 6px 12px; border-radius: 99px; font-size: 13px; font-weight: 600; color: #FFFFFF; background: rgba(0, 0, 0, .45); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 
+/* Screen titles: semibold, not heavy (the welcome wordmark keeps its own weight) */
+.large-title, .detail h1, .page-title, .chat-title h1, .sheet h2, .auth h1 { font-weight: 600 !important; }
+
 /* Goal page header photo */
 .goal-hero { position: absolute; top: 0; left: 0; right: 0; height: 230px; z-index: 0; pointer-events: none; background: linear-gradient(color-mix(in srgb, var(--bg) 30%, transparent), color-mix(in srgb, var(--bg) 30%, transparent)), var(--photo) center 45% / cover no-repeat; filter: brightness(1.15) saturate(1.05); -webkit-mask-image: linear-gradient(180deg, #000 45%, transparent); mask-image: linear-gradient(180deg, #000 45%, transparent); }
 .page h1.goal-title { font-weight: 500 !important; }
