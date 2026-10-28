@@ -2725,7 +2725,7 @@ function moveImpact(amt, from, g) {
   }
   const before = safeNow(), after = safety(forecast({ extra: amt })).safe;
   if (after <= 0) return { bad: true, text: `That would take your current account under ${eur(S.comfort)} before pay day. Try less, or take it from Lena's Stash.` };
-  return { bad: false, text: after >= before ? `Today's safe-to-spend stays at ${eur(before, 2)}.` : `Today's safe-to-spend goes from ${eur(before, 2)} to ${eur(after, 2)}.` };
+  return { bad: false, text: impactText(before, after) };
 }
 function moveMoney(g, amt, from) {
   if (from === 'out') { g.saved = r2(g.saved - amt); transfer(amt, 'stash', 'chk', g.name); return; }
