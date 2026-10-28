@@ -263,10 +263,13 @@ p { margin: 0; }
 .learn div { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 6px; }
 
 /* Thanks */
-.thanks { padding-block: 24px 0; overflow: hidden; }
+.thanks { padding-block: 24px 0; overflow: hidden; position: relative; isolation: isolate; }
+.thanks .wrap { position: relative; }
+.thanks-wf { position: absolute; z-index: -1; inset: -20% -5% -20% -5%; background: url(img/wireframes.webp) center / 1100px auto repeat; opacity: .35; transform: rotate(-4deg);
+  -webkit-mask-image: radial-gradient(70% 90% at 50% 50%, transparent 15%, #000 85%); mask-image: radial-gradient(70% 90% at 50% 50%, transparent 15%, #000 85%); }
 .thanks .inner { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: center; }
 .thanks .inner > div:first-child { padding-bottom: 0; }
-.coin-flip { width: 220px; height: auto; display: block; align-self: end; margin-right: 24px; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%); mask-image: linear-gradient(to bottom, transparent, #000 22%); }
+.coin-flip { width: 220px; height: auto; display: block; align-self: end; mix-blend-mode: lighten; margin-right: 24px; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%); mask-image: linear-gradient(to bottom, transparent, #000 22%); }
 @media (max-width: 760px) { .coin-flip { width: 140px; margin-right: 0; } .thanks .inner > div:first-child { padding-bottom: 24px; } }
 .app-icon { width: 120px; height: 120px; border-radius: 28px; background: var(--forest); display: grid; place-items: center; box-shadow: 0 20px 50px rgba(0, 0, 0, .4); }
 .app-icon .mark { width: 70px; height: 70px; color: var(--lime); }
@@ -673,6 +676,7 @@ p { margin: 0; }
 
 <!-- Thanks -->
 <section class="dark thanks">
+  <div class="thanks-wf" aria-hidden="true"></div>
   <div class="wrap">
     <div class="inner">
       <div style="display:grid;gap:18px">
