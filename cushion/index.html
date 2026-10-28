@@ -839,7 +839,7 @@ button.row[disabled] { cursor: default; }
 /* Japan goal card: photo on the right, fading into the card colour behind the text */
 /* The photo sits on its own layer so it can be brightened; the fade sits on top of it */
 .card-media.g-iceland.has-photo { isolation: isolate; }
-.card-media.g-iceland.has-photo::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--photo) var(--photo-pos, center / cover) no-repeat; filter: brightness(1.18) saturate(1.05); }
+.card-media.g-iceland.has-photo::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--photo) var(--photo-pos, center / cover) no-repeat; filter: brightness(1.18) saturate(1.05); -webkit-mask-image: linear-gradient(90deg, transparent 18%, #000 30%); mask-image: linear-gradient(90deg, transparent 18%, #000 30%); }
 .card-media.g-iceland.has-photo::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--card) 28%, color-mix(in srgb, var(--card) 62%, transparent) 58%, color-mix(in srgb, var(--card) 38%, transparent) 100%); }
 .card-media.g-iceland .card-chev.inline { opacity: 1; }
 .card-media.g-iceland .card-chev.inline svg { color: var(--accent) !important; }
@@ -849,7 +849,7 @@ button.row[disabled] { cursor: default; }
 .cover-prev { height: 120px; border-radius: 20px; background: var(--fill); display: grid; place-items: center; color: var(--label3); font-size: 15px; overflow: hidden; }
 .cover-prev.on { background: var(--card); isolation: isolate; }
 /* Same treatment as on the goal card: brightened photo, faded into the card colour on the left */
-.cover-prev.on::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--photo) center / cover no-repeat; filter: brightness(1.18) saturate(1.05); }
+.cover-prev.on::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--photo) center / cover no-repeat; filter: brightness(1.18) saturate(1.05); -webkit-mask-image: linear-gradient(90deg, transparent 18%, #000 30%); mask-image: linear-gradient(90deg, transparent 18%, #000 30%); }
 .cover-prev.on::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--card) 28%, color-mix(in srgb, var(--card) 62%, transparent) 58%, color-mix(in srgb, var(--card) 38%, transparent) 100%); }
 .cover-prev { position: relative; cursor: pointer; }
 .cover-prev input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
