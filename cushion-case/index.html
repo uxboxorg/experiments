@@ -328,6 +328,26 @@ p { margin: 0; }
 .map a:hover .f span, .map a:focus-visible .f span { color: transparent; }
 .map a:hover .f span::after, .map a:focus-visible .f span::after { opacity: 1; }
 @media (max-width: 760px) { .pf, .feats { grid-template-columns: 1fr; } .map a { grid-template-columns: 1fr; gap: 4px; } .map .to { display: none; } }
+
+/* Intro: statement card + app mockup */
+.intro-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.intro-card { background: #E8EAE4; border-radius: 28px; padding: 28px 32px 28px; display: grid; grid-template-rows: auto 1fr auto; gap: 24px; min-height: 560px; }
+.intro-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--body); }
+.intro-tag svg { color: var(--forest); }
+.intro-quote { align-self: center; font-size: clamp(24px, 3vw, 32px); line-height: 1.45; letter-spacing: -.02em; font-weight: 500; color: var(--ink); }
+.intro-quote .qm { color: var(--forest); font-size: 1.4em; line-height: 0; vertical-align: -.15em; margin-right: 6px; font-weight: 700; }
+.ic { display: inline-grid; place-items: center; width: 1.3em; height: 1.3em; border-radius: .34em; vertical-align: -.25em; margin: 0 2px; }
+.ic svg { width: .7em; height: .7em; }
+.ic.dark { background: var(--ink); color: #fff; }
+.ic.lime { background: var(--lime); color: var(--forest); }
+.intro-card .meta { margin-top: 0; }
+.intro-shot { position: relative; border-radius: 28px; overflow: hidden; min-height: 560px; background: radial-gradient(90% 70% at 60% 35%, #2C4B41 0%, #16261F 60%, #0F1B17 100%); isolation: isolate; }
+.mock-ph { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); width: 40%; aspect-ratio: 9 / 19; border-radius: 36px; border: 1.5px dashed rgba(255, 255, 255, .35); display: grid; place-content: center; justify-items: center; gap: 6px; color: #C7D6D0; font-size: 12px; text-align: center; }
+.mock-ph b { font-weight: 500; font-size: 14px; color: #fff; }
+.intro-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 60px 28px 26px; color: #fff; background: linear-gradient(0deg, rgba(12, 26, 24, .85), transparent); display: grid; gap: 6px; }
+.intro-cap h3 { font-size: 20px; font-weight: 500; }
+.intro-cap p { font-size: 13px; line-height: 1.5; color: #D3DFDA; max-width: 46ch; }
+@media (max-width: 760px) { .intro-grid { grid-template-columns: 1fr; } .intro-card, .intro-shot { min-height: 460px; } .intro-card { padding: 22px; } }
 </style>
 
 <!-- The Cushion mark, drawn once and reused -->
@@ -361,14 +381,18 @@ p { margin: 0; }
 <!-- 01 Intro -->
 <section class="intro">
   <div class="wrap">
-    <div class="head">
-      <div class="label">Introduction<span class="n">01 / 12</span></div>
-      <div>
-        <p class="big"><b>Cushion</b> is an AI budgeting app for people on a salary who juggle a few accounts and bills that land at awkward times. It <span class="soft">works out what is safe to spend today,</span> and an advisor you can ask turns every answer into a next step.</p>
+    <div class="intro-grid">
+      <div class="intro-card">
+        <span class="intro-tag"><svg width="14" height="14" aria-hidden="true"><use href="#cush"/></svg>Introduction</span>
+        <p class="intro-quote"><span class="qm" aria-hidden="true">”</span>Most budgeting apps show where money <span class="ic dark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 3v18h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="m7 15 4-4 3 3 5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> went. Cushion tells you what is safe to spend today <span class="ic lime" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#spark"/></svg></span> and an AI advisor helps with every money decision.</p>
         <dl class="meta">
           <div><dt>Platform</dt><dd>iOS mobile app</dd></div>
           <div><dt>Scope</dt><dd>UX, UI, AI interactions, interactive prototype</dd></div>
         </dl>
+      </div>
+      <div class="intro-shot">
+        <div class="mock-ph" aria-label="App mockup placeholder"><svg width="30" height="30" aria-hidden="true"><use href="#cam"/></svg><b>App mockup</b><span>Placeholder</span></div>
+        <div class="intro-cap"><h3>Who it’s for</h3><p>People on a monthly salary who juggle a few accounts and bills that land at awkward times, and want to know what they can spend without doing the maths.</p></div>
       </div>
     </div>
   </div>
