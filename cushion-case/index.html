@@ -403,7 +403,7 @@ p { margin: 0; }
     </div>
         <dl class="meta intro-meta">
           <div><dt>Platform</dt><dd>iOS mobile app</dd></div>
-          <div><dt>Languages</dt><dd>🇬🇧 English, 🇩🇪 Deutsch, 🇫🇷 Français</dd></div>
+          <div><dt>Languages</dt><dd>English, Deutsch, Français</dd></div>
           <div><dt>Scope</dt><dd>UX, UI, AI interactions, interactive prototype</dd></div>
         </dl>
   </div>
@@ -454,6 +454,7 @@ p { margin: 0; }
       <div>
         <h2>Who Cushion is for</h2>
         <p class="lede">People on a monthly salary who juggle a few accounts and bills that land at awkward times, and want to know what they can spend without doing the maths.</p>
+        <div class="langs" aria-label="Languages"><span><svg viewBox="0 0 60 30" aria-hidden="true"><clipPath id="gbc"><path d="M0 0v30h60V0z"/></clipPath><clipPath id="gbt"><path d="M30 15h30v15zv15H0zH0V0zV0h30z"/></clipPath><g clip-path="url(#gbc)"><path d="M0 0v30h60V0z" fill="#012169"/><path d="M0 0l60 30m0-30L0 30" stroke="#fff" stroke-width="6"/><path d="M0 0l60 30m0-30L0 30" clip-path="url(#gbt)" stroke="#C8102E" stroke-width="4"/><path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#C8102E" stroke-width="6"/></g></svg>English</span><span><svg viewBox="0 0 5 3" aria-hidden="true"><path fill="#000" d="M0 0h5v1H0z"/><path fill="#D00" d="M0 1h5v1H0z"/><path fill="#FFCE00" d="M0 2h5v1H0z"/></svg>Deutsch</span><span><svg viewBox="0 0 3 2" aria-hidden="true"><path fill="#002654" d="M0 0h1v2H0z"/><path fill="#fff" d="M1 0h1v2H1z"/><path fill="#CE1126" d="M2 0h1v2H2z"/></svg>Français</span></div>
       </div>
     </div>
     <div class="persona">
@@ -652,6 +653,11 @@ p { margin: 0; }
 </section>
 
 <style>
+/* Language pills */
+.langs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.langs span { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px 0 8px; border-radius: 99px; background: var(--card); font-size: 14px; font-weight: 500; }
+.langs svg { width: 26px; height: 18px; border-radius: 4px; box-shadow: 0 0 0 1px rgba(0, 0, 0, .08); flex: none; }
+
 /* Persona avatars */
 .pers { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
 .pers > div { display: grid; gap: 2px; min-width: 0; }
