@@ -859,6 +859,7 @@ button.row[disabled] { cursor: default; }
 
 /* Goal page header photo */
 .goal-hero { position: absolute; top: 0; left: 0; right: 0; height: 300px; z-index: 0; pointer-events: none; background: var(--photo) center 40% / cover no-repeat; filter: brightness(1.18) saturate(1.05); -webkit-mask-image: linear-gradient(180deg, #000 45%, transparent); mask-image: linear-gradient(180deg, #000 45%, transparent); }
+.page h1.goal-title { font-weight: 500 !important; }
 .detail.under-hero { position: relative; z-index: 1; margin-top: 150px; }
 
 /* Goal cards: the arrow sits level with the goal icon */
@@ -2829,7 +2830,7 @@ function goalPage(id) {
     </div>
     ${goalHero(g)}
     <div class="detail${g.photo ? ' under-hero' : ''}">
-      <div class="goal-head">${goalTile(g, 52)}<h1 data-short="${esc(g.name)}">${esc(goalTitle(g))}</h1>${g.by ? `<p class="body">Target date ${monthLong(g.by)}</p>` : ''}</div>
+      <div class="goal-head">${goalTile(g, 52)}<h1 class="goal-title" data-short="${esc(g.name)}">${esc(goalTitle(g))}</h1>${g.by ? `<p class="body">Target date ${monthLong(g.by)}</p>` : ''}</div>
       <div>
         <div class="big"><span class="num" id="goal-num"><span class="cur">€</span><span class="w">${fmt(g.saved)}</span></span><span class="of">of ${eur(g.goal)}</span>${g.done ? '<span class="paused-badge">Done</span>' : g.paused ? '<span class="paused-badge">Paused</span>' : ''}</div>
         <div class="progress" style="margin-top:16px"><i style="width:${pct}%"></i></div>
@@ -3020,7 +3021,7 @@ function icelandPage() {
     ${goalHero(ic)}
     <div class="detail${ic.photo ? ' under-hero' : ''}">
       <div>
-        <h1 data-short="${esc(ic.name)}">${esc(goalTitle(ic))}</h1>
+        <h1 class="goal-title" data-short="${esc(ic.name)}">${esc(goalTitle(ic))}</h1>
         ${ic.sub ? '<p class="body" style="margin-top:6px">Flights, a rail pass and two weeks in Tokyo and Kyoto in February.</p>' : ic.by ? `<p class="body" style="margin-top:6px">Target date ${monthLong(ic.by)}</p>` : ''}
       </div>
       <div>
