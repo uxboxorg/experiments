@@ -848,9 +848,11 @@ button.row[disabled] { cursor: default; }
 .cover-pick .lbl { font-size: 13px; font-weight: 600; color: var(--label2); }
 .cover-prev { height: 120px; border-radius: 20px; background: var(--fill); display: grid; place-items: center; color: var(--label3); font-size: 15px; overflow: hidden; }
 .cover-prev.on { background: var(--photo) center / cover no-repeat, var(--fill); }
-.cover-btns { display: flex; gap: 8px; }
-.cover-btns > * { flex: 1; }
-.cover-btns input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.cover-prev { position: relative; cursor: pointer; }
+.cover-prev input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.cover-prev:active { opacity: .85; }
+.cover-empty { display: grid; justify-items: center; gap: 6px; color: var(--label2); font-weight: 500; }
+.cover-tag { position: absolute; right: 10px; bottom: 10px; padding: 6px 12px; border-radius: 99px; font-size: 13px; font-weight: 600; color: #FFFFFF; background: rgba(0, 0, 0, .45); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 
 /* Goal cards: the arrow sits level with the goal icon */
 .goal-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -2752,6 +2754,7 @@ function goalNamePage() {
       ${iconGrid(S.draft.icon)}
       ${draftField('name', 'Name', { ph: 'New laptop', max: 28 })}
       <div class="chips idea-chips">${GOAL_IDEAS.map(([n, ic]) => `<button class="chip" data-act="goal-idea" data-name="${n}" data-icon="${ic}">${n}</button>`).join('')}</div>
+      ${coverPick()}
       <button class="btn primary" data-act="goal-name-submit" data-kb-submit>Continue</button>
     </div>`;
 }
@@ -2887,11 +2890,11 @@ function coverPick() {
   const ph = S.draft.photo;
   return `<div class="cover-pick">
       <span class="lbl">Cover photo</span>
-      <div class="cover-prev${ph ? ' on' : ''}"${ph ? ` style="--photo:url('${ph}')"` : ''} role="img" aria-label="${ph ? 'Cover photo preview' : 'No cover photo'}">${ph ? '' : 'No photo'}</div>
-      <div class="cover-btns">
-        <label class="btn tinted" role="button" tabindex="0">${ph ? 'Change Photo' : 'Choose Photo'}<input type="file" accept="image/*" data-goal-photo></label>
-        ${ph ? '<button class="btn tinted" data-act="goal-photo-remove">Remove</button>' : ''}
-      </div>
+      <label class="cover-prev${ph ? ' on' : ''}"${ph ? ` style="--photo:url('${ph}')"` : ''} role="button" tabindex="0" aria-label="${ph ? 'Change cover photo' : 'Add a cover photo'}" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); this.querySelector('input').click(); }">
+        ${ph ? `<span class="cover-tag">Change</span>` : `<span class="cover-empty">${I.plus}<span>Add a photo</span></span>`}
+        <input type="file" accept="image/*" data-goal-photo tabindex="-1">
+      </label>
+      ${ph ? '<button class="btn tinted" data-act="goal-photo-remove">Remove Photo</button>' : ''}
     </div>`;
 }
 function shrinkPhoto(file) {
@@ -4025,7 +4028,7 @@ const H = {
   },
   'open-goal'(el) { openGoal(el.dataset.id); },
   'goal-new'() {
-    S.draft = { name: '', icon: 'plane', target: '', by: 0, monthly: 50, start: 0, from: 'chk' };
+    S.draft = { name: '', icon: 'plane', target: '', by: 0, monthly: 50, start: 0, from: 'chk', photo: '', photoPos: '' };
     flowPush(goalNamePage, { modal: true });
   },
   'goal-icon'(el) {
@@ -4065,7 +4068,7 @@ const H = {
     if (start && d.from === 'chk') lines.push(['Today', eur(start, 2)]);
     if (d.monthly > 0) lines.push(['Standing order', `${eur(d.monthly)} every month, on the ${ord(transferDay())}`]);
     if (!await bankApprove({ lines, ref: `Cushion · ${d.name}` })) { toast('Nothing was set up'); return; }
-    const g = { id: 'g' + (++uid), name: d.name, icon: d.icon, color: goalColor(d.icon), goal: +d.target, saved: 0, monthly: d.monthly, paused: false, by: d.by || 0, done: false };
+    const g = { id: 'g' + (++uid), name: d.name, icon: d.icon, color: goalColor(d.icon), goal: +d.target, saved: 0, monthly: d.monthly, paused: false, by: d.by || 0, done: false, photo: d.photo || '', photoPos: d.photoPos || '' };
     S.goals.push(g);
     if (start) moveMoney(g, start, d.from);
     refresh();
