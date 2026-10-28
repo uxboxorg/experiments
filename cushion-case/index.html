@@ -40,6 +40,8 @@ section.tight { padding-block: 40px 96px; }
 h1, h2, h3 { margin: 0; font-weight: 400; letter-spacing: -.02em; text-wrap: balance; }
 h2 { font-size: clamp(32px, 5vw, 44px); line-height: 1.08; }
 h2 .soft, h1 .soft { color: var(--muted); }
+h2 .sub { display: block; margin-top: 10px; font-size: .5em; line-height: 1.3; letter-spacing: -.01em; color: var(--muted); }
+.dark h2 .sub { color: var(--night-muted); }
 .dark h2 .soft, .dark h1 .soft { color: var(--night-muted); }
 .lede { margin: 16px 0 0; color: var(--body); max-width: 46ch; font-size: 15px; line-height: 1.6; }
 .dark .lede { color: #B4C4BE; }
@@ -105,7 +107,7 @@ p { margin: 0; }
 .brand .mark { width: 30px; height: 30px; color: var(--lime); }
 .tags { display: flex; gap: 6px; flex-wrap: wrap; }
 .tags span { height: 30px; padding: 0 13px; border-radius: 99px; display: inline-flex; align-items: center; font-size: 13px; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .14); }
-.hero h1 { font-size: clamp(42px, 7vw, 68px); line-height: 1.02; letter-spacing: -.035em; font-weight: 400; }
+.hero h1 { font-size: clamp(40px, 5.6vw, 56px); line-height: 1.02; letter-spacing: -.035em; font-weight: 400; }
 .hero h1 .soft { color: #8FA59D; }
 .ask { display: grid; gap: 4px; max-width: 250px; margin-bottom: 26px; padding: 12px 14px; border-radius: 14px; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .18); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); font-size: 13px; }
 .ask b { font-weight: 500; display: flex; align-items: center; gap: 6px; }
@@ -219,7 +221,7 @@ p { margin: 0; }
 .cto b { font-weight: 500; font-size: 13px; color: var(--mint); }
 .cto p { font-size: 14px; color: #D7E2DE; }
 .stage-wrap { position: relative; margin-top: 8px; }
-.answers { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 40px; align-items: start; }
+.answers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 40px; align-items: start; }
 .answers figure { margin: 0; display: grid; gap: 8px; min-width: 0; }
 .answers img { border-radius: 14px; background: #F0F2EC; }
 .answers figcaption { font-size: 12px; color: #A9BAB3; }
@@ -265,7 +267,8 @@ p { margin: 0; }
   section { padding-block: 64px; }
   .head { grid-template-columns: 1fr; gap: 10px; margin-bottom: 32px; }
   .g3, .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .hero .inner { grid-template-columns: 1fr; padding-top: 110px; min-height: 0; }
+  .hero .inner { grid-template-columns: 1fr; padding-top: 28px; min-height: 0; }
+  .hero .top { position: static; padding: 0; margin-bottom: 8px; }
   .hero .shot { margin-bottom: -60px; }
   .hero .shot .float { left: -30px; }
   .persona { grid-template-columns: 1fr; }
@@ -291,6 +294,33 @@ p { margin: 0; }
   .hero .shot { animation: rise .9s cubic-bezier(.2, .8, .2, 1) both; }
   @keyframes rise { from { transform: translateY(24px); } to { transform: none; } }
 }
+
+/* Problem -> feature pairs */
+.pf { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 48px; }
+.pf > div { border-radius: 20px; padding: 20px; display: grid; gap: 8px; align-content: start; }
+.pf .prob { background: #E6E9E2; }
+.pf .sol { background: var(--card); }
+.pf .k { font-size: 12px; font-weight: 500; }
+.pf .prob .k { color: #8A5A1E; }
+.pf .sol .k { color: var(--forest); }
+.pf p { font-size: 17px; line-height: 1.4; letter-spacing: -.01em; }
+.dark .pf .prob { background: rgba(255, 255, 255, .04); border: 1px solid var(--night-line); }
+.dark .pf .prob .k { color: #E8B36B; }
+.dark .pf .sol { background: rgba(142, 234, 219, .08); border: 1px solid rgba(142, 234, 219, .25); }
+.dark .pf .sol .k { color: var(--mint); }
+.feats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 48px; }
+.feats div { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 4px; align-content: start; }
+.dark .feats div { border-color: var(--night-line); }
+.dark .feats h3 { color: #fff; }
+.map { display: grid; gap: 8px; }
+.map a { display: grid; grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr); gap: 12px; align-items: center; background: var(--card); border-radius: 16px; padding: 14px 18px; color: inherit; text-decoration: none; }
+.map a:hover { box-shadow: 0 0 0 1.5px var(--lime); }
+.map a:focus-visible { outline: 2px solid var(--forest); outline-offset: 2px; }
+.map .p { color: var(--body); font-size: 14px; }
+.map .f { font-size: 15px; font-weight: 500; display: flex; justify-content: space-between; gap: 10px; }
+.map .f span { color: var(--muted); font-weight: 400; font-size: 12px; white-space: nowrap; }
+.map .to { color: var(--forest); text-align: center; }
+@media (max-width: 760px) { .pf, .feats { grid-template-columns: 1fr; } .map a { grid-template-columns: 1fr; gap: 4px; } .map .to { display: none; } }
 </style>
 
 <!-- The Cushion mark, drawn once and reused -->
@@ -314,11 +344,10 @@ p { margin: 0; }
       </div>
       <div>
         <div class="ask"><b><svg width="14" height="14" aria-hidden="true"><use href="#spark"/></svg>Ask Cushion</b><span>“Can I afford a €600 flight in March?”</span></div>
-        <h1>Spend today<br>without fearing <span class="soft">the 30th.</span></h1>
+        <h1>Know what’s safe<br>to spend <span class="soft">today.</span></h1>
       </div>
       <div class="shot">
         <img src="img/home.webp" alt="Cushion home screen showing €88.05 safe to spend today, with two suggestions below" width="640" height="1342">
-        <div class="float glass"><span class="k">Safe to spend today</span><span class="v">€88.05</span><span class="k">Every bill before pay day counted</span></div>
       </div>
     </div>
   </div>
@@ -329,20 +358,18 @@ p { margin: 0; }
 <section class="intro" style="padding-top:150px">
   <div class="wrap">
     <div class="head">
-      <div class="label">Introduction<span class="n">01 / 15</span></div>
+      <div class="label">Introduction<span class="n">01 / 12</span></div>
       <div>
         <p class="big"><b>Cushion</b> is an AI budgeting app for people on a salary who juggle a few accounts and bills that land at awkward times. It <span class="soft">works out what is safe to spend today,</span> and a coach you can ask turns every answer into a next step.</p>
         <div class="grid g3" style="margin-top:32px">
-          <div class="stat"><span class="v"><span class="slot">? of 5</span></span><span class="small">found today’s safe spend without help</span></div>
-          <div class="stat"><span class="v"><span class="slot">? of 5</span></span><span class="small">set a comfort line that fits their month</span></div>
-          <div class="stat"><span class="v"><span class="slot">? of 5</span></span><span class="small">moved money through their bank without help</span></div>
+          <div class="stat"><span class="v">€88.05</span><span class="small">safe to spend today, after every bill before pay day</span></div>
+          <div class="stat"><span class="v">5 answer cards</span><span class="small">afford, split, transfer, category and goal, each with one action</span></div>
+          <div class="stat"><span class="v">Bank approval</span><span class="small">on every transfer Cushion prepares</span></div>
         </div>
-        <p class="slot-note" style="margin-top:10px">Add your figures from the moderated sessions</p>
         <dl class="meta">
-          <div><dt>Timeline</dt><dd><span class="slot">Add timeline</span></dd></div>
           <div><dt>Platform</dt><dd>iOS mobile app</dd></div>
           <div><dt>Role</dt><dd>Product Designer</dd></div>
-          <div><dt>Scope</dt><dd>Research, UX, UI, interactive prototype, testing</dd></div>
+          <div><dt>Scope</dt><dd>UX, UI, AI interactions, interactive prototype</dd></div>
         </dl>
       </div>
     </div>
@@ -353,9 +380,9 @@ p { margin: 0; }
 <section style="padding-top:0">
   <div class="wrap">
     <div class="head">
-      <div class="label">The problem<span class="n">02 / 15</span></div>
+      <div class="label">The problem<span class="n">02 / 12</span></div>
       <div>
-        <h2>People know their balance.<br><span class="soft">They can’t see the 30th.</span></h2>
+        <h2>Your balance doesn’t include<br><span class="soft">upcoming bills.</span></h2>
         <p class="lede">A balance shows what is there today. It says nothing about rent on the 1st, car insurance on the 2nd or the salary on the 22nd. So people keep a buffer in their head, and still get caught out.</p>
       </div>
     </div>
@@ -365,92 +392,34 @@ p { margin: 0; }
         <div class="float" style="right:14px;bottom:14px"><span class="k">Current account</span><span class="v" style="font-size:22px">€7,412.36</span><span class="k">Rent and insurance due in 8 days</span></div>
       </div>
       <div class="card" style="padding:24px;gap:18px;align-content:space-between">
-        <div style="display:grid;gap:10px"><span class="label">What people told me</span>
+        <div style="display:grid;gap:10px"><span class="label">Lena, before Cushion</span>
         <p class="quote">“I’m fine most of the month. It’s the <em>week before pay day</em> I can’t read.”</p></div>
-        <p class="slot-note">Swap in a real quote from your interviews</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="chip" style="background:#EFF1EC;color:var(--body)">Bills land together</span><span class="chip" style="background:#EFF1EC;color:var(--body)">Buffer lives in her head</span><span class="chip" style="background:#EFF1EC;color:var(--body)">Forgotten subscriptions</span></div>
       </div>
     </div>
 
     <div class="head" style="margin-top:96px;margin-bottom:32px">
       <div class="label">What Cushion does instead</div>
-      <h2>A forecast, <span class="soft">not a ledger.</span></h2>
+      <div><h2>Seven problems<span class="sub">and the features that solve them.</span></h2></div>
     </div>
-    <div class="grid g4">
-      <div class="card"><span class="chip">From insight 01</span><h3>One safe number</h3><p class="small">Every bill and transfer before pay day is counted, so the number on Home is already safe to spend.</p></div>
-      <div class="card"><span class="chip">From insight 02</span><h3>A line it never crosses</h3><p class="small">You pick a comfort line. Cushion keeps your account above it until pay day.</p></div>
-      <div class="card"><span class="chip">From insight 03</span><h3>Answers you can act on</h3><p class="small">Ask in your own words. Every answer ends in a card with live numbers and one action.</p></div>
-      <div class="card"><span class="chip">From insight 04</span><h3>Your bank stays in charge</h3><p class="small">Cushion drafts every move. You approve it in your own bank app.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- 03 Process -->
-<section style="padding-top:0">
-  <div class="wrap">
-    <div class="head">
-      <div class="label">Process<span class="n">03 / 15</span></div>
-      <div>
-        <h2>Four phases.<br>Each one ended in a decision.</h2>
-        <p class="lede">Each phase produced something concrete and closed with one choice that shaped the next.</p>
-      </div>
-    </div>
-    <div class="grid g4">
-      <div class="phase">
-        <div class="art"><div class="mini"><span class="k">Interviews</span><span class="v"><span class="slot">Add</span></span></div></div>
-        <span class="wk">Phase 1</span><h3 style="font-size:20px;font-weight:400">Research</h3>
-        <ul><li>Interviews</li><li>Competitor audit</li><li>Personas</li></ul>
-        <div class="decision"><b>Decision</b>Forecast to pay day instead of tracking what already happened.</div>
-      </div>
-      <div class="phase">
-        <div class="art"><img src="img/chat-empty.webp" alt="Early chat screen with suggested questions" style="height:100%"></div>
-        <span class="wk">Phase 2</span><h3 style="font-size:20px;font-weight:400">Ideation</h3>
-        <ul><li>User flows</li><li>Answer card concepts</li><li>Low-fidelity screens</li></ul>
-        <div class="decision"><b>Decision</b>Lead with a coach you can ask. Every answer ends in a card.</div>
-      </div>
-      <div class="phase">
-        <div class="art"><img src="img/home.webp" alt="High-fidelity home screen" style="height:100%"></div>
-        <span class="wk">Phase 3</span><h3 style="font-size:20px;font-weight:400">Design</h3>
-        <ul><li>Style guide</li><li>Components</li><li>High-fidelity screens</li></ul>
-        <div class="decision"><b>Decision</b>Forest and lime, one number on Home, no red alarms.</div>
-      </div>
-      <div class="phase">
-        <div class="art"><div class="mini"><span class="k">Found today’s safe spend</span><span class="v"><span class="slot">? of 5</span></span><span class="k">without help</span></div></div>
-        <span class="wk">Phase 4</span><h3 style="font-size:20px;font-weight:400">Prototype and test</h3>
-        <ul><li>Interactive prototype</li><li>Moderated sessions</li><li>Iteration</li></ul>
-        <div class="decision"><b>Decision</b>Hand every money move to the bank to approve.</div>
-      </div>
+    <div class="map">
+      <a href="#f1"><span class="p">“My balance doesn’t know rent is coming.”</span><span class="to" aria-hidden="true">→</span><span class="f">Safe to spend <span>Feature 01</span></span></a>
+      <a href="#f2"><span class="p">“Two big bills land on the same week.”</span><span class="to" aria-hidden="true">→</span><span class="f">The month ahead <span>Feature 02</span></span></a>
+      <a href="#f3"><span class="p">“Charts show what happened, not what to do.”</span><span class="to" aria-hidden="true">→</span><span class="f">AI coach <span>Feature 03</span></span></a>
+      <a href="#f4"><span class="p">“I don’t want an app moving my money.”</span><span class="to" aria-hidden="true">→</span><span class="f">Bank approval <span>Feature 04</span></span></a>
+      <a href="#f5"><span class="p">“Money leaks where I never look.”</span><span class="to" aria-hidden="true">→</span><span class="f">Fixes <span>Feature 05</span></span></a>
+      <a href="#f6"><span class="p">“Saving feels like admin.”</span><span class="to" aria-hidden="true">→</span><span class="f">Savings goals <span>Feature 06</span></span></a>
+      <a href="#f7"><span class="p">“My spending is spread over cards and cash.”</span><span class="to" aria-hidden="true">→</span><span class="f">Accounts and transactions <span>Feature 07</span></span></a>
     </div>
   </div>
 </section>
-
-<!-- 04 Insights -->
-<section style="padding-top:0">
-  <div class="wrap">
-    <div class="head">
-      <div class="label">Research insights<span class="n">04 / 15</span></div>
-      <div>
-        <h2>The trouble was timing,<br><span class="soft">not overspending.</span></h2>
-        <p class="lede">Four patterns kept coming back. People were careful with money. They lost track of when it would leave.</p>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:16px"><span class="chip dot" style="background:#fff">Interviews</span><span class="chip dot" style="background:#fff">Competitor audit</span><span class="chip dot" style="background:#fff">Bank statement walkthroughs</span></div>
-      </div>
-    </div>
-    <div class="grid g2">
-      <div class="insight"><div class="row"><span>Insight 01</span><span class="slot">? of ?</span></div><span class="pct"><span class="slot" style="font-size:20px">?%</span></span><div class="bar unknown"><i></i></div><h3>were caught out by bills landing close together, not by big purchases.</h3><p class="small">Rent and insurance a day apart hurt more than a dinner out.</p><span class="chip">Led to the pay-day forecast</span></div>
-      <div class="insight"><div class="row"><span>Insight 02</span><span class="slot">? of ?</span></div><span class="pct"><span class="slot" style="font-size:20px">?%</span></span><div class="bar unknown"><i></i></div><h3>kept a private buffer they never let their account fall below.</h3><p class="small">Everyone had a number. No app knew it.</p><span class="chip">Led to the comfort line</span></div>
-      <div class="insight"><div class="row"><span>Insight 03</span><span class="slot">? of ?</span></div><span class="pct"><span class="slot" style="font-size:20px">?%</span></span><div class="bar unknown"><i></i></div><h3>trusted a number only when it came with a reason and a next step.</h3><p class="small">Charts showed what happened. Nobody said what to do.</p><span class="chip">Led to answer cards</span></div>
-      <div class="insight"><div class="row"><span>Insight 04</span><span class="slot">? of ?</span></div><span class="pct"><span class="slot" style="font-size:20px">?%</span></span><div class="bar unknown"><i></i></div><h3>would not let an app move money without their bank confirming it.</h3><p class="small">Trust lived with the bank, not the budgeting app.</p><span class="chip">Led to bank hand-offs</span></div>
-    </div>
-    <p class="slot-note" style="margin-top:12px">Add the counts and sources from your research</p>
-  </div>
-</section>
-
 <!-- 05 Personas -->
 <section style="padding-top:0">
   <div class="wrap">
     <div class="head">
-      <div class="label">User personas<span class="n">05 / 15</span></div>
+      <div class="label">Who it’s for<span class="n">03 / 12</span></div>
       <div>
-        <h2>Three people,<br><span class="soft">three money rhythms.</span></h2>
+        <h2>Who Cushion is for</h2>
         <p class="lede">Lena is the main persona, and every screen in this case study shows her month.</p>
       </div>
     </div>
@@ -486,70 +455,112 @@ p { margin: 0; }
   </div>
 </section>
 
-<!-- 06 Principles and flow -->
-<section style="padding-top:0">
+</main>
+
+<section class="dark" id="f1">
   <div class="wrap">
     <div class="head">
-      <div class="label">Product direction<span class="n">06 / 15</span></div>
-      <div>
-        <h2>From insight<br><span class="soft">to structure.</span></h2>
-        <p class="lede">The research became four principles. Every screen had to pass all four before it moved to high fidelity.</p>
-      </div>
+      <div class="label">Feature 01<span class="n">04 / 12</span></div>
+      <h2>Safe to spend<span class="sub">How much you can spend today after upcoming bills.</span></h2>
     </div>
-    <div class="grid g4 pr">
-      <div class="card"><span class="num">01</span><h3>One number first</h3><p class="small">Home answers what is safe to spend today before anything else.</p><span class="chip">From insight 01</span></div>
-      <div class="card"><span class="num">02</span><h3>Every answer ends in an action</h3><p class="small">No paragraph without a card, a number and a button.</p><span class="chip">From insight 03</span></div>
-      <div class="card"><span class="num">03</span><h3>Cushion drafts, you confirm</h3><p class="small">Nothing moves until you approve it in your bank.</p><span class="chip">From insight 04</span></div>
-      <div class="card"><span class="num">04</span><h3>Calm by default</h3><p class="small">Encouraging words and forest green. Warnings only when you need to act.</p><span class="chip">From insight 02</span></div>
-    </div>
-
-    <div class="head" style="margin-top:96px;margin-bottom:32px">
-      <div class="label">User flow</div>
-      <h2>Two flows, <span class="soft">one calm path.</span></h2>
-    </div>
-    <h3 style="font-size:14px;margin-bottom:12px">Onboarding</h3>
-    <div class="flowrow">
-      <div class="flow-col col card"><h3 style="font-size:15px">Start</h3><span class="pill" style="font-size:12px;padding:5px 10px;border-radius:99px;background:#EFF1EC;width:fit-content">Welcome</span><span style="font-size:12px;padding:5px 10px;border-radius:99px;background:#EFF1EC;width:fit-content">Create account</span><span style="font-size:12px;padding:5px 10px;border-radius:99px;background:#EFF1EC;width:fit-content">Verify ID</span></div>
-      <span class="to" aria-hidden="true">→</span>
-      <div class="card"><h3 style="font-size:15px">Connect accounts</h3><span style="font-size:12px;padding:5px 10px;border-radius:99px;background:#EFF1EC;width:fit-content">Pick your banks</span><span style="font-size:12px;padding:5px 10px;border-radius:99px;background:#EFF1EC;width:fit-content">Approve in your bank</span></div>
-      <span class="to" aria-hidden="true">→</span>
-      <div class="card"><h3 style="font-size:15px">Your plan</h3><span style="font-size:12px;padding:5px 10px;border-radius:99px;background:#EFF1EC;width:fit-content">Pay day</span><span style="font-size:12px;padding:5px 10px;border-radius:99px;background:#EFF1EC;width:fit-content">Comfort line</span></div>
-      <span class="to" aria-hidden="true">→</span>
-      <div class="card" style="background:var(--forest);color:#fff"><h3 style="font-size:15px">Ready</h3><span style="font-size:12px;padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.14);width:fit-content">Safe to spend</span><span style="font-size:12px;padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.14);width:fit-content">Home</span></div>
-    </div>
-    <p class="cap" style="margin-top:10px">Cushion reads balances and bills from connected accounts. It never holds the keys to move money.</p>
-
-    <div style="display:flex;gap:12px;align-items:baseline;margin:48px 0 18px;flex-wrap:wrap"><h3 style="font-size:14px">Everyday use</h3><span class="small">Home is the hub. Every task starts there and comes back, so nobody gets lost.</span></div>
-    <div class="hub">
-      <div class="phone" style="width:200px"><img src="img/home.webp" alt="Home screen"></div>
-      <div class="wire"></div>
-      <div style="display:flex;align-items:center;gap:0;min-width:0">
-        <span class="node">Home</span><span style="width:24px;border-top:1px solid #C8CEC2"></span>
-        <ul>
-          <li>Check today’s safe spend</li>
-          <li>Ask the coach</li>
-          <li>Act on a suggestion</li>
-          <li>See the month ahead</li>
-          <li>Track savings goals</li>
-        </ul>
-      </div>
-    </div>
+    <div class="pf"><div class="prob"><span class="k">The problem</span><p>A balance doesn’t know rent is due on the 1st. People have to subtract upcoming bills in their head.</p></div><div class="sol"><span class="k">What Cushion does</span><p>Every bill and transfer before pay day comes off first. What’s left, spread over the days to pay day, is safe to spend today.</p></div></div>
+    <div class="phones glow"><div class="phone"><img src="img/home.webp" alt="Home with €88.05 safe to spend"><span class="step">1 See today’s number</span></div><div class="phone up"><img src="img/comfort-ok.webp" alt="Comfort line editor showing the effect on today"><span class="step">2 Set your comfort line</span></div><div class="phone"><img src="img/comfort-error.webp" alt="Comfort line editor refusing a line that is too high"><span class="step">3 Know when it can’t hold</span></div></div>
+    
+    <div class="feats"><div><h3>Bills already counted</h3><p class="small">Rent, insurance, transfers and the salary on the 22nd are all in the number.</p></div><div><h3>A comfort line you choose</h3><p class="small">Type the balance you never want to go below. Cushion keeps you above it until pay day.</p></div><div><h3>Ask why</h3><p class="small">The sparkle on the card asks the coach to explain today’s number in plain words.</p></div></div>
   </div>
 </section>
-
+<section class="" id="f2">
+  <div class="wrap">
+    <div class="head">
+      <div class="label">Feature 02<span class="n">05 / 12</span></div>
+      <h2>The month ahead<span class="sub">Your balance day by day until pay day.</span></h2>
+    </div>
+    <div class="pf"><div class="prob"><span class="k">The problem</span><p>Rent and car insurance are due a day apart, and the account dips lower than expected.</p></div><div class="sol"><span class="k">What Cushion does</span><p>The month ahead draws your balance day by day to pay day, marks the thinnest moment and lists every bill on its date.</p></div></div>
+    <div class="phones glow"><div class="phone"><img src="img/month.webp" alt="The month ahead with the balance line and thinnest moment"><span class="step">1 Spot the thinnest moment</span></div><div class="phone up"><img src="img/month-bills.webp" alt="Bills and pay to 30 September"><span class="step">2 Every bill on its date</span></div><div class="phone"><img src="img/money-coming.webp" alt="Coming up card on the Money tab"><span class="step">3 Pay day at a glance</span></div></div>
+    
+    <div class="feats"><div><h3>Thinnest moment</h3><p class="small">The lowest point before pay day, and how far it sits above your comfort line.</p></div><div><h3>Try a different date</h3><p class="small">See what happens if car insurance moved to the 6th, before you call anyone.</p></div><div><h3>Add what’s missing</h3><p class="small">A bill the bank feed missed goes in once and joins the forecast.</p></div></div>
+  </div>
+</section>
+<section class="dark" id="f3" style="border-top:1px solid var(--night-line)">
+  <div class="wrap">
+    <div class="head">
+      <div class="label">Feature 03<span class="n">06 / 12</span></div>
+      <h2>AI coach<span class="sub">Answers that end in a card you can act on.</span></h2>
+    </div>
+    <div class="pf"><div class="prob"><span class="k">The problem</span><p>Charts show what happened. People still have to work out what to do next.</p></div><div class="sol"><span class="k">What Cushion does</span><p>Ask in your own words. The coach answers in plain language, then ends with a card that holds the live numbers and one action.</p></div></div>
+    <div class="phones glow"><div class="phone"><img src="img/chat-empty.webp" alt="Chat with suggested questions"><span class="step">1 Ask in your own words</span></div><div class="phone lg up"><img src="img/chat-flight.webp" alt="Answer about a €600 flight with an afford card"><span class="step">2 Get the answer and why</span></div><div class="phone"><img src="img/chat-dental.webp" alt="Answer that splits a dental bill across pay day"><span class="step">3 Act on it in the card</span></div></div>
+    <div class="answers">
+      <figure><img src="img/w-flight.webp" alt="Afford card"><figcaption><b>Can I afford it?</b>When it fits, and when it doesn’t</figcaption></figure>
+      <figure><img src="img/w-dental.webp" alt="Split card"><figcaption><b>Split a bill</b>Drag to see what stays above your line</figcaption></figure>
+      <figure><img src="img/w-move.webp" alt="Transfer draft card"><figcaption><b>Transfer draft</b>Confirm, and your bank asks to approve</figcaption></figure>
+      <figure><img src="img/w-eat.webp" alt="Category card for eating out"><figcaption><b>Why is it up?</b>Six months and the places behind it</figcaption></figure>
+      <figure><img src="img/w-goal.webp" alt="Goal progress card"><figcaption><b>Goal check</b>Where you’ll be, and how to get there sooner</figcaption></figure>
+    </div>
+    <div class="feats"><div><h3>Same numbers as Home</h3><p class="small">Every answer uses the forecast behind safe to spend, so they always agree.</p></div><div><h3>Cards you can adjust</h3><p class="small">Drag a split, edit a draft or save for later, right inside the answer.</p></div><div><h3>Follow-up questions</h3><p class="small">Each answer suggests the next thing worth asking.</p></div></div>
+  </div>
+</section>
+<section class="dark" id="f4">
+  <div class="wrap">
+    <div class="head">
+      <div class="label">Feature 04<span class="n">07 / 12</span></div>
+      <h2>Bank approval<span class="sub">Cushion prepares transfers and your bank approves them.</span></h2>
+    </div>
+    <div class="pf"><div class="prob"><span class="k">The problem</span><p>People don’t want a budgeting app to move their money, so suggestions rarely get acted on.</p></div><div class="sol"><span class="k">What Cushion does</span><p>Cushion fills in the amount, account and reference. Your bank app approves it with Face ID, like any other payment.</p></div></div>
+    <div class="phones glow"><div class="phone"><img src="img/home-actions.webp" alt="Suggestion to move €1,200 into savings"><span class="step">1 Cushion suggests it</span></div><div class="phone up"><img src="img/bank-app.webp" alt="Sparkasse asking to approve a request from Cushion"><span class="step">2 Your bank approves</span></div><div class="phone"><img src="img/chat-move.webp" alt="Transfer draft from a chat request"><span class="step">3 Or start it in chat</span></div></div>
+    
+    <div class="feats"><div><h3>Nothing moves on its own</h3><p class="small">Every transfer starts as a draft you confirm.</p></div><div><h3>Your bank stays in charge</h3><p class="small">Approval happens in the bank app, with the bank’s own security.</p></div><div><h3>Back where you were</h3><p class="small">After approving, you return to Cushion with the change already shown.</p></div></div>
+  </div>
+</section>
+<section class="" id="f5">
+  <div class="wrap">
+    <div class="head">
+      <div class="label">Feature 05<span class="n">08 / 12</span></div>
+      <h2>Fixes<span class="sub">Duplicate subscriptions, idle cash and refunds.</span></h2>
+    </div>
+    <div class="pf"><div class="prob"><span class="k">The problem</span><p>Small costs go unnoticed, like a second subscription, cash sitting in a current account or a refund nobody claimed.</p></div><div class="sol"><span class="k">What Cushion does</span><p>Cushion spots them, shows what each one is worth, and opens the right place to fix it, from Spotify’s site to a pre-written email.</p></div></div>
+    <div class="phones glow"><div class="phone"><img src="img/spotify.webp" alt="Cushion explaining a duplicate Spotify plan"><span class="step">1 Spotted for you</span></div><div class="phone up"><img src="img/spotify-web.webp" alt="Spotify’s site opened to cancel a duplicate plan"><span class="step">2 Fixed on the service’s site</span></div><div class="phone"><img src="img/spotify-done.webp" alt="Duplicate Spotify cancelled with the effect on safe to spend"><span class="step">3 See what you saved</span></div></div>
+    
+    <div class="feats"><div><h3>Idle cash</h3><p class="small">Money sitting in the current account for weeks gets a nudge towards savings.</p></div><div><h3>Duplicate subscriptions</h3><p class="small">Two plans for the same service, with the one to keep suggested.</p></div><div><h3>Refunds</h3><p class="small">A parking charge that should be refunded comes with the email already written.</p></div></div>
+  </div>
+</section>
+<section class="" id="f6">
+  <div class="wrap">
+    <div class="head">
+      <div class="label">Feature 06<span class="n">09 / 12</span></div>
+      <h2>Savings goals<span class="sub">A plan, a target date and a photo for each goal.</span></h2>
+    </div>
+    <div class="pf"><div class="prob"><span class="k">The problem</span><p>Most apps show a goal as a progress bar, with no date or plan to get there.</p></div><div class="sol"><span class="k">What Cushion does</span><p>Each goal shows when you’ll get there, what to change to arrive in time, and a cover photo you choose.</p></div></div>
+    <div class="phones glow"><div class="phone"><img src="img/goal.webp" alt="Japan goal page with a photo header"><span class="step">1 See when you’ll get there</span></div><div class="phone up"><img src="img/goal-new.webp" alt="New goal with an icon grid and photo picker"><span class="step">2 Make it yours</span></div><div class="phone"><img src="img/goal-edit.webp" alt="Edit goal with the cover photo preview"><span class="step">3 Change it any time</span></div></div>
+    
+    <div class="feats"><div><h3>A plan, not a bar</h3><p class="small">“At €140 a month you’ll get there in April. €170 gets you there by February.”</p></div><div><h3>Your own photo</h3><p class="small">A cover photo, brightened and faded behind the text on the card and the goal page.</p></div><div><h3>Save by asking</h3><p class="small">“Put €50 towards Japan” drafts the transfer in chat.</p></div></div>
+  </div>
+</section>
+<section class="" id="f7">
+  <div class="wrap">
+    <div class="head">
+      <div class="label">Feature 07<span class="n">10 / 12</span></div>
+      <h2>Accounts and transactions<span class="sub">Every account in one list, every purchase in a category.</span></h2>
+    </div>
+    <div class="pf"><div class="prob"><span class="k">The problem</span><p>Spending is spread over a current account, credit cards and cash, so no single place tells the truth.</p></div><div class="sol"><span class="k">What Cushion does</span><p>All accounts sit in one list with exact balances. Every transaction can be moved to the right category, cash withdrawals included.</p></div></div>
+    <div class="phones glow"><div class="phone"><img src="img/accounts.webp" alt="Accounts list with exact balances"><span class="step">1 All accounts, one total</span></div><div class="phone up"><img src="img/tx-cash.webp" alt="A €100 cash withdrawal"><span class="step">2 Cash shows up too</span></div><div class="phone"><img src="img/tx-cat.webp" alt="Category picker"><span class="step">3 Sort it in one tap</span></div></div>
+    
+    <div class="feats"><div><h3>Exact where it matters</h3><p class="small">Balances and transactions show cents. Forecasts and goals stay in whole euros.</p></div><div><h3>Cash counts</h3><p class="small">Move a withdrawal to Groceries or Transport and the category totals update.</p></div><div><h3>One-off purchases</h3><p class="small">Mark a birthday dinner as one-off so it doesn’t skew your usual month.</p></div></div>
+  </div>
+</section>
+<main>
 <!-- 07 Branding -->
 <section style="padding-top:0">
   <div class="wrap">
     <div class="head">
-      <div class="label">Branding<span class="n">07 / 15</span></div>
+      <div class="label">Branding<span class="n">11 / 12</span></div>
       <div>
-        <h2>Built to feel<br><span class="soft">steady.</span></h2>
-        <p class="lede">A small identity: a forest green, one bright lime for actions, one typeface and a mark that holds money safe.</p>
+        <h2>Branding<span class="sub">Logo, colour and type.</span></h2>
+        <p class="lede">Forest green for the brand, lime for actions, Inter for all text.</p>
       </div>
     </div>
     <div class="grid" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)">
       <div class="logo-big"><span class="lockup"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg>Cushion</span></div>
-      <div class="card" style="padding:22px"><svg width="34" height="34" style="color:var(--forest)" aria-hidden="true"><use href="#cush"/></svg><h3 style="font-size:20px;font-weight:400;margin-top:8px">A soft cushion around a coin.</h3><p class="small">The outer shape gives way a little, like a cushion. The coin in the middle stays put. Soft edges keep it friendly, not clinical.</p></div>
+      <div class="card" style="padding:22px"><svg width="34" height="34" style="color:var(--forest)" aria-hidden="true"><use href="#cush"/></svg><h3 style="font-size:20px;font-weight:400;margin-top:8px">A cushion around a coin</h3><p class="small">The outer shape is a cushion with soft, slightly pinched edges. The shape in the middle is a coin.</p></div>
     </div>
     <div class="grid g3" style="margin-top:12px">
       <div class="on" style="background:#fff;border:1px solid var(--line)"><span class="lk" style="color:var(--forest)"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg>Cushion</span><span class="cap">On light</span></div>
@@ -567,7 +578,7 @@ p { margin: 0; }
       <span class="aa">Aa</span>
       <div style="display:grid;gap:12px">
         <h3 style="font-size:28px;font-weight:400">Inter</h3>
-        <p class="small">One typeface for everything, from the wordmark to the smallest label. Clear numbers at every size, so cents and dates never blur.</p>
+        <p class="small">Used for everything from the wordmark to the smallest label. Its figures stay readable at small sizes, which matters for cents and dates.</p>
         <div class="weights"><span style="font-weight:400">Regular</span><span style="font-weight:500">Medium</span><span style="font-weight:600">Semi Bold</span></div>
         <span class="nums">€88.05&nbsp;&nbsp;€1,430&nbsp;&nbsp;22 Sep</span>
       </div>
@@ -579,10 +590,10 @@ p { margin: 0; }
 <section style="padding-top:0">
   <div class="wrap">
     <div class="head">
-      <div class="label">Design system<span class="n">08 / 15</span></div>
+      <div class="label">Design system<span class="n">12 / 12</span></div>
       <div>
-        <h2>Six components<br><span class="soft">carry the product.</span></h2>
-        <p class="lede">The library holds every state, but these six do most of the work. Each answer card shares one frame: a title, live numbers, then one main action.</p>
+        <h2>Components<span class="sub">The six used most across the app.</span></h2>
+        <p class="lede">Every answer card uses the same frame: a title, live numbers, then one main action.</p>
       </div>
     </div>
     <div class="grid g3">
@@ -597,234 +608,14 @@ p { margin: 0; }
 </section>
 </main>
 
-<!-- 09 Decision 01 -->
-<section class="dark">
-  <div class="wrap">
-    <div class="head">
-      <div class="label">Key decision 01<span class="n">09 / 15</span></div>
-      <div>
-        <h2>One number,<br><span class="soft">not a balance.</span></h2>
-        <p class="lede">A balance makes people do the maths. Cushion does it for them: every bill and transfer before pay day comes off first, and the comfort line stays untouched.</p>
-        <div style="margin-top:16px"><span class="chip">From insights 01 and 02</span></div>
-      </div>
-    </div>
-    <div class="phones glow">
-      <div class="phone"><img src="img/home.webp" alt="Home with safe to spend €88.05"><span class="step">1 See one clear number</span></div>
-      <div class="phone up"><img src="img/comfort-ok.webp" alt="Comfort line editor showing the effect of €2,500"><span class="step">2 Set your own line</span></div>
-      <div class="phone"><img src="img/comfort-error.webp" alt="Comfort line editor refusing a line that is too high"><span class="step">3 Get told when it can’t work</span></div>
-    </div>
-    <div class="opts">
-      <div class="opt"><span class="tag">Option A</span><h3>Balance with category budgets</h3><p class="small">Familiar, but people still had to subtract the bills themselves.</p></div>
-      <div class="opt chosen"><span class="tag">Option B · Chosen</span><h3>A safe number with a comfort line</h3><p class="small">Bills are already counted. You choose the line, and Cushion keeps you above it until pay day.</p></div>
-    </div>
-    <div class="cto">
-      <div><b>Constraint</b><p>The number had to come from real balances and scheduled bills, never a guess.</p></div>
-      <div><b>Trade-off</b><p>A single number hides detail, so tapping it opens the month ahead with every bill.</p></div>
-      <div><b>Outcome</b><p><span class="slot">Add result</span> found today’s safe spend without help.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- 10 Decision 02: the AI coach -->
-<section class="dark" style="border-top:1px solid var(--night-line)">
-  <div class="wrap">
-    <div class="head">
-      <div class="label">Key decision 02<span class="n">10 / 15</span></div>
-      <div>
-        <h2>Answers,<br><span class="soft">not paragraphs.</span></h2>
-        <p class="lede">People trusted an answer when it came with the reason and a next step. So every reply from the coach ends in a card with live numbers and one thing to do.</p>
-        <div style="margin-top:16px"><span class="chip">From insight 03</span></div>
-      </div>
-    </div>
-    <div class="stage-wrap">
-      <div class="phones glow">
-        <div class="phone"><img src="img/chat-empty.webp" alt="Chat with suggested questions"><span class="step">1 Ask in your own words</span></div>
-        <div class="phone lg up"><img src="img/chat-flight.webp" alt="Answer about a €600 flight with an afford card"><span class="step">2 Get the answer and why</span></div>
-        <div class="phone"><img src="img/chat-dental.webp" alt="Answer that splits a dental bill across pay day"><span class="step">3 Act on it in the card</span></div>
-      </div>
-    </div>
-    <div class="answers">
-      <figure><img src="img/w-flight.webp" alt="Afford card"><figcaption><b>Can I afford it?</b>When it fits, and when it doesn’t</figcaption></figure>
-      <figure><img src="img/w-dental.webp" alt="Split card"><figcaption><b>Split a bill</b>Drag to see what stays above your line</figcaption></figure>
-      <figure><img src="img/w-move.webp" alt="Transfer draft card"><figcaption><b>Transfer draft</b>Confirm, and your bank asks to approve</figcaption></figure>
-      <figure><img src="img/w-eat.webp" alt="Category card for eating out"><figcaption><b>Why is it up?</b>Six months and the places behind it</figcaption></figure>
-      <figure><img src="img/w-goal.webp" alt="Goal progress card"><figcaption><b>Goal check</b>Where you’ll be, and how to get there sooner</figcaption></figure>
-    </div>
-    <div class="opts">
-      <div class="opt"><span class="tag">Option A</span><h3>A chat that replies in text</h3><p class="small">Quick to build, but long answers meant people still had to work out what to do.</p></div>
-      <div class="opt chosen"><span class="tag">Option B · Chosen</span><h3>Every answer ends in a card</h3><p class="small">Plain words first, then one card with the numbers and a single action you can take right there.</p></div>
-    </div>
-    <div class="cto">
-      <div><b>Constraint</b><p>Every number in an answer had to come from the same forecast as Home, so they always agree.</p></div>
-      <div><b>Trade-off</b><p>Chat is slower for a glance, so Home shows the safe number and the sparkle opens the reason.</p></div>
-      <div><b>Outcome</b><p><span class="slot">Add result</span> got an answer they could act on without help.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- 11 Decision 03 -->
-<section class="dark" style="border-top:1px solid var(--night-line)">
-  <div class="wrap">
-    <div class="head">
-      <div class="label">Key decision 03<span class="n">11 / 15</span></div>
-      <div>
-        <h2>Cushion drafts.<br><span class="soft">Your bank approves.</span></h2>
-        <p class="lede">People wouldn’t let a budgeting app move money on its own. So Cushion prepares the move, and the bank, the service or the inbox finishes it.</p>
-        <div style="margin-top:16px"><span class="chip">From insight 04</span></div>
-      </div>
-    </div>
-    <div class="phones glow">
-      <div class="phone"><img src="img/home-actions.webp" alt="Suggestion to move €1,200 into savings"><span class="step">1 Cushion spots it</span></div>
-      <div class="phone up"><img src="img/bank-app.webp" alt="Sparkasse asking to approve a request from Cushion"><span class="step">2 Your bank approves</span></div>
-      <div class="phone"><img src="img/spotify-web.webp" alt="Spotify's site opened to cancel a duplicate plan"><span class="step">3 Or the service’s own site</span></div>
-    </div>
-    <div class="opts">
-      <div class="opt"><span class="tag">Option A</span><h3>Cushion moves money itself</h3><p class="small">One tap, but it asks people to trust a new app with their account.</p></div>
-      <div class="opt chosen"><span class="tag">Option B · Chosen</span><h3>Hand off to the bank</h3><p class="small">Cushion fills in amount, account and reference. The bank app approves with Face ID, as it would any payment.</p></div>
-    </div>
-    <div class="cto">
-      <div><b>Constraint</b><p>European payment rules require the bank to confirm payments started by a third party.</p></div>
-      <div><b>Trade-off</b><p>One extra screen, so Cushion fills in every field and returns you to where you were.</p></div>
-      <div><b>Outcome</b><p><span class="slot">Add result</span> moved money to savings without help.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- 12 Iteration -->
-<section>
-  <div class="wrap">
-    <div class="head">
-      <div class="label">Iteration<span class="n">12 / 15</span></div>
-      <div>
-        <h2>Structure first,<br><span class="soft">polish second.</span></h2>
-        <p class="lede">The layout settled early. Then every screen went through rounds of review in the working prototype.</p>
-      </div>
-    </div>
-    <div class="grid">
-      <div class="iter">
-        <div class="before"><img src="img/old-home-v1.webp" alt="Earlier home screen with a green safe to spend card"></div>
-        <span class="ar" aria-hidden="true">→</span>
-        <div><img src="img/home.webp" alt="Final home screen"></div>
-        <div class="what"><span class="k">Earlier → Final</span><h3>Safe to spend</h3><p class="small">Problem: the number came first and the label hid in small capitals below, so people read “88” without knowing what it meant. Fix: the label leads, the reasons became two pills, and the card moved to night green with a soft halftone.</p></div>
-      </div>
-      <div class="iter">
-        <div class="before"><img src="img/old-home-v2.webp" alt="Version with a chart inside the safe to spend card"></div>
-        <span class="ar" aria-hidden="true">→</span>
-        <div><img src="img/home.webp" alt="Final home screen without the chart"></div>
-        <div class="what"><span class="k">Earlier → Final</span><h3>Drop the chart</h3><p class="small">Problem: a balance chart inside the card pulled attention from the one number that mattered. Fix: the chart moved to the month ahead, and the card kept only what helps a decision today.</p></div>
-      </div>
-      <div class="iter">
-        <div class="before"><img src="img/old-comfort-wheel.webp" alt="Comfort line set with a wheel picker"></div>
-        <span class="ar" aria-hidden="true">→</span>
-        <div><img src="img/comfort-error.webp" alt="Typed comfort line with a clear limit"></div>
-        <div class="what"><span class="k">Earlier → Final</span><h3>Comfort line</h3><p class="small">Problem: a wheel in €100 steps up to €3,000 didn’t fit everyone, and allowed lines no account could keep. Fix: type any amount, see the effect on today as you type, and get told the highest line that can actually hold.</p></div>
-      </div>
-      <div class="iter">
-        <div class="before"><img src="img/old-goal-card.webp" alt="Plain goal card"></div>
-        <span class="ar" aria-hidden="true">→</span>
-        <div><img src="img/money-coming.webp" alt="Goal card with a cover photo"></div>
-        <div class="what"><span class="k">Earlier → Final</span><h3>Goals you can picture</h3><p class="small">Problem: every goal looked the same, so saving felt like admin. Fix: each goal can carry a cover photo, brightened and faded behind the text, on the card and across the top of the goal page.</p></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 13 Final: home and money -->
-<section style="padding-top:0">
-  <div class="wrap">
-    <div class="head">
-      <div class="label">Final design<br>Home and money<span class="n">13 / 15</span></div>
-      <div>
-        <h2>Every euro<br><span class="soft">already spoken for.</span></h2>
-        <p class="lede">Home answers one question first: how much can Lena safely spend today? The month ahead, goals and fixes sit one tap away.</p>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="float" style="left:16px;top:16px"><span class="k">Safe to spend today</span><span class="v">€88.05</span></div>
-      <div class="phones">
-        <div class="phone"><img src="img/money.webp" alt="Money tab with net worth and categories"></div>
-        <div class="phone lg up"><img src="img/home.webp" alt="Home with safe to spend and suggestions"></div>
-        <div class="phone"><img src="img/month.webp" alt="The month ahead with a balance line to pay day"></div>
-      </div>
-      <div class="float" style="right:16px;bottom:16px"><span class="k">Thinnest moment</span><span class="v">€4,525</span><span class="k">2 Sep, €3,525 above the line</span></div>
-    </div>
-    <div class="final-row">
-      <div><h3>Money</h3><p class="small">What you have, where August went and what’s worth fixing, with cents only on real money.</p></div>
-      <div><h3>Home</h3><p class="small">Safe to spend, suggestions with one action each, savings and recent spending.</p></div>
-      <div><h3>The month ahead</h3><p class="small">Every bill and payment to pay day, and the lowest point drawn against your line.</p></div>
-    </div>
-
-    <div class="split" style="margin-top:56px">
-      <div class="panel" style="padding:36px 16px"><div class="phones"><div class="phone" style="width:210px"><img src="img/goal.webp" alt="Japan goal page with a photo header"></div></div></div>
-      <div class="panel" style="padding:36px 16px"><div class="phones"><div class="phone" style="width:210px"><img src="img/goal-edit.webp" alt="Edit goal with a cover photo picker"></div></div></div>
-    </div>
-    <div class="final-row" style="grid-template-columns:repeat(2,minmax(0,1fr))">
-      <div><h3>Goals</h3><p class="small">How far along you are, when you’ll get there and what to change to arrive in time.</p></div>
-      <div><h3>Make it yours</h3><p class="small">Pick an icon and a cover photo. The photo gets the same calm treatment everywhere.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- 14 Final: AI coach -->
-<section class="dark">
-  <div class="wrap">
-    <div class="head">
-      <div class="label">Final design<br>AI coach and fixes<span class="n">14 / 15</span></div>
-      <div>
-        <h2>A coach<br><span class="soft">that does the maths.</span></h2>
-        <p class="lede">Ask what you can afford. Find out why a category is up. Let Cushion spot what’s worth fixing, then finish it in two taps.</p>
-      </div>
-    </div>
-    <div class="phones glow">
-      <div class="phone"><img src="img/chat-eat.webp" alt="Answer explaining why eating out is up"><span class="step">1 Ask why</span></div>
-      <div class="phone up"><img src="img/chat-move.webp" alt="Transfer draft from a chat request"><span class="step">2 Confirm the draft</span></div>
-      <div class="phone"><img src="img/spotify-done.webp" alt="Duplicate Spotify cancelled with the effect on safe to spend"><span class="step">3 See what changed</span></div>
-    </div>
-    <div class="final-row">
-      <div><h3 style="color:#fff">Plain-language answers</h3><p class="small">Each answer names the bills, dates and places behind it, then the card shows the numbers.</p></div>
-      <div><h3 style="color:#fff">One-tap drafts</h3><p class="small">Nothing is saved or sent until you confirm, so a misread request never slips through.</p></div>
-      <div><h3 style="color:#fff">Fixes it finds</h3><p class="small">A second Spotify plan, a parking refund, idle cash. Each comes with the saving and one action.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- 15 Testing -->
-<section>
-  <div class="wrap">
-    <div class="head">
-      <div class="label">Testing and outcome<span class="n">15 / 15</span></div>
-      <div>
-        <h2>Designed to make<br><span class="soft">money feel readable.</span></h2>
-        <p class="lede">I tested the prototype in moderated sessions with people on a monthly salary. These were the core tasks.</p>
-      </div>
-    </div>
-    <div class="grid g3">
-      <div class="res"><span class="big"><span class="slot" style="font-size:20px">? of 5</span></span><div class="dots"><i></i><i></i><i></i><i></i><i></i></div><h3 style="font-size:15px">Find today’s safe spend</h3><span class="cap">completed without help</span></div>
-      <div class="res"><span class="big"><span class="slot" style="font-size:20px">? of 5</span></span><div class="dots"><i></i><i></i><i></i><i></i><i></i></div><h3 style="font-size:15px">Ask if a purchase fits</h3><span class="cap">completed without help</span></div>
-      <div class="res"><span class="big"><span class="slot" style="font-size:20px">? of 5</span></span><div class="dots"><i></i><i></i><i></i><i></i><i></i></div><h3 style="font-size:15px">Move money to a goal</h3><span class="cap">completed without help</span></div>
-    </div>
-    <div class="paths">
-      <span class="label">Two ways to save for a goal</span>
-      <div class="p"><div class="ph">Ask the coach <span>3 steps</span></div><div class="steps short"><span>“Put €50 towards Japan”</span><span>Confirm draft</span><span>Approve in bank</span></div></div>
-      <div class="p"><div class="ph">From the goal <span style="color:var(--muted)">5 steps</span></div><div class="steps"><span>Money</span><span>Open goal</span><span>Add Money</span><span>Enter amount</span><span>Approve in bank</span></div></div>
-    </div>
-    <div class="learn">
-      <span class="label">What I learned</span>
-      <div><h3>Timing beats totals</h3><p class="small">People didn’t need to know where money went. They needed to know when it would leave.</p></div>
-      <div><h3>Trust sits with the bank</h3><p class="small">Handing the last step to the bank made a new app feel safe enough to act on.</p></div>
-      <div><h3>Next, I would test</h3><p class="small">Whether a morning nudge with the safe number keeps people coming back after the first month.</p></div>
-    </div>
-  </div>
-</section>
-
 <!-- Thanks -->
 <section class="dark thanks">
   <div class="wrap">
     <div class="inner">
       <div style="display:grid;gap:18px">
         <span class="brand"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg>Cushion</span>
-        <h2>Thank you<br><span class="soft">for scrolling.</span></h2>
-        <p class="lede">Want to talk about a project? Message me through this profile.</p>
+        <h2>Thanks for reading.</h2>
+        <p class="lede">To talk about a project, message me through this profile.</p>
       </div>
       <div style="display:grid;gap:10px;justify-items:center"><span class="app-icon"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg></span><span class="small">Cushion</span></div>
     </div>
