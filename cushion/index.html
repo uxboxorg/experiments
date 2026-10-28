@@ -1383,6 +1383,9 @@ const I = {
 };
 
 const LUCIDE_EXTRA = {
+  baby: '<path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/>',
+  'paw-print': '<circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/>',
+  bike: '<circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/>',
   banknote: '<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
   laptop: '<path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/>',
   gift: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/>',
@@ -2646,7 +2649,7 @@ function refundArrives() {
 }
 
 /* ---------------- Goals ---------------- */
-const GOAL_ICONS = [['plane', '#2F6FD6'], ['house', '#C2410C'], ['car', '#475569'], ['laptop', '#4B4BC8'], ['gift', '#C0267A'], ['umbrella', '#0E8A7E'], ['graduation-cap', '#7C3AED'], ['heart', '#D9364C']];
+const GOAL_ICONS = [['plane', '#2F6FD6'], ['house', '#C2410C'], ['car', '#475569'], ['laptop', '#4B4BC8'], ['gift', '#C0267A'], ['umbrella', '#0E8A7E'], ['graduation-cap', '#7C3AED'], ['heart', '#D9364C'], ['baby', '#D6578E'], ['paw-print', '#A8642A'], ['bike', '#0F87A8'], ['piggy-bank', '#2E9E55']];
 const GOAL_IDEAS = [['Emergency fund', 'umbrella'], ['New laptop', 'laptop'], ['Wedding', 'heart'], ['Driving lessons', 'car']];
 const SPARE_MONTHLY = 560; // usually left each month after bills and everyday spending, before any goals
 const goalColor = ic => (GOAL_ICONS.find(g => g[0] === ic) || GOAL_ICONS[0])[1];
