@@ -617,7 +617,6 @@ p { margin: 0; }
         <span class="brand"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg>Cushion</span>
         <h2>Thanks for reading.</h2>
       </div>
-      <div style="display:grid;gap:10px;justify-items:center"><span class="app-icon"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg></span><span class="small">Cushion</span></div>
     </div>
   </div>
 </section>
@@ -629,15 +628,15 @@ p { margin: 0; }
 .avatar { width: 56px; height: 56px !important; border-radius: 50%; object-fit: cover; flex: none; }
 
 /* Photo cover */
-.hero { position: relative; isolation: isolate; }
-.hero-photo { position: absolute; top: 0; bottom: 0; right: 0; left: auto; width: 70%; height: 100% !important; object-fit: cover; object-position: 75% 30%; z-index: -2; }
-.hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--night) 30%, rgba(12, 26, 24, .75) 45%, rgba(12, 26, 24, .15) 65%, rgba(12, 26, 24, 0) 100%), linear-gradient(0deg, rgba(12, 26, 24, .45), transparent 40%); }
+.hero { position: relative; isolation: isolate; background: var(--night); }
+.hero-photo { position: absolute; top: 0; bottom: 0; right: 0; left: auto; width: 85%; height: 100% !important; object-fit: cover; object-position: 75% 30%; z-index: -2; -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.25) 15%, rgba(0,0,0,.6) 32%, rgba(0,0,0,.9) 50%, #000 65%); mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.25) 15%, rgba(0,0,0,.6) 32%, rgba(0,0,0,.9) 50%, #000 65%); }
+.hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(12, 26, 24, .35) 20%, rgba(12, 26, 24, .2) 45%, rgba(12, 26, 24, 0) 70%), linear-gradient(0deg, rgba(12, 26, 24, .35), transparent 35%); }
 .hero .inner { grid-template-columns: minmax(0, 1fr); min-height: 640px; padding-block: 110px 64px; }
 .hero h1 .soft { color: #C9D8D2; }
 .credit { font-size: 12px; color: var(--night-muted); margin-top: 28px; }
 @media (max-width: 760px) {
   .hero .inner { min-height: 560px; padding-block: 28px 40px; align-content: space-between; }
-  .hero-photo { width: 100%; object-position: 85% 30%; }
+  .hero-photo { width: 100%; object-position: 85% 30%; -webkit-mask-image: none; mask-image: none; }
   .hero::after { background: linear-gradient(0deg, rgba(12, 26, 24, .95) 10%, rgba(12, 26, 24, .45) 55%, rgba(12, 26, 24, .55) 100%); }
 }
 </style>
