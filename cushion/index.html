@@ -1838,6 +1838,37 @@ function liveBill(el, id) {
   n.classList.toggle('warn', after < before);
   n.textContent = after < before ? `Today's safe-to-spend would drop from ${eur(before, 2)} to ${eur(after, 2)}.` : after > before ? `Today's safe-to-spend would go up to ${eur(after, 2)}.` : `Today's safe-to-spend stays at ${eur(before, 2)}.`;
 }
+// Comfort line: typed in, and never higher than the current account's lowest point before pay day
+function comfortMax(fc = forecast()) {
+  let lo = Infinity, day = 0;
+  for (let i = 0; i < fc.payIdx; i++) if (fc.days[i] < lo) { lo = fc.days[i]; day = i; }
+  return { max: Math.max(0, Math.floor(lo)), day };
+}
+function safeWithComfort(c) { const old = S.comfort; S.comfort = c; const sf = safety(); S.comfort = old; return sf.safe; }
+const comfortTooHigh = m => `Too high. Even with no everyday spending, your current account dips to ${eur(m.max)} ${onDay(m.day)} before pay day, so the most you can set is ${eur(m.max)}.`;
+function comfortPage() {
+  return `<div class="nav"><button class="pill glass" data-act="back">Cancel</button><button class="pill glass" data-act="comfort-save"><b>Save</b></button></div>
+    <div class="auth">
+      ${authHead('Comfort line', 'The balance your current account should never go below before pay day. Cushion keeps safe-to-spend under it.')}
+      ${draftField('amt', 'Amount', { kb: 'amount', ph: '1,000', max: 6 })}
+      <p class="plan-note" id="comfort-note" aria-live="polite"></p>
+    </div>`;
+}
+function liveComfort(el) {
+  const n = $('#comfort-note', el), e = $('#de-amt', el), f = $('#df-amt', el); if (!n) return;
+  if (e) e.textContent = ''; if (f) f.removeAttribute('aria-invalid');
+  const raw = String(S.draft.amt || '').trim();
+  if (raw === '') { n.classList.remove('warn'); n.textContent = `You can set up to ${eur(comfortMax().max)}.`; return; }
+  const c = Math.round(+raw || 0), m = comfortMax();
+  if (c > m.max) { n.classList.add('warn'); n.textContent = comfortTooHigh(m); return; }
+  const before = safeNow(), after = safeWithComfort(c);
+  n.classList.toggle('warn', after < before);
+  n.textContent = after === 0 ? `That leaves nothing to spend until pay day.` : after < before ? `Today's safe-to-spend would drop from ${eur(before, 2)} to ${eur(after, 2)}.` : after > before ? `Today's safe-to-spend would go up to ${eur(after, 2)}.` : `Today's safe-to-spend stays at ${eur(before, 2)}.`;
+}
+function comfortFlow() {
+  S.draft = { amt: String(S.comfort) };
+  flowPush(comfortPage, { modal: true, kind: 'comfort', focus: true, mount: el => { el.live = () => liveComfort(el); el.live(); } });
+}
 function billFlow(id) {
   const b = id && billById(id);
   S.draft = b ? { name: b.name, amt: String(b.amt), day: b.day, every: String(b.every) } : { name: '', amt: '', day: 15, every: '1' };
@@ -1914,7 +1945,7 @@ function profilePage() {
         <h2 class="section-h">Your plan</h2>
         <div class="list">
           ${paydayRow('profile')}
-          ${wheelRow('comfort')}
+          <button class="row pref-row" data-act="comfort-edit"><span class="grow t">Comfort line</span><span class="v s-val">${eur(S.comfort)}</span><span class="chev" aria-hidden="true">${I.chev}</span></button>
         </div>
         <p class="foot" style="text-align:left;margin:8px 4px 0">Cushion keeps your current account above the comfort line when it works out what's safe to spend.</p>
       </div>
@@ -3823,6 +3854,17 @@ const H = {
       const c = SPEND.find(x => x.name === from) || SPEND.find(x => x.name === to);
       toast(c ? `Moved to ${to} · ${c.name} ${spendTag(c).tag.toLowerCase()}` : `Moved to ${to}`);
     }
+  },
+  'comfort-edit'() { comfortFlow(); },
+  'comfort-save'() {
+    const raw = String(S.draft.amt || '').trim(), c = Math.round(+raw || 0), m = comfortMax();
+    if (raw === '' || !(+raw >= 0)) return draftErr('amt', 'Enter an amount.');
+    if (c > m.max) { const n = $('#comfort-note', stack[stack.length - 1]); if (n) n.textContent = ''; return draftErr('amt', comfortTooHigh(m)); }
+    const before = safeNow();
+    S.comfort = c;
+    navBusy = false; pop(true); refresh();
+    const after = safeNow();
+    toast(after !== before ? `Safe to spend is now ${eur(after, 2)}` : `Comfort line set to ${eur(c)}`);
   },
   'bill-new'() { billFlow(null); },
   'open-bill'(el) { if (billById(el.dataset.id)) billFlow(el.dataset.id); },
