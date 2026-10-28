@@ -110,6 +110,7 @@ p { margin: 0; }
 .tags span { height: 30px; padding: 0 13px; border-radius: 99px; display: inline-flex; align-items: center; font-size: 13px; background: rgba(12, 26, 24, .55); border: 1px solid rgba(255, 255, 255, .18); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .hero h1 { font-size: clamp(40px, 5.6vw, 56px); line-height: 1.02; letter-spacing: -.035em; font-weight: 400; }
 .hero h1 .soft { color: #8FA59D; }
+.hero-brand { margin-bottom: 18px; }
 .ask { display: grid; gap: 4px; max-width: 250px; margin-bottom: 26px; padding: 12px 14px; border-radius: 14px; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .18); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); font-size: 13px; }
 .ask b { font-weight: 500; display: flex; align-items: center; gap: 6px; }
 .ask b svg { color: var(--lime); }
@@ -393,10 +394,11 @@ p { margin: 0; }
   <div class="wrap">
     <div class="inner">
       <div class="top">
-        <span class="brand"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg>Cushion</span>
+        <span></span>
         <span class="tags"><span>Fintech</span><span>iOS app</span><span>AI Advisor</span><span>2026</span></span>
       </div>
       <div>
+        <span class="brand hero-brand"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg>Cushion</span>
         <div class="ask"><b><svg width="14" height="14" aria-hidden="true"><use href="#spark"/></svg>Ask Cushion</b><span>“Can I afford a €600 flight in March?”</span></div>
         <h1>Know what’s safe<br>to spend <span class="soft">today.</span></h1>
       </div>
