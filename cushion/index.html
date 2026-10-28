@@ -838,11 +838,20 @@ button.row[disabled] { cursor: default; }
 
 /* Japan goal card: photo on the right, fading into the card colour behind the text */
 /* The photo sits on its own layer so it can be brightened; the fade sits on top of it */
-.card-media.g-iceland.photo-japan { isolation: isolate; }
-.card-media.g-iceland.photo-japan::before { content: ""; position: absolute; inset: 0; z-index: -2; background: url(japan.jpg) right 40% / auto 135% no-repeat; filter: brightness(1.18) saturate(1.05); }
-.card-media.g-iceland.photo-japan::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--card) 28%, color-mix(in srgb, var(--card) 62%, transparent) 58%, color-mix(in srgb, var(--card) 38%, transparent) 100%); }
+.card-media.g-iceland.has-photo { isolation: isolate; }
+.card-media.g-iceland.has-photo::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--photo) var(--photo-pos, center / cover) no-repeat; filter: brightness(1.18) saturate(1.05); }
+.card-media.g-iceland.has-photo::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--card) 28%, color-mix(in srgb, var(--card) 62%, transparent) 58%, color-mix(in srgb, var(--card) 38%, transparent) 100%); }
 .card-media.g-iceland .card-chev.inline { opacity: 1; }
 .card-media.g-iceland .card-chev.inline svg { color: var(--accent) !important; }
+/* Goal edit: cover photo */
+.cover-pick { display: grid; gap: 10px; }
+.cover-pick .lbl { font-size: 13px; font-weight: 600; color: var(--label2); }
+.cover-prev { height: 120px; border-radius: 20px; background: var(--fill); display: grid; place-items: center; color: var(--label3); font-size: 15px; overflow: hidden; }
+.cover-prev.on { background: var(--photo) center / cover no-repeat, var(--fill); }
+.cover-btns { display: flex; gap: 8px; }
+.cover-btns > * { flex: 1; }
+.cover-btns input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
 /* Goal cards: the arrow sits level with the goal icon */
 .goal-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .card-chev.inline { position: static; flex: none; margin-right: 2px; }
@@ -1456,7 +1465,7 @@ const S = {
   auth: {},
   prefs: { theme: 'system', faceId: true, approve: true, bills: true, spending: true, paydayNote: false },
   // Savings goals all live in Lena's Stash. `goal` is the target; `by` counts months from August 2026 (0 = no date)
-  iceland: { id: 'iceland', name: 'Japan', sub: 'February trip', icon: 'plane', color: '#2F6FD6', saved: 1400, goal: 2400, monthly: 140, paused: false, by: 6 },
+  iceland: { id: 'iceland', name: 'Japan', sub: 'February trip', icon: 'plane', color: '#2F6FD6', photo: 'japan.jpg', photoPos: 'right 40% / auto 135%', saved: 1400, goal: 2400, monthly: 140, paused: false, by: 6 },
   draft: {},
   fixesSent: 0,
   dismissed: [],
@@ -2868,13 +2877,39 @@ function goalEditPage(id) {
       ${draftField('name', 'Name', { max: 28 })}
       ${draftField('target', 'Target', { kb: 'amount', max: 7 })}
       <div class="list">${wheelRow('goal-edit')}</div>
+      ${coverPick()}
       <button class="btn destructive" data-act="goal-delete" data-id="${id}">Delete Goal</button>
     </div>`;
 }
 
+// Cover photo: shown behind the goal card. Uploads are scaled down and kept in memory for the session.
+function coverPick() {
+  const ph = S.draft.photo;
+  return `<div class="cover-pick">
+      <span class="lbl">Cover photo</span>
+      <div class="cover-prev${ph ? ' on' : ''}"${ph ? ` style="--photo:url('${ph}')"` : ''} role="img" aria-label="${ph ? 'Cover photo preview' : 'No cover photo'}">${ph ? '' : 'No photo'}</div>
+      <div class="cover-btns">
+        <label class="btn tinted" role="button" tabindex="0">${ph ? 'Change Photo' : 'Choose Photo'}<input type="file" accept="image/*" data-goal-photo></label>
+        ${ph ? '<button class="btn tinted" data-act="goal-photo-remove">Remove</button>' : ''}
+      </div>
+    </div>`;
+}
+function shrinkPhoto(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, 1000 / img.naturalWidth), c = document.createElement('canvas');
+      c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', .82));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(); };
+    img.src = url;
+  });
+}
 const goalCard = g => {
   const pct = Math.min(100, Math.round(g.saved / g.goal * 100));
-  return `<button class="card-media g-iceland${g === S.iceland && /japan/i.test(g.name) ? ' photo-japan' : ''}" data-act="${g === S.iceland ? 'open-iceland' : 'open-goal'}" data-id="${g.id}">
+  return `<button class="card-media g-iceland${g.photo ? ' has-photo' : ''}"${g.photo ? ` style="--photo:url('${g.photo}');--photo-pos:${g.photoPos || 'center / cover'}"` : ''} data-act="${g === S.iceland ? 'open-iceland' : 'open-goal'}" data-id="${g.id}">
     <span class="goal-top" aria-hidden="true">${goalTile(g, 40)}<span class="card-chev inline">${I.chev}</span></span>
     <span class="ttl">${esc(goalTitle(g))}</span>
     <span style="font-size:13px;opacity:.9">${pct}% · ${eur(g.saved)} of ${eur(g.goal)}${g.paused ? ' · Paused' : ''}</span>
@@ -4055,7 +4090,7 @@ const H = {
   }),
   'goal-edit'(el) {
     const g = goalById(el.dataset.id); if (!g) return;
-    S.draft = { name: g.name, icon: g.icon, target: String(g.goal), by: g.by || 0 };
+    S.draft = { name: g.name, icon: g.icon, target: String(g.goal), by: g.by || 0, photo: g.photo || '', photoPos: g.photoPos || '' };
     flowPush(() => goalEditPage(g.id), { modal: true, focus: false, kind: 'goal-edit' });
   },
   'goal-save'(el) {
@@ -4064,11 +4099,12 @@ const H = {
     if (!n) return draftErr('name', 'Give your goal a name.');
     if (t < 10) return draftErr('target', 'Enter at least €10.');
     if (g === S.iceland && n !== g.name) g.sub = '';
-    Object.assign(g, { name: n, icon: S.draft.icon, goal: t, by: S.draft.by || 0 });
+    Object.assign(g, { name: n, icon: S.draft.icon, goal: t, by: S.draft.by || 0, photo: S.draft.photo || '', photoPos: S.draft.photoPos || '' });
     g.color = goalColor(g.icon);
     navBusy = false; pop(true); refresh();
     toast('Changes saved');
   },
+  'goal-photo-remove'() { S.draft.photo = ''; S.draft.photoPos = ''; const pg = stack[stack.length - 1]; pg && pg.render(); },
   'goal-delete': once(async el => {
     const g = goalById(el.dataset.id); if (!g) return;
     const ok = await alertBox({ sheet: true, title: `Delete ${esc(g.name)}?`, msg: g.saved > 0 ? `The ${eur(g.saved)} you saved stays in Lena’s Stash.` : 'Monthly transfers for this goal stop.', actions: [{ label: 'Delete Goal', style: 'destructive', value: true }, { label: 'Cancel', value: false }] });
@@ -4290,6 +4326,11 @@ app.addEventListener('input', e => {
 });
 function syncSend() { const b = $('#composer .send'), i = $('#chat-input'); if (b && i) b.disabled = !i.value.trim(); }
 app.addEventListener('change', e => {
+  if (e.target.dataset && 'goalPhoto' in e.target.dataset) {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    shrinkPhoto(f).then(d => { S.draft.photo = d; S.draft.photoPos = 'center / cover'; const pg = stack[stack.length - 1]; pg && pg.render(); }).catch(() => toast('That photo couldn’t be opened'));
+    return;
+  }
   if (e.target.id === 'car-late') H['toggle-car'](e.target);
   if (e.target.dataset && e.target.dataset.cwField === 'cat') cwInput(e.target);
   if (e.target.dataset && e.target.dataset.oneoff) {
