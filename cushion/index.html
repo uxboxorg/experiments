@@ -1158,6 +1158,8 @@ button.row[disabled] { cursor: default; }
 .safe-ask:active { background: rgba(255, 255, 255, .2); }
 .safe .num { line-height: 1; }
 .safe-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 !important; max-width: none !important; }
+button.chip-s { font-family: inherit; border: 0; cursor: pointer; }
+button.chip-s:active { background: rgba(255, 255, 255, .2); }
 .chip-s { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 11px; white-space: nowrap; border-radius: 14px; background: rgba(255, 255, 255, .12); color: #FFFFFF; font-size: 13px; font-weight: 600; text-shadow: none; }
 .chip-s svg { width: 14px; height: 14px; opacity: .85; margin-left: -2px; }
 .chip-s.warn { background: rgba(255, 184, 77, .2); color: #FFD08A; }
@@ -2398,7 +2400,7 @@ function renderToday() {
         <div class="num" id="safe-num" aria-label="${eur(sf.safe, 2)} safe to spend today"><span class="cur">€</span><span class="w">${whole}</span><span class="cents">.${cents}</span></div>
         <div class="safe-chips why">
           <span class="chip-s">${icon('calendar', 14)}${sf.daysToPay} day${sf.daysToPay === 1 ? '' : 's'} to pay day</span>
-          <span class="chip-s${sf.limitedByCash ? ' warn' : ''}">${sf.limitedByCash ? `${I.info}Held back for your ${eur(S.comfort)} comfort line` : `${icon('check-check', 14)}Above your ${eur(S.comfort)} comfort line`}</span>
+          <button class="chip-s${sf.limitedByCash ? ' warn' : ''}" data-act="comfort-edit">${sf.limitedByCash ? `${I.info}Held back for your ${eur(S.comfort)} comfort line` : `${icon('check-check', 14)}Above your ${eur(S.comfort)} comfort line`}</button>
         </div>
       </div>
       ${undo}<div class="actions" id="actions">${cards || done}</div>
