@@ -1442,7 +1442,7 @@ const S = {
   auth: {},
   prefs: { theme: 'system', faceId: true, approve: true, bills: true, spending: true, paydayNote: false },
   // Savings goals all live in Lena's Stash. `goal` is the target; `by` counts months from August 2026 (0 = no date)
-  iceland: { id: 'iceland', name: 'Japan', sub: 'February trip', icon: 'mountain-snow', color: 'var(--forest)', saved: 1400, goal: 2400, monthly: 140, paused: false, by: 6 },
+  iceland: { id: 'iceland', name: 'Japan', sub: 'February trip', icon: 'plane', color: '#2F6FD6', saved: 1400, goal: 2400, monthly: 140, paused: false, by: 6 },
   draft: {},
   fixesSent: 0,
   dismissed: [],
@@ -4051,7 +4051,7 @@ const H = {
     if (t < 10) return draftErr('target', 'Enter at least €10.');
     if (g === S.iceland && n !== g.name) g.sub = '';
     Object.assign(g, { name: n, icon: S.draft.icon, goal: t, by: S.draft.by || 0 });
-    g.color = g === S.iceland && g.icon === 'mountain-snow' ? 'var(--forest)' : goalColor(g.icon);
+    g.color = goalColor(g.icon);
     navBusy = false; pop(true); refresh();
     toast('Changes saved');
   },
