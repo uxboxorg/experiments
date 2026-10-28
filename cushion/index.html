@@ -847,7 +847,10 @@ button.row[disabled] { cursor: default; }
 .cover-pick { display: grid; gap: 10px; }
 .cover-pick .lbl { font-size: 13px; font-weight: 600; color: var(--label2); }
 .cover-prev { height: 120px; border-radius: 20px; background: var(--fill); display: grid; place-items: center; color: var(--label3); font-size: 15px; overflow: hidden; }
-.cover-prev.on { background: var(--photo) center / cover no-repeat, var(--fill); }
+.cover-prev.on { background: var(--card); isolation: isolate; }
+/* Same treatment as on the goal card: brightened photo, faded into the card colour on the left */
+.cover-prev.on::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--photo) center / cover no-repeat; filter: brightness(1.18) saturate(1.05); }
+.cover-prev.on::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--card) 28%, color-mix(in srgb, var(--card) 62%, transparent) 58%, color-mix(in srgb, var(--card) 38%, transparent) 100%); }
 .cover-prev { position: relative; cursor: pointer; }
 .cover-prev input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .cover-prev:active { opacity: .85; }
