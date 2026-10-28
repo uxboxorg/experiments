@@ -839,8 +839,8 @@ button.row[disabled] { cursor: default; }
 /* Japan goal card: photo on the right, fading into the card colour behind the text */
 .card-media.g-iceland.photo-japan { background: linear-gradient(90deg, var(--card) 28%, color-mix(in srgb, var(--card) 62%, transparent) 58%, color-mix(in srgb, var(--card) 38%, transparent) 100%), url(japan.jpg) right 40% / auto 135% no-repeat, var(--card) !important; }
 .card-media.g-iceland.photo-japan .card-chev { opacity: 1; color: var(--label); }
-/* Goal cards: the arrow sits on the title's line */
-.goal-ttl { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+/* Goal cards: the arrow sits level with the goal icon */
+.goal-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .card-chev.inline { position: static; flex: none; margin-right: 2px; }
 
 /* UI review: spacing and type consistency */
@@ -2871,8 +2871,8 @@ function goalEditPage(id) {
 const goalCard = g => {
   const pct = Math.min(100, Math.round(g.saved / g.goal * 100));
   return `<button class="card-media g-iceland${g === S.iceland && /japan/i.test(g.name) ? ' photo-japan' : ''}" data-act="${g === S.iceland ? 'open-iceland' : 'open-goal'}" data-id="${g.id}">
-    <span aria-hidden="true">${goalTile(g, 40)}</span>
-    <span class="ttl goal-ttl"><span>${esc(goalTitle(g))}</span><span class="card-chev inline" aria-hidden="true">${I.chev}</span></span>
+    <span class="goal-top" aria-hidden="true">${goalTile(g, 40)}<span class="card-chev inline">${I.chev}</span></span>
+    <span class="ttl">${esc(goalTitle(g))}</span>
     <span style="font-size:13px;opacity:.9">${pct}% · ${eur(g.saved)} of ${eur(g.goal)}${g.paused ? ' · Paused' : ''}</span>
     <span class="meter"><i style="width:${pct}%"></i></span>
   </button>`;
