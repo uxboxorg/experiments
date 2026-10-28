@@ -264,10 +264,10 @@ p { margin: 0; }
 
 /* Thanks */
 .thanks { padding-block: 24px 0; overflow: hidden; }
-.thanks .inner { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: end; }
-.thanks .inner > div:first-child { padding-bottom: 48px; }
-.coin-flip { width: 220px; height: auto; display: block; margin-right: 24px; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%); mask-image: linear-gradient(to bottom, transparent, #000 22%); }
-@media (max-width: 760px) { .coin-flip { width: 140px; margin-right: 0; } .thanks .inner > div:first-child { padding-bottom: 40px; } }
+.thanks .inner { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: center; }
+.thanks .inner > div:first-child { padding-bottom: 0; }
+.coin-flip { width: 220px; height: auto; display: block; align-self: end; margin-right: 24px; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%); mask-image: linear-gradient(to bottom, transparent, #000 22%); }
+@media (max-width: 760px) { .coin-flip { width: 140px; margin-right: 0; } .thanks .inner > div:first-child { padding-bottom: 24px; } }
 .app-icon { width: 120px; height: 120px; border-radius: 28px; background: var(--forest); display: grid; place-items: center; box-shadow: 0 20px 50px rgba(0, 0, 0, .4); }
 .app-icon .mark { width: 70px; height: 70px; color: var(--lime); }
 
