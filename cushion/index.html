@@ -1168,6 +1168,10 @@ button.chip-s:active { background: rgba(255, 255, 255, .2); }
 .card-media .pay-line { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; padding: 0 28px 12px 0; margin-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, .18); }
 .card-media .pay-line svg { opacity: .85; }
 .card-media.g-month { background: #0C1A18 !important; }
+.card-media.g-month { gap: 6px; padding: 20px 22px 24px; }
+.card-media.g-month .pay-line { padding-bottom: 14px; margin-bottom: 10px; }
+.card-media.g-month .ttl { line-height: 1.2; }
+.card-media.g-month .card-chev.mid { bottom: 50px; right: 22px; }
 
 /* Every section label sits 12px above what it labels, whatever spacing the screen set inline */
 .section-h { padding-bottom: 12px !important; }
@@ -1422,11 +1426,11 @@ const S = {
   actions: ['save', 'spotify'],
   spotifyCancelled: false,
   accounts: [
-    { id: 'chk', name: 'Current account', sub: 'Sparkasse', mask: '4659', kind: 'cash', bal: 7400, logo: { brand: 'sparkasse', bg: '#FF0000' } },
-    { id: 'stash', name: "Lena's Stash", sub: 'Savings · 3.1%', mask: '6839', kind: 'saved', bal: 9140, logo: { icon: 'piggy-bank', bg: '#2E9E55' } },
-    { id: 'brk', name: 'ETF portfolio', sub: 'Trade Republic', mask: '1120', kind: 'saved', bal: 4395, logo: { icon: 'trending-up', bg: '#4B4BC8' } },
-    { id: 'amex', name: 'Mastercard Gold', sub: 'Credit card', mask: '9002', kind: 'owed', bal: -612, logo: { mc: true, bg: '#1C1C1E' } },
-    { id: 'visa', name: 'Visa Card', sub: 'Credit card', mask: '4088', kind: 'owed', bal: -698, logo: { brand: 'visa', bg: '#1A1F71' } },
+    { id: 'chk', name: 'Current account', sub: 'Sparkasse', mask: '4659', kind: 'cash', bal: 7412.36, logo: { brand: 'sparkasse', bg: '#FF0000' } },
+    { id: 'stash', name: "Lena's Stash", sub: 'Savings · 3.1%', mask: '6839', kind: 'saved', bal: 9140.82, logo: { icon: 'piggy-bank', bg: '#2E9E55' } },
+    { id: 'brk', name: 'ETF portfolio', sub: 'Trade Republic', mask: '1120', kind: 'saved', bal: 4395.18, logo: { icon: 'trending-up', bg: '#4B4BC8' } },
+    { id: 'amex', name: 'Mastercard Gold', sub: 'Credit card', mask: '9002', kind: 'owed', bal: -612.47, logo: { mc: true, bg: '#1C1C1E' } },
+    { id: 'visa', name: 'Visa Card', sub: 'Credit card', mask: '4088', kind: 'owed', bal: -698.90, logo: { brand: 'visa', bg: '#1A1F71' } },
   ],
   linked: [],
   removed: [],   // accounts removed by the user, ready to add back
@@ -1454,11 +1458,11 @@ const FLEX_DAILY = 88.05;  // flexible budget per day this pay period
 const SPOTIFY_MONTHLY = 10.99; // back in the budget once the second plan is cancelled
 const COMFORT_DEFAULT = 1000; // the balance Lena never wants her current account to drop below; S.comfort holds her choice
 const BANKS = [
-  { id: 'n26', name: 'N26', sub: 'Current account', mask: '9331', bal: 850, kind: 'cash', logo: { brand: 'n26', bg: '#36A18B' }, found: true },
-  { id: 'revolut', name: 'Revolut', sub: 'Savings vault', mask: '4862', bal: 1240, kind: 'saved', logo: { brand: 'revolut', bg: '#191C1F' }, found: true },
-  { id: 'db', name: 'Deutsche Bank', sub: 'Germany · Current account', mask: '2210', bal: 420, kind: 'cash', logo: { brand: 'deutschebank', bg: '#0018A8' } },
-  { id: 'cbk', name: 'Commerzbank', sub: 'Germany · Current account', mask: '7713', bal: 990, kind: 'cash', logo: { brand: 'commerzbank', bg: '#FFCC00', fg: '#002E3C' } },
-  { id: 'caixa', name: 'CaixaBank', sub: 'Spain · Savings account', mask: '5580', bal: 2050, kind: 'saved', logo: { brand: 'caixabank', bg: '#007EAE' } },
+  { id: 'n26', name: 'N26', sub: 'Current account', mask: '9331', bal: 847.12, kind: 'cash', logo: { brand: 'n26', bg: '#36A18B' }, found: true },
+  { id: 'revolut', name: 'Revolut', sub: 'Savings vault', mask: '4862', bal: 1238.55, kind: 'saved', logo: { brand: 'revolut', bg: '#191C1F' }, found: true },
+  { id: 'db', name: 'Deutsche Bank', sub: 'Germany · Current account', mask: '2210', bal: 419.80, kind: 'cash', logo: { brand: 'deutschebank', bg: '#0018A8' } },
+  { id: 'cbk', name: 'Commerzbank', sub: 'Germany · Current account', mask: '7713', bal: 993.41, kind: 'cash', logo: { brand: 'commerzbank', bg: '#FFCC00', fg: '#002E3C' } },
+  { id: 'caixa', name: 'CaixaBank', sub: 'Spain · Savings account', mask: '5580', bal: 2051.27, kind: 'saved', logo: { brand: 'caixabank', bg: '#007EAE' } },
   { id: 'bunq', name: 'bunq', sub: 'Netherlands · Savings account', mask: '0402', bal: 3100, kind: 'saved', logo: { brand: 'bunq', bg: '#3394D7', scale: .82 } },
 ];
 const TX = [
@@ -1609,7 +1613,7 @@ function buildLedger() {
   }));
   // Pay, transfers and subscriptions that aren't part of the four tracked categories
   const extra = (o, cat) => out.push(Object.assign({ id: `t${++k}`, grp: o.name, oneoff: false, cat, cat0: cat, logo: MERCHANT_LOGO[o.name] || { icon: catInfo(cat).icon, bg: catInfo(cat).color } }, o));
-  extra({ name: 'Kessler GmbH', note: 'Salary', amt: 3482, d: -9, acct: 'chk' }, 'Income');
+  extra({ name: 'Kessler GmbH', note: 'Salary', amt: 3482.17, d: -9, acct: 'chk' }, 'Income');
   extra({ name: 'Lena’s Stash', note: 'Japan transfer', amt: -140, d: -8, acct: 'chk' }, 'Transfers');
   extra({ name: 'From current account', note: 'Japan transfer', amt: 140, d: -8, acct: 'stash' }, 'Transfers');
   extra({ name: 'Interest', amt: 23.10, d: 1, acct: 'stash' }, 'Income');
@@ -1792,9 +1796,9 @@ function catPickPage(id) {
 /* ---------------- Bills: what the forecast takes out, and when ---------------- */
 // `start` is the month of the next one (0 = August, 1 = September); `every` is in months
 S.bills = [
-  { id: 'energy', name: 'Energy bill', phrase: 'the energy bill', icon: 'zap', amt: 299, day: 28, every: 3, start: 0 },
+  { id: 'energy', name: 'Energy bill', phrase: 'the energy bill', icon: 'zap', amt: 298.65, day: 28, every: 3, start: 0 },
   { id: 'rent', name: 'Rent', phrase: 'rent', icon: 'house', amt: 1850, day: 1, every: 1, start: 1 },
-  { id: 'car', name: 'Car insurance', phrase: 'car insurance', icon: 'car', amt: 740, day: 2, every: 12, start: 1, car: true },
+  { id: 'car', name: 'Car insurance', phrase: 'car insurance', icon: 'car', amt: 738.96, day: 2, every: 12, start: 1, car: true },
 ];
 const billById = id => S.bills.find(b => b.id === id);
 const hasBill = (id, day) => S.bills.some(b => b.id === id && b.day === day);
@@ -1888,9 +1892,9 @@ function forecast(over = {}) {
   const ev = [
     ...billEvents(st.bills, st.carLate),
     { day: sep(4), name: 'Freelance invoice', phrase: 'your freelance invoice', amt: 370 },
-    { day: sep(Math.min(st.payDay, 30)), name: 'Salary', phrase: 'your salary', amt: 3482 },
+    { day: sep(Math.min(st.payDay, 30)), name: 'Salary', phrase: 'your salary', amt: 3482.17 },
   ];
-  if (st.payDay >= 25) ev.push({ day: st.payDay - 24, name: 'Salary', phrase: 'your salary', amt: 3482 });
+  if (st.payDay >= 25) ev.push({ day: st.payDay - 24, name: 'Salary', phrase: 'your salary', amt: 3482.17 });
   if (S.goals.includes(S.iceland) && !S.iceland.paused && !S.iceland.done && S.iceland.saved < S.iceland.goal) ev.push({ day: sep(23), name: `${esc(S.iceland.name)} transfer`, phrase: `the ${esc(S.iceland.name)} transfer`, amt: -S.iceland.monthly });
   const payT = sep(Math.min(st.payDay, 30)) + 1; // other goals move the day after pay lands
   S.goals.forEach(g => { if (g !== S.iceland && !g.paused && !g.done && g.saved < g.goal && payT < DAYS) ev.push({ day: payT, name: `${esc(g.name)} transfer`, phrase: `the ${esc(g.name)} transfer`, amt: -g.monthly }); });
