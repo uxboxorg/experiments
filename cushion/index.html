@@ -3034,7 +3034,7 @@ function monthPage() {
     <${e.bill ? `button data-act="open-bill" data-id="${e.bill}"` : 'div'} class="row${e.car ? ' car-row' : ''}" style="padding-left:0;padding-right:0;--inset:0px">
       <span class="grow t" style="font-size:15px">${e.name}</span>
       <span class="s" style="margin:0;min-width:52px;text-align:right">${dayLabel(e.day)}</span>
-      <span class="v" style="font-size:15px;min-width:76px;text-align:right">${e.amt > 0 ? '+' : ''}${eur(e.amt)}</span>
+      <span class="v" style="font-size:15px;min-width:76px;text-align:right">${e.amt > 0 ? '+' : ''}${eur(e.amt, 2)}</span>
       ${e.bill ? `<span class="chev" aria-hidden="true">${I.chev}</span>` : '<span class="chev-space" aria-hidden="true"></span>'}
     </${e.bill ? 'button' : 'div'}>`).join('');
   return `
@@ -3078,15 +3078,15 @@ function renderAccounts() {
       ${[['Cushion', S.accounts.filter(a => a.id === 'stash')], ['Connected', S.accounts.filter(a => a.id !== 'stash')]].filter(([, l]) => l.length).map(([h, list]) => `<div class="acct-group"><h2 class="section-h" style="margin:0">${h}</h2>
       <div class="list" style="border-radius:28px">${list.map(a => `
         <div class="swipe${PROTECTED[a.id] ? ' locked' : ''}" style="--inset:${ed ? 98 : 64}px">${!ed && !PROTECTED[a.id] ? `<button class="swipe-action" data-act="remove-account" data-id="${a.id}" tabindex="-1" aria-hidden="true">Remove</button>` : ''}
-        <div class="row${ed ? ' editing' : ''}" data-acct="${a.id}" ${ed ? 'tabindex="-1"' : `data-act="open-account" data-id="${a.id}" role="button" tabindex="0" aria-label="${esc(a.name)}, ${eur(a.bal)}"`} style="--inset:${ed ? 98 : 64}px;min-height:64px">
+        <div class="row${ed ? ' editing' : ''}" data-acct="${a.id}" ${ed ? 'tabindex="-1"' : `data-act="open-account" data-id="${a.id}" role="button" tabindex="0" aria-label="${esc(a.name)}, ${eur(a.bal, 2)}"`} style="--inset:${ed ? 98 : 64}px;min-height:64px">
           ${ed ? (PROTECTED[a.id] ? '<span class="rm-spacer" aria-hidden="true"></span>' : `<button class="row-remove" data-act="remove-account" data-id="${a.id}" aria-label="Remove ${esc(a.name)}">${MINUS}</button>`) : ''}
           ${tile(a.logo, 36)}
           <span class="grow"><div class="t" style="font-size:16px">${esc(a.name)}</div><div class="s">${ed && PROTECTED[a.id] ? PROTECTED[a.id] : `${esc(a.sub)} ···· ${a.mask}`}</div></span>
-          <span class="v">${eur(a.bal)}</span>${ed ? '' : `<span class="chev" aria-hidden="true">${I.chev}</span>`}
+          <span class="v">${eur(a.bal, 2)}</span>${ed ? '' : `<span class="chev" aria-hidden="true">${I.chev}</span>`}
         </div></div>`).join('')}
       </div></div>`).join('')}
       ${ed ? `<p class="foot" style="text-align:left;margin-top:-10px">Your current account and Lena's Stash stay, because your pay and your savings goals depend on them.</p>` : ''}
-      <div class="list accounts-total" style="border-radius:22px"><div class="row"><span class="grow t" style="font-size:16px">Total</span><span class="v" style="font-weight:600">${eur(net())}</span></div></div>
+      <div class="list accounts-total" style="border-radius:22px"><div class="row"><span class="grow t" style="font-size:16px">Total</span><span class="v" style="font-weight:600">${eur(net(), 2)}</span></div></div>
       <button class="btn tinted" data-act="add-account">${I.plus} Add Account</button>
     </div>`;
 }
@@ -3526,7 +3526,7 @@ function widgetHtml(m, i) {
   if (w.state === 'cancel') return card(cwTitle(w), `<p class="cw-done muted">Cancelled. Nothing changed.</p>`);
   if (w.type === 'move') {
     const g = goalById(w.goal); if (!g) return '';
-    if (w.state === 'done') return card('Transfer', cwDone(`Moved ${eur(w.amt)} to ${esc(g.name)}`));
+    if (w.state === 'done') return card('Transfer', cwDone(`Moved ${eur(w.amt, 2)} to ${esc(g.name)}`));
     const im = moveImpact(w.amt, 'chk', g);
     return card('Transfer draft', cwRows([['Amount', eur(w.amt, 2)], ['From', 'Current account'], ['To', `${esc(g.name)} · Lena’s Stash`], ['Safe to spend', im.bad ? `<span class="cw-warn">Under your line</span>` : esc(im.text.replace(/^Today's safe-to-spend /, '').replace(/\.$/, ''))]])
       + (im.bad ? `<p class="cw-note cw-warn">${esc(im.text)}</p>` : '') + cwBtns(i, [['Confirm', 'confirm', 'primary'], ['Edit', 'edit']]));
@@ -3598,7 +3598,7 @@ async function cwAct(el) {
     if (act === 'edit') { goalMoveFlow(w.goal, 'add'); S.draft.amt = String(w.amt); const pg = stack[stack.length - 1]; if (pg) { pg.render(); pg.live && pg.live(); } return; }
     if (moveImpact(w.amt, 'chk', g).bad || !await ensureId()) return;
     if (!await bankApprove({ lines: [['Amount', eur(w.amt, 2)]], ref: `Cushion · ${g.name}` })) { toast('Nothing moved'); return; }
-    moveMoney(g, w.amt, 'chk'); w.state = 'done'; refresh(); renderChat(); toast(`${eur(w.amt)} added to ${g.name}`); return;
+    moveMoney(g, w.amt, 'chk'); w.state = 'done'; refresh(); renderChat(); toast(`${eur(w.amt, 2)} added to ${g.name}`); return;
   }
   if (w.type === 'pause') { g.paused = w.pause; w.state = 'done'; refresh(); renderChat(); toast(w.pause ? 'Transfers paused' : 'Transfers resumed'); return; }
   if (w.type === 'monthly') {
@@ -4066,7 +4066,7 @@ const H = {
   'remove-account': once(async el => {
     const a = S.accounts.find(x => x.id === el.dataset.id);
     if (!a || PROTECTED[a.id]) return;
-    const what = a.kind === 'cash' ? `Its ${eur(a.bal)} leaves your total and today's safe-to-spend.` : a.kind === 'owed' ? `Its ${eur(-a.bal)} balance leaves your total.` : `Its ${eur(a.bal)} leaves your total.`;
+    const what = a.kind === 'cash' ? `Its ${eur(a.bal, 2)} leaves your total and today's safe-to-spend.` : a.kind === 'owed' ? `Its ${eur(-a.bal, 2)} balance leaves your total.` : `Its ${eur(a.bal, 2)} leaves your total.`;
     const ok = await alertBox({ sheet: true, title: `Remove ${a.name}?`, msg: `${what} You can add it back from Add Account.`, actions: [{ label: 'Remove Account', style: 'destructive', value: true }, { label: 'Cancel', value: false }] });
     closeSwipes && closeSwipes();
     if (!ok || !S.accounts.includes(a)) { const row = $(`#tab-accounts [data-acct="${a.id}"]`); if (el.classList.contains('swipe-action') && row) row.focus({ preventScroll: true }); return; }
@@ -4115,7 +4115,7 @@ const H = {
     if (stack.length && stack[stack.length - 1].kind === 'add') pop(true);
     refresh();
     const row = $(`[data-acct="${b.id}"]`); if (row) { row.classList.add('flash'); setTimeout(() => row.focus({ preventScroll: false }), T + 40); }
-    toast(`${b.name} added · ${eur(b.bal)}`);
+    toast(`${b.name} added · ${eur(b.bal, 2)}`);
   },
   back(el) { if (el.closest('.page') !== stack[stack.length - 1]) return; pop(); },
   'close-sheet'() { if (sheetEl && performance.now() - sheetEl.at < 350) return; requestCloseSheet(); },
