@@ -216,7 +216,7 @@ svg { display: block; }
 /* Inset grouped list */
 .section-h { font-size: 13px; font-weight: 500; letter-spacing: .02em; text-transform: uppercase; color: var(--label2); padding: 0 4px 8px; }
 .media .section-h { color: var(--on-media-2); }
-.list { background: var(--card); border-radius: 22px; overflow: hidden; }
+.list { background: var(--card); border-radius: 22px; overflow: hidden; overflow: clip; }
 .row { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 10px 16px; position: relative; width: 100%; text-align: left; }
 .row + .row::before { content: ""; position: absolute; top: 0; right: 0; left: var(--inset, 16px); height: .5px; background: var(--sep); }
 .row .grow { flex: 1; min-width: 0; }
@@ -357,7 +357,7 @@ button.row[disabled] { cursor: default; }
 .action .no { width: 44px; height: 44px; border-radius: 50%; background: var(--fill); color: var(--label2); display: grid; place-items: center; }
 .action.done { grid-template-columns: auto 1fr; align-items: center; }
 .action.done .ok { background: var(--green); }
-.logo-tile { display: grid; place-items: center; flex: none; overflow: hidden; box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .22); }
+.logo-tile { display: grid; place-items: center; flex: none; overflow: hidden; overflow: clip; box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .22); }
 .logo-tile svg { display: block; }
 .merchant { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-size: 20px; background: var(--fill); flex: none; }
 
@@ -374,11 +374,11 @@ button.row[disabled] { cursor: default; }
 .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
 .tag { font-size: 13px; color: var(--label2); }
 .tag.warn { color: var(--orange); font-weight: 600; }
-.card-media { border-radius: 26px; overflow: hidden; position: relative; display: grid; gap: 4px; padding: 20px; text-align: left; width: 100%; color: var(--on-media); min-height: 128px; align-content: end; transition: transform .15s; }
+.card-media { border-radius: 26px; overflow: hidden; overflow: clip; position: relative; display: grid; gap: 4px; padding: 20px; text-align: left; width: 100%; color: var(--on-media); min-height: 128px; align-content: end; transition: transform .15s; }
 .card-media:active { transform: scale(.98); }
 .card-media .pct { position: absolute; top: 18px; right: 18px; font-size: 13px; opacity: .9; }
 .card-media .ttl { font-size: 20px; font-weight: 600; }
-.card-media .meter { height: 4px; border-radius: 2px; background: rgba(255, 255, 255, .25); margin-top: 8px; overflow: hidden; }
+.card-media .meter { height: 4px; border-radius: 2px; background: rgba(255, 255, 255, .25); margin-top: 8px; overflow: hidden; overflow: clip; }
 .card-media .meter i { display: block; height: 100%; background: #FFFFFF; border-radius: 2px; }
 .g-iceland { background: radial-gradient(120% 90% at 10% 0%, #74845A 0%, transparent 60%), radial-gradient(90% 80% at 90% 100%, #C2381B 0%, transparent 70%), linear-gradient(170deg, #6F7A55, #9A4A2B 60%, #B5381D); }
 .g-month { background: radial-gradient(120% 80% at 80% 0%, #2A64B8 0%, transparent 60%), linear-gradient(175deg, #0F3E86 0%, #3A5A84 45%, #6E7782 100%); }
@@ -394,7 +394,7 @@ button.row[disabled] { cursor: default; }
 .big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .big .num { font-size: 60px; }
 .big .of { font-size: 15px; opacity: .8; }
-.progress { height: 4px; border-radius: 2px; background: rgba(255, 255, 255, .25); overflow: hidden; }
+.progress { height: 4px; border-radius: 2px; background: rgba(255, 255, 255, .25); overflow: hidden; overflow: clip; }
 .progress i { display: block; height: 100%; background: #FFFFFF; border-radius: 2px; transition: width .9s cubic-bezier(.32, .72, 0, 1); }
 .progress-cap { display: flex; justify-content: space-between; font-size: 12px; opacity: .85; margin-top: 8px; }
 .kv { display: grid; }
@@ -839,18 +839,15 @@ button.row[disabled] { cursor: default; }
 /* Japan goal card: photo on the right, fading into the card colour behind the text */
 /* The photo sits on its own layer so it can be brightened; the fade sits on top of it */
 .card-media.g-iceland.has-photo { isolation: isolate; }
-.card-media.g-iceland.has-photo::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--photo) var(--photo-pos, center / cover) no-repeat; filter: brightness(1.18) saturate(1.05); -webkit-mask-image: linear-gradient(90deg, transparent 18%, #000 30%); mask-image: linear-gradient(90deg, transparent 18%, #000 30%); }
-.card-media.g-iceland.has-photo::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--card) 28%, color-mix(in srgb, var(--card) 62%, transparent) 58%, color-mix(in srgb, var(--card) 38%, transparent) 100%); }
+.card-media.g-iceland.has-photo::before, .cover-prev.on::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--photo) var(--photo-pos, center / cover) no-repeat; filter: brightness(1.18) saturate(1.05); -webkit-mask-image: linear-gradient(90deg, transparent 18%, #000 30%); mask-image: linear-gradient(90deg, transparent 18%, #000 30%); }
+.card-media.g-iceland.has-photo::after, .cover-prev.on::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--card) 28%, color-mix(in srgb, var(--card) 62%, transparent) 58%, color-mix(in srgb, var(--card) 38%, transparent) 100%); }
 .card-media.g-iceland .card-chev.inline { opacity: 1; }
 .card-media.g-iceland .card-chev.inline svg { color: var(--accent) !important; }
 /* Goal edit: cover photo */
 .cover-pick { display: grid; gap: 10px; }
 .cover-pick .lbl { font-size: 13px; font-weight: 600; color: var(--label2); }
-.cover-prev { height: 120px; border-radius: 20px; background: var(--fill); display: grid; place-items: center; color: var(--label3); font-size: 15px; overflow: hidden; }
+.cover-prev { height: 120px; border-radius: 20px; background: var(--fill); display: grid; place-items: center; color: var(--label3); font-size: 15px; overflow: hidden; overflow: clip; }
 .cover-prev.on { background: var(--card); isolation: isolate; }
-/* Same treatment as on the goal card: brightened photo, faded into the card colour on the left */
-.cover-prev.on::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--photo) center / cover no-repeat; filter: brightness(1.18) saturate(1.05); -webkit-mask-image: linear-gradient(90deg, transparent 18%, #000 30%); mask-image: linear-gradient(90deg, transparent 18%, #000 30%); }
-.cover-prev.on::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--card) 28%, color-mix(in srgb, var(--card) 62%, transparent) 58%, color-mix(in srgb, var(--card) 38%, transparent) 100%); }
 .cover-prev { position: relative; cursor: pointer; }
 .cover-prev input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .cover-prev:active { opacity: .85; }
@@ -986,7 +983,7 @@ button.row[disabled] { cursor: default; }
 .auth-art { color: var(--label); padding-top: 12px; }
 .auth-art.ok { color: #1F7A3A; }
 .auth-flow .nav .inline { display: none; }
-.auth-progress { flex: 0 1 140px; height: 6px; border-radius: 3px; background: var(--fill2); overflow: hidden; }
+.auth-progress { flex: 0 1 140px; height: 6px; border-radius: 3px; background: var(--fill2); overflow: hidden; overflow: clip; }
 .auth-progress i { display: block; height: 100%; background: var(--forest); border-radius: 3px; transition: width .4s cubic-bezier(.32, .72, 0, 1); }
 :root[data-theme="dark"] .auth-progress i { background: var(--label); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .auth-progress i { background: var(--label); } }
@@ -1115,7 +1112,7 @@ button.row[disabled] { cursor: default; }
 .add-btn { display: flex; align-items: center; justify-content: center; gap: 6px; }
 
 /* Bank hand-off: Sparkasse's own approval screen, in Sparkasse's colours rather than Cushion's */
-.bank-app { position: absolute; inset: 0; pointer-events: auto; z-index: 4; background: rgba(0, 0, 0, 0); transition: background .3s; overflow: hidden; border-radius: inherit; }
+.bank-app { position: absolute; inset: 0; pointer-events: auto; z-index: 4; background: rgba(0, 0, 0, 0); transition: background .3s; overflow: hidden; overflow: clip; border-radius: inherit; }
 .bank-app.show { background: rgba(0, 0, 0, .35); }
 .bank-hand { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%) scale(.9); display: grid; justify-items: center; gap: 12px; color: #FFFFFF; font-size: 15px; font-weight: 600; opacity: 0; transition: opacity .25s, transform .3s cubic-bezier(.32, .72, 0, 1); }
 .bank-app.show .bank-hand { opacity: 1; transform: translate(-50%, -50%); }
@@ -1883,8 +1880,10 @@ function liveBill(el, id) {
   if (!(+S.draft.amt > 0)) { n.textContent = ''; return; }
   const before = safeNow(), after = safety(forecast({ bills: draftBills(id) })).safe;
   n.classList.toggle('warn', after < before);
-  n.textContent = after < before ? `Today's safe-to-spend would drop from ${eur(before, 2)} to ${eur(after, 2)}.` : after > before ? `Today's safe-to-spend would go up to ${eur(after, 2)}.` : `Today's safe-to-spend stays at ${eur(before, 2)}.`;
+  n.textContent = impactText(before, after);
 }
+// How a change moves today's safe-to-spend, in one sentence
+const impactText = (before, after) => after < before ? `Today's safe-to-spend would drop from ${eur(before, 2)} to ${eur(after, 2)}.` : after > before ? `Today's safe-to-spend would go up to ${eur(after, 2)}.` : `Today's safe-to-spend stays at ${eur(before, 2)}.`;
 // Comfort line: typed in, and never higher than the current account's lowest point before pay day
 function comfortMax(fc = forecast()) {
   let lo = Infinity, day = 0;
@@ -1903,16 +1902,20 @@ function comfortPage() {
       <p class="plan-note" id="comfort-note" aria-live="polite"></p>
     </div>`;
 }
+// The typed comfort line, read the same way by the live note and by Save
+function readComfort() {
+  const raw = String(S.draft.amt || '').trim();
+  return { empty: raw === '', bad: raw !== '' && !(+raw >= 0), c: Math.round(+raw || 0), m: comfortMax() };
+}
 function liveComfort(el) {
   const n = $('#comfort-note', el), e = $('#de-amt', el), f = $('#df-amt', el); if (!n) return;
   if (e) e.textContent = ''; if (f) f.removeAttribute('aria-invalid');
-  const raw = String(S.draft.amt || '').trim();
-  if (raw === '') { n.classList.remove('warn'); n.textContent = `You can set up to ${eur(comfortMax().max)}.`; return; }
-  const c = Math.round(+raw || 0), m = comfortMax();
+  const { empty, c, m } = readComfort();
+  if (empty) { n.classList.remove('warn'); n.textContent = `You can set up to ${eur(m.max)}.`; return; }
   if (c > m.max) { n.classList.add('warn'); n.textContent = comfortTooHigh(m); return; }
   const before = safeNow(), after = safeWithComfort(c);
   n.classList.toggle('warn', after < before);
-  n.textContent = after === 0 ? `That leaves nothing to spend until pay day.` : after < before ? `Today's safe-to-spend would drop from ${eur(before, 2)} to ${eur(after, 2)}.` : after > before ? `Today's safe-to-spend would go up to ${eur(after, 2)}.` : `Today's safe-to-spend stays at ${eur(before, 2)}.`;
+  n.textContent = after === 0 ? `That leaves nothing to spend until pay day.` : impactText(before, after);
 }
 function comfortFlow() {
   S.draft = { amt: String(S.comfort) };
@@ -3947,8 +3950,8 @@ const H = {
   },
   'comfort-edit'() { comfortFlow(); },
   'comfort-save'() {
-    const raw = String(S.draft.amt || '').trim(), c = Math.round(+raw || 0), m = comfortMax();
-    if (raw === '' || !(+raw >= 0)) return draftErr('amt', 'Enter an amount.');
+    const { empty, bad, c, m } = readComfort();
+    if (empty || bad) return draftErr('amt', 'Enter an amount.');
     if (c > m.max) { const n = $('#comfort-note', stack[stack.length - 1]); if (n) n.textContent = ''; return draftErr('amt', comfortTooHigh(m)); }
     const before = safeNow();
     S.comfort = c;
@@ -4669,21 +4672,8 @@ let swipedAt = 0;
 
 })();
 
-// Safari can scroll a clipped container to reveal a focused field, which slides the whole screen up
-// and leaves a blank strip at the bottom. Containers that aren't meant to scroll snap straight back.
-const noScroll = new WeakMap(); // element -> [x locked, y locked], looked up once per element
-document.addEventListener('scroll', e => {
-  const el = e.target;
-  if (!(el instanceof Element) || !(el.scrollTop || el.scrollLeft)) return;
-  let lock = noScroll.get(el);
-  if (!lock) {
-    if (!el.closest('.app')) return;
-    const cs = getComputedStyle(el), shut = v => v === 'hidden' || v === 'clip';
-    lock = [shut(cs.overflowX), shut(cs.overflowY)]; noScroll.set(el, lock);
-  }
-  if (lock[0] && el.scrollLeft) el.scrollLeft = 0;
-  if (lock[1] && el.scrollTop) el.scrollTop = 0;
-}, true);
+// Safari can scroll a clipped container to reveal a focused field, which slides the screen and leaves a blank strip.
+// The screen and every clipping container use overflow: clip, which can't be scrolled at all, so no listener is needed.
 </script>
 </body>
 </html>
