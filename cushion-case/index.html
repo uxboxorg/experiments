@@ -299,7 +299,7 @@ p { margin: 0; }
   }
 .thanks .inner { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: center; }
 .thanks .inner > div:first-child { padding-bottom: 0; }
-.coin-flip { width: 220px; height: auto; display: block; align-self: end; mix-blend-mode: lighten; margin-right: 24px; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%); mask-image: linear-gradient(to bottom, transparent, #000 22%); }
+.coin-flip { width: 220px; aspect-ratio: 330 / 600; background-image: url(img/coin-sheet.webp); display: block; align-self: end; mix-blend-mode: lighten; margin-right: 24px; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%); mask-image: linear-gradient(to bottom, transparent, #000 22%); }
 @media (max-width: 760px) { .coin-flip { width: 140px; margin-right: 0; } .thanks .inner > div:first-child { padding-bottom: 24px; } }
 .app-icon { width: 120px; height: 120px; border-radius: 28px; background: var(--forest); display: grid; place-items: center; box-shadow: 0 20px 50px rgba(0, 0, 0, .4); }
 .app-icon .mark { width: 70px; height: 70px; color: var(--lime); }
@@ -400,7 +400,12 @@ p { margin: 0; }
 .ic.forest { background: var(--forest); color: var(--lime); }
 .intro-card .meta { margin-top: 0; }
 .intro-shot { position: relative; border-radius: 28px; overflow: hidden; min-height: 560px; background: #0C1A18; isolation: isolate; }
-.mock-video { position: absolute; inset: 0; width: 100%; height: 100% !important; object-fit: cover; object-position: 50% 30%; }
+/* Frame sheets stepped by CSS alone (11 columns x 6 rows, 80ms a frame): no video, animated image or script needed */
+.mock-video, .coin-flip { background-size: 1100% 600%; background-repeat: no-repeat; animation: sheet-x .88s steps(11) infinite, sheet-y 5.28s steps(6) infinite; }
+@keyframes sheet-x { from { background-position-x: 0%; } to { background-position-x: 110%; } }
+@keyframes sheet-y { from { background-position-y: 0%; } to { background-position-y: 120%; } }
+@media (prefers-reduced-motion: reduce) { .mock-video, .coin-flip { animation: none; background-position: 0 0; } }
+.mock-video { position: absolute; inset: 0; background-image: url(img/mockup-sheet.webp); }
 .mock-ph { position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%); width: 40%; aspect-ratio: 9 / 19; border-radius: 36px; border: 1.5px dashed rgba(255, 255, 255, .35); display: grid; place-content: center; justify-items: center; gap: 6px; color: #C7D6D0; font-size: 12px; text-align: center; }
 .mock-ph b { font-weight: 500; font-size: 14px; color: #fff; }
 .intro-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 60px 28px 26px; color: #fff; background: linear-gradient(0deg, rgba(12, 26, 24, .85), transparent); display: grid; gap: 6px; }
@@ -448,7 +453,7 @@ p { margin: 0; }
         <p class="intro-quote"><span class="qm" aria-hidden="true">“</span>Most budgeting apps show where money <span class="ic emoji" aria-hidden="true"><i>💸</i></span> went. <span class="ic forest" aria-hidden="true"><svg viewBox="0 0 512 512"><use href="#cush"/></svg></span> Cushion tells you what is safe to spend today and an AI advisor <span class="ic forest" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#spark"/></svg></span> helps with every money decision.</p>
       </div>
       <div class="intro-shot">
-        <img class="mock-video" data-sheet="img/mockup-sheet.webp" data-frame="540x720x11x66x80" src="img/mockup-anim.webp" alt="Cushion welcome screen on an iPhone">
+        <div class="mock-video" role="img" aria-label="Cushion welcome screen on an iPhone"></div>
         <a class="proto-btn" href="https://claude.ai/artifact/UCyDsxiMhATAbDJt7HwtUa" target="_blank" rel="noopener">Open interactive prototype<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
       </div>
     </div>
@@ -752,7 +757,7 @@ p { margin: 0; }
         <span class="brand"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg>Cushion</span>
         <h2>Thanks for reading.</h2>
       </div>
-      <img class="coin-flip" data-sheet="img/coin-sheet.webp" data-frame="330x600x11x66x80" src="img/coin-anim.webp" alt="">
+      <div class="coin-flip" aria-hidden="true"></div>
     </div>
   </div>
 </section>
@@ -787,20 +792,4 @@ p { margin: 0; }
   .hero::after { background: linear-gradient(0deg, rgba(12, 26, 24, .95) 10%, rgba(12, 26, 24, .45) 55%, rgba(12, 26, 24, .55) 100%); }
 }
 </style>
-<script>
-/* The loops step through a sheet of frames on a canvas: the Claude desktop preview freezes video and animated images */
-document.querySelectorAll('img[data-sheet]').forEach(img => {
-  const [w, h, cols, n, ms] = img.dataset.frame.split('x').map(Number);
-  const sheet = new Image();
-  sheet.onload = () => {
-    const c = document.createElement('canvas'); c.width = w; c.height = h; c.className = img.className;
-    if (img.alt) { c.setAttribute('role', 'img'); c.setAttribute('aria-label', img.alt); } else c.setAttribute('aria-hidden', 'true');
-    const ctx = c.getContext('2d'); let i = 0;
-    const draw = () => ctx.drawImage(sheet, (i % cols) * w, Math.floor(i / cols) * h, w, h, 0, 0, w, h);
-    draw(); img.replaceWith(c);
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    setInterval(() => { i = (i + 1) % n; draw(); }, ms);
-  };
-  sheet.src = img.dataset.sheet;
-});
-</script>
+
