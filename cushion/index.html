@@ -2194,7 +2194,7 @@ function welcomePage() {
   const logo = "<svg viewBox=\"0 0 512 512\" aria-hidden=\"true\" width=\"76\" height=\"76\"><defs><mask id=\"cush-logo\" maskUnits=\"userSpaceOnUse\" x=\"0\" y=\"0\" width=\"512\" height=\"512\"><rect width=\"512\" height=\"512\" fill=\"#fff\"/><g fill=\"none\" stroke=\"#000\" stroke-width=\"16\" stroke-linejoin=\"round\"><path d=\"M103.5 103.5C163.2 114.3 182.3 87.5 256 87.5C329.7 87.5 348.8 114.3 408.5 103.5C397.7 163.2 424.5 182.3 424.5 256C424.5 329.7 397.7 348.8 408.5 408.5C348.8 397.7 329.7 424.5 256 424.5C182.3 424.5 163.2 397.7 103.5 408.5C114.3 348.8 87.5 329.7 87.5 256C87.5 182.3 114.3 163.2 103.5 103.5Z\"/><path d=\"M256 177L279.1 200.1L311.9 200.1L311.9 232.9L335 256L311.9 279.1L311.9 311.9L279.1 311.9L256 335L232.9 311.9L200.1 311.9L200.1 279.1L177 256L200.1 232.9L200.1 200.1L232.9 200.1Z\"/></g></mask></defs><path d=\"M57 57C129.7 78.4 156.9 39.5 256 39.5C355.1 39.5 382.3 78.4 455 57C433.6 129.7 472.5 156.9 472.5 256C472.5 355.1 433.6 382.3 455 455C382.3 433.6 355.1 472.5 256 472.5C156.9 472.5 129.7 433.6 57 455C78.4 382.3 39.5 355.1 39.5 256C39.5 156.9 78.4 129.7 57 57Z\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"16\" stroke-linejoin=\"round\" mask=\"url(#cush-logo)\"/></svg>";
   return `
     <div class="welcome">
-      <video class="welcome-video" muted loop playsinline aria-hidden="true"></video>
+      <img class="welcome-video" src="${reduced ? 'coin-flip-still.webp' : 'coin-flip.webp'}" alt="">
       <div class="welcome-hero">
         <span class="welcome-logo">${logo}</span>
         <h1>Cushion</h1>
@@ -4873,19 +4873,6 @@ const i18nObs = new MutationObserver(recs => {
 });
 i18nObs.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
 locTree(document.body);
-/* Welcome video: the artifact viewer blocks the autoplay attribute and Safari won't stream MP4 without byte ranges,
-   so the clip is fetched once, kept in memory and started from script */
-const coinClip = (() => {
-  const webm = !!document.createElement('video').canPlayType('video/webm; codecs="vp9"') && !/^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  const url = webm ? 'coin-flip.webm' : 'coin-flip.mp4';
-  return fetch(url).then(r => { if (!r.ok) throw 0; return r.blob(); }).then(b => URL.createObjectURL(b)).catch(() => url);
-})();
-const startWelcomeVideo = v => {
-  if (v.dataset.on) return; v.dataset.on = '1';
-  coinClip.then(src => { v.src = src; v.muted = true; if (!reduced) { const p = v.play(); if (p) p.catch(() => {}); } });
-};
-new MutationObserver(() => document.querySelectorAll('.welcome-video').forEach(startWelcomeVideo)).observe(document.body, { subtree: true, childList: true });
-document.querySelectorAll('.welcome-video').forEach(startWelcomeVideo);
 /* Big numbers: General Sans's comma and point are heavy and get squeezed by the tight tracking, so separators get their own lighter style */
 function sepWrap(num) {
   for (const n of [...num.childNodes]) {
