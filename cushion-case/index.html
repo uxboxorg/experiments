@@ -209,9 +209,9 @@ p { margin: 0; }
 .ts-demo { color: var(--ink); line-height: 1.15; min-width: 0; overflow-wrap: anywhere; }
 .money-type { align-content: space-between; gap: 20px; }
 .money-type .cap { font-size: 15px; font-weight: 500; }
-.big-num { font-size: 88px; font-weight: 500; letter-spacing: -.03em; line-height: 1; color: var(--lime); font-variant-numeric: tabular-nums; }
-.big-num .cur { font-size: .32em; vertical-align: .95em; font-weight: 400; margin-right: 4px; }
-.big-num .cents { font-size: 22px; vertical-align: .95em; margin-left: 2px; }
+.big-num { font-size: 88px; font-weight: 500; letter-spacing: -.03em; line-height: 1; color: #fff; }
+.big-num .cur { font-size: .32em; vertical-align: .95em; font-weight: 400; margin-right: 4px; letter-spacing: .02em; opacity: .9; }
+.big-num .cents { font-size: 22px; vertical-align: 4px; margin-left: -3px; letter-spacing: normal; opacity: .9; }
 .pill-aa { justify-self: start; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 99px; background: var(--forest); color: var(--lime); }
 .a11y { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; }
 .a11y li { font-size: 13px; color: var(--body); line-height: 1.5; border-top: 1px solid var(--line); padding-top: 10px; }
@@ -307,7 +307,6 @@ p { margin: 0; }
   .a11y { grid-template-columns: 1fr; }
   .ty-grid { grid-template-columns: 1fr !important; }
   .ts-row { grid-template-columns: 96px minmax(0, 1fr); }
-  .big-num { font-size: 64px; }
   .type-card { grid-template-columns: 1fr; }
   .opts, .cto, .split { grid-template-columns: 1fr; }
   .answers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -668,7 +667,7 @@ p { margin: 0; }
     </div>
     <div class="grid ty-grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);margin-top:12px">
       <div class="card money-type" style="padding:28px;background:var(--night);color:#fff">
-        <span class="cap" style="color:var(--lime)">Safe to spend</span>
+        <span class="cap" style="color:var(--lime)">Safe to spend today</span>
         <span class="big-num"><span class="cur">€</span>88<span class="cents">.05</span></span>
         <p class="small" style="color:#B9C7C1">Money gets its own style: 88pt Medium, tabular figures so amounts line up in lists, and the euro sign and cents set small beside the number.</p>
       </div>
