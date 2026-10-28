@@ -202,6 +202,20 @@ p { margin: 0; }
 .sw .hex { font-size: 12px; opacity: .85; font-variant-numeric: tabular-nums; }
 .type-card { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 24px; align-items: center; }
 .type-card .aa { font-size: 110px; line-height: 1; color: var(--forest); letter-spacing: -.04em; font-weight: 500; }
+.ts-row { display: grid; grid-template-columns: 150px minmax(0, 1fr); align-items: baseline; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line); }
+.ts-row:first-child { border-top: 0; }
+.ts-name { font-size: 13px; color: var(--ink); display: grid; gap: 2px; }
+.ts-name em { font-style: normal; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ts-demo { color: var(--ink); line-height: 1.15; min-width: 0; overflow-wrap: anywhere; }
+.money-type { align-content: space-between; gap: 20px; }
+.money-type .cap { font-size: 15px; font-weight: 500; }
+.big-num { font-size: 88px; font-weight: 500; letter-spacing: -.03em; line-height: 1; color: var(--lime); font-variant-numeric: tabular-nums; }
+.big-num .cur { font-size: .32em; vertical-align: .95em; font-weight: 400; margin-right: 4px; }
+.big-num .cents { font-size: 22px; vertical-align: .95em; margin-left: 2px; }
+.pill-aa { justify-self: start; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 99px; background: var(--forest); color: var(--lime); }
+.a11y { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; }
+.a11y li { font-size: 13px; color: var(--body); line-height: 1.5; border-top: 1px solid var(--line); padding-top: 10px; }
+.a11y b { display: block; font-weight: 500; color: var(--ink); }
 .weights { display: flex; gap: 16px; flex-wrap: wrap; font-size: 14px; }
 .nums { font-size: 22px; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 
@@ -290,6 +304,10 @@ p { margin: 0; }
   .flowrow .to { transform: rotate(90deg); }
   .hub { grid-template-columns: 1fr; gap: 12px; }
   .hub .wire { display: none; }
+  .a11y { grid-template-columns: 1fr; }
+  .ty-grid { grid-template-columns: 1fr !important; }
+  .ts-row { grid-template-columns: 96px minmax(0, 1fr); }
+  .big-num { font-size: 64px; }
   .type-card { grid-template-columns: 1fr; }
   .opts, .cto, .split { grid-template-columns: 1fr; }
   .answers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -411,7 +429,7 @@ p { margin: 0; }
 <!-- 01 Intro -->
 <section class="intro">
   <div class="wrap">
-    <div class="label" style="margin-bottom:20px">Introduction<span class="n">01 / 13</span></div>
+    <div class="label" style="margin-bottom:20px">Introduction<span class="n">01 / 14</span></div>
     <div class="intro-grid">
       <div class="intro-card">
         <p class="intro-quote"><span class="qm" aria-hidden="true">”</span>Most budgeting apps show where money <span class="ic emoji" aria-hidden="true"><i>💸</i></span> went. <span class="ic forest" aria-hidden="true"><svg viewBox="0 0 512 512"><use href="#cush"/></svg></span> Cushion tells you what is safe to spend today and an AI advisor <span class="ic forest" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#spark"/></svg></span> helps with every money decision.</p>
@@ -433,7 +451,7 @@ p { margin: 0; }
 <section style="padding-top:0">
   <div class="wrap">
     <div class="head">
-      <div class="label">The problem<span class="n">02 / 13</span></div>
+      <div class="label">The problem<span class="n">02 / 14</span></div>
       <div>
         <h2>Your balance doesn’t include upcoming bills.</h2>
         <p class="lede">A balance shows what is there today. It says nothing about rent on the 1st, car insurance on the 2nd or the salary on the 22nd. So people keep a buffer in their head, and still get caught out.</p>
@@ -470,7 +488,7 @@ p { margin: 0; }
 <section style="padding-top:0">
   <div class="wrap">
     <div class="head">
-      <div class="label">Who it’s for<span class="n">03 / 13</span></div>
+      <div class="label">Who it’s for<span class="n">03 / 14</span></div>
       <div>
         <h2>Who Cushion is for</h2>
         <p class="lede">People on a monthly salary who juggle a few accounts and bills that land at awkward times, and want to know what they can spend without doing the maths.</p>
@@ -511,7 +529,7 @@ p { margin: 0; }
 <section class="dark" id="f1">
   <div class="wrap">
     <div class="head">
-      <div class="label">Feature 01<span class="n">04 / 13</span></div>
+      <div class="label">Feature 01<span class="n">04 / 14</span></div>
       <h2>Safe to spend<span class="sub">How much you can spend today after upcoming bills.</span></h2>
     </div>
     <div class="pf"><div class="prob"><span class="k">The problem</span><p>A balance doesn’t know rent is due on the 1st. People have to subtract upcoming bills in their head.</p></div><div class="sol"><span class="k">What Cushion does</span><p>Every bill and transfer before pay day comes off first. What’s left, spread over the days to pay day, is safe to spend today.</p></div></div>
@@ -523,7 +541,7 @@ p { margin: 0; }
 <section class="" id="f2">
   <div class="wrap">
     <div class="head">
-      <div class="label">Feature 02<span class="n">05 / 13</span></div>
+      <div class="label">Feature 02<span class="n">05 / 14</span></div>
       <h2>The month ahead<span class="sub">Your balance day by day until pay day.</span></h2>
     </div>
     <div class="pf"><div class="prob"><span class="k">The problem</span><p>Rent and car insurance are due a day apart, and the account dips lower than expected.</p></div><div class="sol"><span class="k">What Cushion does</span><p>The month ahead draws your balance day by day to pay day, marks the thinnest moment and lists every bill on its date.</p></div></div>
@@ -535,7 +553,7 @@ p { margin: 0; }
 <section class="dark" id="f3" style="border-top:1px solid var(--night-line)">
   <div class="wrap">
     <div class="head">
-      <div class="label">Feature 03<span class="n">06 / 13</span></div>
+      <div class="label">Feature 03<span class="n">06 / 14</span></div>
       <h2>AI Advisor<span class="sub">Answers that end in a card you can act on.</span></h2>
     </div>
     <div class="pf"><div class="prob"><span class="k">The problem</span><p>Charts show what happened. People still have to work out what to do next.</p></div><div class="sol"><span class="k">What Cushion does</span><p>Ask in your own words. The advisor answers in plain language, then ends with a card that holds the live numbers and one action.</p></div></div>
@@ -553,7 +571,7 @@ p { margin: 0; }
 <section class="dark" id="f4">
   <div class="wrap">
     <div class="head">
-      <div class="label">Feature 04<span class="n">07 / 13</span></div>
+      <div class="label">Feature 04<span class="n">07 / 14</span></div>
       <h2>Bank approval<span class="sub">Cushion prepares transfers and your bank approves them.</span></h2>
     </div>
     <div class="pf"><div class="prob"><span class="k">The problem</span><p>People don’t want a budgeting app to move their money, so suggestions rarely get acted on.</p></div><div class="sol"><span class="k">What Cushion does</span><p>Cushion fills in the amount, account and reference. Your bank app approves it with Face ID, like any other payment.</p></div></div>
@@ -565,7 +583,7 @@ p { margin: 0; }
 <section class="" id="f5">
   <div class="wrap">
     <div class="head">
-      <div class="label">Feature 05<span class="n">08 / 13</span></div>
+      <div class="label">Feature 05<span class="n">08 / 14</span></div>
       <h2>Fixes<span class="sub">Duplicate subscriptions, idle cash and refunds.</span></h2>
     </div>
     <div class="pf"><div class="prob"><span class="k">The problem</span><p>Small costs go unnoticed, like a second subscription, cash sitting in a current account or a refund nobody claimed.</p></div><div class="sol"><span class="k">What Cushion does</span><p>Cushion spots them, shows what each one is worth, and opens the right place to fix it, from Spotify’s site to a pre-written email.</p></div></div>
@@ -577,7 +595,7 @@ p { margin: 0; }
 <section class="" id="f6">
   <div class="wrap">
     <div class="head">
-      <div class="label">Feature 06<span class="n">09 / 13</span></div>
+      <div class="label">Feature 06<span class="n">09 / 14</span></div>
       <h2>Savings goals<span class="sub">A plan, a target date and a photo for each goal.</span></h2>
     </div>
     <div class="pf"><div class="prob"><span class="k">The problem</span><p>Most apps show a goal as a progress bar, with no date or plan to get there.</p></div><div class="sol"><span class="k">What Cushion does</span><p>Each goal shows when you’ll get there, what to change to arrive in time, and a cover photo you choose.</p></div></div>
@@ -589,7 +607,7 @@ p { margin: 0; }
 <section class="" id="f7">
   <div class="wrap">
     <div class="head">
-      <div class="label">Feature 07<span class="n">10 / 13</span></div>
+      <div class="label">Feature 07<span class="n">10 / 14</span></div>
       <h2>Accounts and transactions<span class="sub">Every account in one list, every purchase in a category.</span></h2>
     </div>
     <div class="pf"><div class="prob"><span class="k">The problem</span><p>Spending is spread over a current account, credit cards and cash, so no single place tells the truth.</p></div><div class="sol"><span class="k">What Cushion does</span><p>All accounts sit in one list with exact balances. Every transaction can be moved to the right category, cash withdrawals included.</p></div></div>
@@ -603,10 +621,10 @@ p { margin: 0; }
 <section style="padding-top:0">
   <div class="wrap">
     <div class="head">
-      <div class="label">Branding<span class="n">11 / 13</span></div>
+      <div class="label">Branding<span class="n">11 / 14</span></div>
       <div>
-        <h2>Branding<span class="sub">Logo, colour and type.</span></h2>
-        <p class="lede">Forest green for the brand, lime for actions, Inter for all text.</p>
+        <h2>Branding<span class="sub">Logo and colour.</span></h2>
+        <p class="lede">Forest green for the brand, lime for actions.</p>
       </div>
     </div>
     <div class="grid" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)">
@@ -625,13 +643,47 @@ p { margin: 0; }
       <div class="sw" style="background:var(--mint);color:var(--night)"><span>Mint</span><span class="hex">#8EEADB<br>Halftone texture</span></div>
       <div class="sw" style="background:var(--ink);color:#fff"><span>Ink</span><span class="hex">#121410<br>Text</span></div>
     </div>
-    <div class="card type-card" style="margin-top:12px;padding:28px">
-      <span class="aa">Aa</span>
-      <div style="display:grid;gap:12px">
-        <h3 style="font-size:28px;font-weight:400">Inter</h3>
-        <p class="small">Used for everything from the wordmark to the smallest label. Its figures stay readable at small sizes, which matters for cents and dates.</p>
-        <div class="weights"><span style="font-weight:400">Regular</span><span style="font-weight:500">Medium</span><span style="font-weight:600">Semi Bold</span></div>
-        <span class="nums">€88.05&nbsp;&nbsp;€1,430&nbsp;&nbsp;22 Sep</span>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="head">
+      <div class="label">Typography<span class="n">12 / 14</span></div>
+      <div>
+        <h2>Typography<span class="sub">One typeface, iOS text sizes.</span></h2>
+        <p class="lede">Inter in three weights, on the same size steps as iOS so Cushion feels at home next to system apps.</p>
+      </div>
+    </div>
+    <div class="grid ty-grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1.4fr)">
+      <div class="card type-card" style="padding:28px;grid-template-columns:1fr;align-content:space-between">
+        <span class="aa">Aa</span>
+        <div style="display:grid;gap:12px">
+          <h3 style="font-size:28px;font-weight:400">Inter</h3>
+          <p class="small">Used for everything from the wordmark to the smallest label. Its figures stay readable at small sizes, which matters for cents and dates.</p>
+          <div class="weights"><span style="font-weight:400">Regular</span><span style="font-weight:500">Medium</span><span style="font-weight:600">Semi Bold</span></div>
+        </div>
+      </div>
+      <div class="card ts" style="padding:8px 24px"><div class="ts-row"><span class="ts-name">Large title<em>34 / 600</em></span><span class="ts-demo" style="font-size:34px;font-weight:600;letter-spacing:-.02em">Screen titles</span></div><div class="ts-row"><span class="ts-name">Title<em>22 / 600</em></span><span class="ts-demo" style="font-size:22px;font-weight:600;letter-spacing:-.01em">Sheet and card titles</span></div><div class="ts-row"><span class="ts-name">Headline<em>17 / 600</em></span><span class="ts-demo" style="font-size:17px;font-weight:600">Row titles, buttons</span></div><div class="ts-row"><span class="ts-name">Body<em>17 / 400</em></span><span class="ts-demo" style="font-size:17px">Advisor answers, settings</span></div><div class="ts-row"><span class="ts-name">Subhead<em>15 / 400</em></span><span class="ts-demo" style="font-size:15px">Transaction details</span></div><div class="ts-row"><span class="ts-name">Footnote<em>13 / 400</em></span><span class="ts-demo" style="font-size:13px">Dates, hints under fields</span></div><div class="ts-row"><span class="ts-name">Caption<em>12 / 500</em></span><span class="ts-demo" style="font-size:12px;font-weight:500">Labels on charts and pills</span></div></div>
+    </div>
+    <div class="grid ty-grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);margin-top:12px">
+      <div class="card money-type" style="padding:28px;background:var(--night);color:#fff">
+        <span class="cap" style="color:var(--lime)">Safe to spend</span>
+        <span class="big-num"><span class="cur">€</span>88<span class="cents">.05</span></span>
+        <p class="small" style="color:#B9C7C1">Money gets its own style: 88pt Medium, tabular figures so amounts line up in lists, and the euro sign and cents set small beside the number.</p>
+      </div>
+      <div class="card" style="padding:28px">
+        <span class="pill-aa">WCAG 2.1 AA</span>
+        <h3 style="font-size:20px;font-weight:400">Readable for everyone</h3>
+        <p class="small">Banking apps sold in the EU fall under the European Accessibility Act, which applies WCAG 2.1 AA to mobile apps through EN 301 549. Cushion is designed to that level, together with Apple’s own accessibility guidelines.</p>
+        <ul class="a11y">
+          <li><b>Contrast</b>Text meets 4.5:1, large text and icons 3:1. Forest on lime is 8.3:1, lime on night 11.7:1.</li>
+          <li><b>Dynamic Type</b>Every text style scales with the iPhone text size setting, up to the largest accessibility sizes.</li>
+          <li><b>Touch targets</b>Buttons and rows are at least 44 × 44 pt.</li>
+          <li><b>Not colour alone</b>Money in and out carries a + or − sign, not only green or red.</li>
+          <li><b>VoiceOver</b>Amounts are read as full sentences, for example “eighty-eight euros five cents safe to spend”.</li>
+          <li><b>Reduce Motion</b>Card animations and the coin flip switch off when the setting is on.</li>
+        </ul>
       </div>
     </div>
   </div>
@@ -640,7 +692,7 @@ p { margin: 0; }
 <section style="padding-top:0">
   <div class="wrap">
     <div class="head" style="margin-bottom:32px">
-      <div class="label">Themes<span class="n">12 / 13</span></div>
+      <div class="label">Themes<span class="n">13 / 14</span></div>
       <h2>Light and dark mode<span class="sub">Cushion follows the phone’s setting, or you can pick one in Profile.</span></h2>
     </div>
     <div class="split">
@@ -658,7 +710,7 @@ p { margin: 0; }
 <section style="padding-top:0">
   <div class="wrap">
     <div class="head">
-      <div class="label">Design system<span class="n">13 / 13</span></div>
+      <div class="label">Design system<span class="n">14 / 14</span></div>
       <div>
         <h2>Components<span class="sub">The six used most across the app.</span></h2>
         <p class="lede">Every answer card uses the same frame: a title, live numbers, then one main action.</p>
