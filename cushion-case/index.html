@@ -302,8 +302,17 @@ p { margin: 0; }
   }
 .thanks .inner { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: center; }
 .thanks .inner > div:first-child { padding-bottom: 0; }
+.cta { display: grid; gap: 16px; padding-block: 72px; max-width: 34rem; }
+.cta-eyebrow { font-size: 13px; font-weight: 500; color: var(--lime); }
+.cta h2 { margin: 0; text-wrap: balance; }
+.cta p { margin: 0; color: #B9C7C1; font-size: 17px; line-height: 1.5; }
+.cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 8px; }
+.cta-btn { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 22px; border-radius: 99px; background: var(--lime); color: var(--forest); font-size: 15px; font-weight: 500; text-decoration: none; transition: transform .2s; }
+.cta-btn:hover { transform: translateY(-1px); }
+.cta-btn:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+.cta-mail { color: #B9C7C1; font-size: 15px; user-select: all; }
 .coin-flip { width: 220px; height: auto; display: block; align-self: end; mix-blend-mode: lighten; margin-right: 24px; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%); mask-image: linear-gradient(to bottom, transparent, #000 22%); }
-@media (max-width: 760px) { .coin-flip { width: 140px; margin-right: 0; } .thanks .inner > div:first-child { padding-bottom: 24px; } }
+@media (max-width: 760px) { .coin-flip { width: 140px; margin-right: 0; } .thanks .inner > div:first-child { padding-bottom: 24px; } .cta { padding-block: 48px 0; } .thanks .inner { grid-template-columns: 1fr; gap: 0; } .thanks .coin-flip { justify-self: end; margin-top: -24px; } }
 .app-icon { width: 120px; height: 120px; border-radius: 28px; background: var(--forest); display: grid; place-items: center; box-shadow: 0 20px 50px rgba(0, 0, 0, .4); }
 .app-icon .mark { width: 70px; height: 70px; color: var(--lime); }
 
@@ -751,9 +760,14 @@ p { margin: 0; }
   <div class="thanks-wf" aria-hidden="true"></div>
   <div class="wrap">
     <div class="inner">
-      <div style="display:grid;gap:18px">
-        <span class="brand"><svg class="mark" aria-hidden="true"><use href="#cush"/></svg>Cushion</span>
-        <h2>Thanks for reading.</h2>
+      <div class="cta">
+        <span class="cta-eyebrow">Work with UXBOX</span>
+        <h2>Have a product like this in mind?</h2>
+        <p>We design apps like Cushion, from the first sketch to a prototype people can try. Tell us what you’re building.</p>
+        <div class="cta-row">
+          <a class="cta-btn" href="mailto:hello@uxbox.org?subject=Working%20with%20UXBOX">Get in touch<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+          <span class="cta-mail">hello@uxbox.org</span>
+        </div>
       </div>
       <video class="coin-flip" autoplay muted loop playsinline preload="auto" aria-hidden="true"><source src="img/coin.mp4" type="video/mp4"><source src="img/coin.webm" type="video/webm"></video>
     </div>
