@@ -39,6 +39,9 @@ section.tight { padding-block: 40px 96px; }
 /* Section head: label column + two-tone headline */
 .head { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 24px; margin-bottom: 48px; }
 .head > .label { padding-top: .75em; }
+/* A section without a number: the eyebrow sits above the heading */
+.head.stacked { grid-template-columns: 1fr; gap: 8px; }
+.head.stacked > .label { padding-top: 0; }
 .label { font-size: 13px; color: var(--forest); font-weight: 500; line-height: 1.4; }
 .label .n { display: block; color: var(--muted); font-weight: 400; margin-top: 4px; font-variant-numeric: tabular-nums; }
 .dark .label { color: var(--mint); }
@@ -482,7 +485,7 @@ p { margin: 0; }
       </div>
     </div>
 
-    <div class="head" style="margin-top:96px;margin-bottom:32px">
+    <div class="head stacked" style="margin-top:96px;margin-bottom:32px">
       <div class="label">Overview</div>
       <div><h2>Features</h2></div>
     </div>
